@@ -1,6 +1,9 @@
 #ifndef VERTEX_H
 #define VERTEX_H
+
 #include <stdint.h>
+#include "Vectors.h"
+#include "Matrices.h"
 
 class Vertex
 {
@@ -12,10 +15,7 @@ class Vertex
 
         void print();
 
-        float x;
-        float y;
-        float z;
-
+        Vector4 m_pos;
         uint32_t argb;
 
     protected:

@@ -53,6 +53,10 @@ int main(int argc, char* argv[]) {
         SDL_RenderClear(sdlRenderer);
         SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
         SDL_RenderPresent(sdlRenderer);
+
+        if (SDL_QuitRequested()) {
+            break;
+        }
         SDL_Delay(30);
     }
 

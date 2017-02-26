@@ -55,21 +55,21 @@ void Rasterizer::fillShape(uint32_t yMin, uint32_t yMax) {
 
 void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
 
-  if (v2.y < v1.y) {
+  if (v2.m_pos.y < v1.m_pos.y) {
         Vertex* temp = new Vertex(v1);
         v1 = v2;
         v2 = *temp;
         delete temp;
     }
 
-    if (v3.y < v2.y) {
+    if (v3.m_pos.y < v2.m_pos.y) {
         Vertex* temp = new Vertex(v2);
         v2 = v3;
         v3 = *temp;
         delete temp;
     }
 
-    if (v2.y < v1.y) {
+    if (v2.m_pos.y < v1.m_pos.y) {
         Vertex* temp = new Vertex(v1);
         v1 = v2;
         v2 = *temp;
@@ -77,26 +77,26 @@ void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
     }
 
     scanConvertTriangle(v1, v2, v3);
-    fillShape(ceil(v1.y), ceil(v3.y));
+    fillShape(ceil(v1.m_pos.y), ceil(v3.m_pos.y));
 }
 
 void Rasterizer::scanConvertTriangle(Vertex &v1, Vertex &v2, Vertex &v3) {
 
     // order by y coordinate
-    if (v2.y < v1.y) {
+    if (v2.m_pos.y < v1.m_pos.y) {
         Vertex* temp = new Vertex(v1);
         temp = &v1;
         v1 = v2;
         v2 = *temp;
         delete temp;
     }
-    if (v3.y < v2.y) {
+    if (v3.m_pos.y < v2.m_pos.y) {
         Vertex* temp = new Vertex(v2);
         v2 = v3;
         v3 = *temp;
         delete temp;
     }
-    if (v2.y < v1.y) {
+    if (v2.m_pos.y < v1.m_pos.y) {
         Vertex* temp = new Vertex(v1);
         temp = &v1;
         v1 = v2;
@@ -104,34 +104,27 @@ void Rasterizer::scanConvertTriangle(Vertex &v1, Vertex &v2, Vertex &v3) {
         delete temp;
     }
 
-    float cross = v1.y * v2.x - v1.x * v2.y;
-
-    int side;
-    if (cross < 0) {
-        side = 0;
-    } else {
-         side = 1;
-    }
+    float cproduct = v1.m_pos.y * v2.m_pos.x - v1.m_pos.x * v2.m_pos.y;
+    int side = cproduct < 0 ? 0 : 1;
     scanConvertLine(v1, v2, side);
     scanConvertLine(v2, v3, side);
     scanConvertLine(v1, v3, 1 - side);
 }
 
 
-void Rasterizer::scanConvertLine(Vertex& vminy, Vertex& vmaxy, int whichSide) {
+void Rasterizer::scanConvertLine(Vertex& vminy, Vertex& vmaxy, int side) {
 
-    int ystart = (int) (ceil(vminy.y));
-    int yend = (int) (ceil(vmaxy.y));
-    float xdist = vmaxy.x - vminy.x;
-    float ydist = vmaxy.y - vminy.y;
+    int ystart = (int) (ceil(vminy.m_pos.y));
+    int yend = (int) (ceil(vmaxy.m_pos.y));
+    float ydist = vmaxy.m_pos.y - vminy.m_pos.y;
     if (ydist <= EPSILON) {
         return;
     }
-    float xstep = xdist / ydist;
-    float curx = vminy.x + (ystart - vminy.y) * xstep;
+    float xstep = (vmaxy.m_pos.x - vminy.m_pos.x) / ydist;
+    float curx = vminy.m_pos.x + (ystart - vminy.m_pos.y) * xstep;
 
     for (int i=ystart; i<yend; i++) {
-        scanbuffer[i][whichSide] = ceil(curx);
+        scanbuffer[i][side] = ceil(curx);
         curx += xstep;
     }
 }
