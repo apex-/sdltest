@@ -29,7 +29,6 @@ int main(int argc, char* argv[]) {
     SDL_Texture *sdlTexture;
     Rasterizer rasterizer;
 
-
     // SDL_WINDOW_FULLSCREEN_DESKTOP
     // SDL_WINDOW_SHOWN
     SDL_CreateWindowAndRenderer(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, SDL_WINDOW_SHOWN, &sdlWindow, &sdlRenderer);
@@ -41,17 +40,14 @@ int main(int argc, char* argv[]) {
         SDL_TEXTUREACCESS_STREAMING,
         VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
+    Vertex v1(300, 100, 0);
+    Vertex v2(100, 100, 0);
+    Vertex v3(200, 400, 0);
 
-    for (i=0; i<400; i++) {
+    for (i=0; i<40; i++) {
 
         rasterizer.clearFramebuffer();
-        for (int j=200; j<=300; j++) {
-            rasterizer.drawScanBuffer(j, 300-j/2.0+i, 300+j/2.0+i);
-           // for (int k=100+i*2; k<200+i*2; k++) {
-            //    rasterizer.getFramebuffer()[j*VIEWPORT_WIDTH+k] = 0xffffffff;
-            //}
-        }
-        rasterizer.fillShape(200, 300);
+        rasterizer.rasterize(v2, v3, v1);
 
         SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
         SDL_RenderClear(sdlRenderer);
@@ -62,5 +58,11 @@ int main(int argc, char* argv[]) {
 
     SDL_Quit();
     return 0;
+}
+
+
+void setup() {
+
+
 }
 
