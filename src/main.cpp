@@ -40,14 +40,14 @@ int main(int argc, char* argv[]) {
         SDL_TEXTUREACCESS_STREAMING,
         VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
-    Vertex v1(300, 100, 0);
-    Vertex v2(100, 100, 0);
-    Vertex v3(200, 400, 0);
+    Vertex v1(50, 50, 0);
+    Vertex v2(200, 100, 0);
+    Vertex v3(500, 400, 0);
 
     for (i=0; i<40; i++) {
 
         rasterizer.clearFramebuffer();
-        rasterizer.rasterize(v2, v3, v1);
+        rasterizer.rasterize(v3, v2, v1);
 
         SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
         SDL_RenderClear(sdlRenderer);

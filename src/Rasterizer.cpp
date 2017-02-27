@@ -43,72 +43,30 @@ void Rasterizer::drawScanBuffer(uint32_t yCoord, uint32_t xMin, uint32_t xMax) {
 }
 
 
-void Rasterizer::fillShape(uint32_t yMin, uint32_t yMax) {
-
-    for (uint32_t j=yMin; j<yMax; j++) {
-        for (uint32_t i=scanbuffer[j][0]; i<scanbuffer[j][1]; i++) {
-            framebuffer[j*VIEWPORT_WIDTH+i] = 0xffffffff;
-        }
-    }
-}
-
-
 void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
 
-  if (v2.m_pos.y < v1.m_pos.y) {
-        Vertex* temp = new Vertex(v1);
-        v1 = v2;
-        v2 = *temp;
-        delete temp;
-    }
-
-    if (v3.m_pos.y < v2.m_pos.y) {
-        Vertex* temp = new Vertex(v2);
-        v2 = v3;
-        v3 = *temp;
-        delete temp;
-    }
-
     if (v2.m_pos.y < v1.m_pos.y) {
-        Vertex* temp = new Vertex(v1);
-        v1 = v2;
-        v2 = *temp;
-        delete temp;
+       swap(v1, v2);
+    }
+    if (v3.m_pos.y < v2.m_pos.y) {
+        swap(v2, v3);
+    }
+    if (v2.m_pos.y < v1.m_pos.y) {
+        swap(v1, v2);
     }
 
     scanConvertTriangle(v1, v2, v3);
     fillShape(ceil(v1.m_pos.y), ceil(v3.m_pos.y));
 }
 
-void Rasterizer::scanConvertTriangle(Vertex &v1, Vertex &v2, Vertex &v3) {
 
-    // order by y coordinate
-    if (v2.m_pos.y < v1.m_pos.y) {
-        Vertex* temp = new Vertex(v1);
-        temp = &v1;
-        v1 = v2;
-        v2 = *temp;
-        delete temp;
-    }
-    if (v3.m_pos.y < v2.m_pos.y) {
-        Vertex* temp = new Vertex(v2);
-        v2 = v3;
-        v3 = *temp;
-        delete temp;
-    }
-    if (v2.m_pos.y < v1.m_pos.y) {
-        Vertex* temp = new Vertex(v1);
-        temp = &v1;
-        v1 = v2;
-        v2 = *temp;
-        delete temp;
-    }
+void Rasterizer::scanConvertTriangle(Vertex &vminy, Vertex &vmidy, Vertex &vmaxy) {
 
-    float cproduct = v1.m_pos.y * v2.m_pos.x - v1.m_pos.x * v2.m_pos.y;
+    float cproduct = vminy.m_pos.y * vmidy.m_pos.x - vminy.m_pos.x * vmidy.m_pos.y;
     int side = cproduct < 0 ? 0 : 1;
-    scanConvertLine(v1, v2, side);
-    scanConvertLine(v2, v3, side);
-    scanConvertLine(v1, v3, 1 - side);
+    scanConvertLine(vminy, vmidy, side);
+    scanConvertLine(vmidy, vmaxy, side);
+    scanConvertLine(vminy, vmaxy, 1 - side);
 }
 
 
@@ -126,5 +84,15 @@ void Rasterizer::scanConvertLine(Vertex& vminy, Vertex& vmaxy, int side) {
     for (int i=ystart; i<yend; i++) {
         scanbuffer[i][side] = ceil(curx);
         curx += xstep;
+    }
+}
+
+
+void Rasterizer::fillShape(uint32_t yMin, uint32_t yMax) {
+
+    for (uint32_t j=yMin; j<yMax; j++) {
+        for (uint32_t i=scanbuffer[j][0]; i<scanbuffer[j][1]; i++) {
+            framebuffer[j*VIEWPORT_WIDTH+i] = 0xffffffff;
+        }
     }
 }
