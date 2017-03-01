@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+const float DEG2RAD = 3.14159265f/180.0f;
+
 const uint32_t VIEWPORT_WIDTH = 640;
 const uint32_t VIEWPORT_HEIGHT = 480;
 const uint32_t VIEWPORT_PIXELS = VIEWPORT_WIDTH * VIEWPORT_HEIGHT;

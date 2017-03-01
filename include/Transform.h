@@ -12,9 +12,9 @@ class Transform
         virtual ~Transform();
         Transform(const Transform& other);
 
-        Vector4 m_pos;
-        quaternion m_rot;
-        Vector4 m_scale;
+        Vector4 pos;
+        quaternion rot;
+        Vector4 scale;
 
     protected:
 

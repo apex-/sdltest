@@ -15,7 +15,6 @@ class Camera
     protected:
 
     private:
-
     float fov;
     float zNear;
     float zFar;
