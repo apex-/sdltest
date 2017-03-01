@@ -8,6 +8,7 @@
 #include "Vectors.h"
 #include "Matrices.h"
 #include "Rasterizer.h"
+#include "Quaternion.h"
 
 
 using namespace std;

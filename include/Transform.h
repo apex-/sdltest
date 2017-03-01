@@ -3,6 +3,7 @@
 
 #include "Vectors.h"
 #include "Matrices.h"
+#include "Quaternion.h"
 
 class Transform
 {
@@ -12,7 +13,7 @@ class Transform
         Transform(const Transform& other);
 
         Vector4 m_pos;
-        //m_rot;
+        quaternion m_rot;
         Vector4 m_scale;
 
     protected:
