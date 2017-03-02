@@ -42,43 +42,60 @@ int main(int argc, char* argv[]) {
         SDL_TEXTUREACCESS_STREAMING,
         VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
-    Matrix4 o(1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16);
-    Matrix4 p(17,21,25,29,18,22,26,30,19,23,27,31,20,24,28,32);
-
-    Vector4 c(1,2,3,4);
-
-    Matrix4 q = p * o;
-
-    Vector4 r = o * c;
-
-    cout << r;
+//    Matrix4 o(1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16);
+//    Matrix4 p(17,21,25,29,18,22,26,30,19,23,27,31,20,24,28,32);
+//
+//    Vector4 c(1,2,3,4);
+//
+//    Matrix4 q = p * o;
+//
+//    Vector4 r = o * c;
+//
+//    cout << r;
 
 
     Transform t1;
 
-    Vector4 r1(0,0,0,1);
+    Vector4 r1(0,0,1,1);
 
 
     Vertex v1(50, 50, 0);
     Vertex v2(200, 100, 0);
     Vertex v3(500, 400, 0);
 
-    for (i=0; i<40; i++) {
+    t1.rotate(r1, 0.01);
 
+    for (i=0; i<50; i++) {
 
-        t1.rotate(r1, 0.01);
-        Matrix4 mv =t1.getTransformation();
+        Matrix4 mv = t1.getTransformation();
 
+        cout << "v1" << endl;
         v1.print();
+        cout << "v2" << endl;
         v2.print();
+        cout << "v3" << endl;
         v3.print();
 
         v1.m_pos = mv * v1.m_pos;
         v2.m_pos = mv * v2.m_pos;
         v3.m_pos = mv * v3.m_pos;
 
+
+        cout << "v1upd" << endl;
+        v1.print();
+        cout << "v2upd" << endl;
+        v2.print();
+        cout << "v3upd" << endl;
+        v3.print();
+
+
+        Vector3 angle = mv.getAngle();
+
+        cout << mv;
+        cout << "Angle " << angle << endl;
+
         rasterizer.clearFramebuffer();
-        rasterizer.rasterize(v3, v2, v1);
+        rasterizer.rasterize(v1, v2, v3);
 
         SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
         SDL_RenderClear(sdlRenderer);

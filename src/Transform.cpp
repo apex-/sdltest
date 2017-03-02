@@ -17,7 +17,6 @@ Transform::Transform(const Transform& other)
 }
 
 
-
 void Transform::setPosition(float x, float y, float z) {
 
     pos.x = x;
@@ -76,7 +75,7 @@ void Transform::rotate(Vector4 &axis, float angle) {
 
 }
 
-Matrix4 Transform::getTransformation() {
+Matrix4& Transform::getTransformation() {
 
     // translation matrix * rotation matrix * scale matrix
     // column major order!
@@ -85,10 +84,15 @@ Matrix4 Transform::getTransformation() {
              0,0,1,0, // 3rd column
              pos.x,pos.y,pos.z,1 // 4th column
     );
-    rot.getMatrix(mrot, Vector3());
-    mscale.scale(scalevect.x, scalevect.y, scalevect.z);
-    Matrix4 mtransform = mpos * mrot * mscale;
 
-   return mtransform;
+    rot.getMatrix(mrot, Vector3());
+
+    mscale.scale(scalevect.x, scalevect.y, scalevect.z);
+
+    // TODO:
+    //Matrix4 mtransform = mpos * mrot * mscale;
+
+   // return mtransform
+   return mrot;
 
 }

@@ -21,7 +21,7 @@ class Transform
         void scale(Vector3 scales);
         void rotate(Vector4 &axis, float angle);
 
-        Matrix4 getTransformation();
+        Matrix4& getTransformation();
 
         Vector3 pos;
         quaternion rot;
@@ -36,6 +36,7 @@ class Transform
 
     private:
 
+        //Matrix4 affineMatrix;
         Matrix4 mpos;
         Matrix4 mrot;
         Matrix4 mscale;
