@@ -19,8 +19,13 @@ class quaternion
         // Constructor which converts Euler angles (radians) to a quaternion
 		quaternion(const Vector3& vec);
 
+		// Constructor which rotates around a given axis (from 3D Software Rendere BennyBox)
+        quaternion(const Vector4 &axis, float angle);
 
         virtual ~quaternion() { };
+
+        //////////////////////
+        //////////////////////
 
 
         //! Equality operator
@@ -51,6 +56,10 @@ class quaternion
 		//! Multiplication operator
 		Vector3 operator*(const Vector3& v) const;
 
+
+		//////////////////////
+        //////////////////////
+
 		//! Sets new quaternion component values
 		inline quaternion& set(float x, float y, float z, float w);
 
@@ -62,6 +71,9 @@ class quaternion
 
 				//! Sets new quaternion from other quaternion
 		inline quaternion& set(const quaternion& quat);
+
+		// rotates around a given axis (from 3D Software Rendere BennyBox)
+		inline quaternion& rotate(const Vector4 &axis, float angle);
 
 				//! returns if this quaternion equals the other one, taking floating point rounding errors into account
 		inline bool equals(const quaternion& other,
@@ -90,6 +102,20 @@ class quaternion
 inline quaternion::quaternion(float x, float y, float z)
 {
 	set(x,y,z);
+}
+
+
+
+// Constructor which rotates around a given axis (from 3D Software Rendere BennyBox)
+inline quaternion::quaternion(const Vector4 &axis, float angle)
+{
+    float sinHalfAngle = (float) sin(angle) / 2.0;
+    float cosHalfAngle = (float) cos(angle) / 2.0;
+
+    x = axis.x * sinHalfAngle;
+    y = axis.y * sinHalfAngle;
+    z = axis.z * sinHalfAngle;
+    w = cosHalfAngle;
 }
 
 
@@ -243,6 +269,20 @@ inline quaternion& quaternion::set(const quaternion& quat)
 	return (*this=quat);
 }
 
+
+
+inline quaternion& quaternion::rotate(const Vector4 &axis, float angle) {
+
+    float sinHalfAngle = (float) sin(angle) / 2.0;
+    float cosHalfAngle = (float) cos(angle) / 2.0;
+
+    x = axis.x * sinHalfAngle;
+    y = axis.y * sinHalfAngle;
+    z = axis.z * sinHalfAngle;
+    w = cosHalfAngle;
+
+    return *this;
+}
 
 //! returns if this quaternion equals the other one, taking floating point rounding errors into account
 inline bool quaternion::equals(const quaternion& other, const float tolerance) const
