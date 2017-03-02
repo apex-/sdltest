@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "global.h"
+#include "Camera.h"
 #include "Vectors.h"
 #include "Matrices.h"
 #include "Rasterizer.h"
@@ -54,45 +55,54 @@ int main(int argc, char* argv[]) {
 //    cout << r;
 
 
+
+    Camera camera;
     Transform t1;
 
-    Vector4 r1(0,0,1,1);
+    Vector4 r1(0,1,0,1);
 
+    //t1.movePosition(300,0,0);
 
-    Vertex v1(50, 50, 0);
-    Vertex v2(200, 100, 0);
-    Vertex v3(500, 400, 0);
-
-    t1.rotate(r1, 0.01);
 
     for (i=0; i<50; i++) {
 
-        Matrix4 mv = t1.getTransformation();
+        t1.rotate(r1, i*0.02);
+        //t1.scale(1.6,1.2,1.2);
 
-        cout << "v1" << endl;
-        v1.print();
-        cout << "v2" << endl;
-        v2.print();
-        cout << "v3" << endl;
-        v3.print();
+        Vertex v1(50, 50, 0);
+        Vertex v2(200, 100, 0);
+        Vertex v3(500, 400, 0);
 
-        v1.m_pos = mv * v1.m_pos;
-        v2.m_pos = mv * v2.m_pos;
-        v3.m_pos = mv * v3.m_pos;
+        Matrix4 mv = t1.getTransformation(); //
+        Matrix4 vp = camera.getPerspectiveTransformation();
+        Matrix4 mvp = vp * mv; // Model-View Projection
 
+        //cout << "v1" << endl;
+        //v1.print();
+        //cout << "v2" << endl;
+        //v2.print();
+        //cout << "v3" << endl;
+        //v3.print();
 
-        cout << "v1upd" << endl;
-        v1.print();
-        cout << "v2upd" << endl;
-        v2.print();
-        cout << "v3upd" << endl;
-        v3.print();
+        v1.m_pos = mvp * v1.m_pos;
+        v2.m_pos = mvp * v2.m_pos;
+        v3.m_pos = mvp * v3.m_pos;
 
+        //cout << "v1upd" << endl;
+        //v1.print();
+        //cout << "v2upd" << endl;
+        //v2.print();
+        //cout << "v3upd" << endl;
+        //v3.print();
 
         Vector3 angle = mv.getAngle();
 
-        cout << mv;
-        cout << "Angle " << angle << endl;
+        if (i % 10 == 0) {
+            cout << "mv" << mv << endl;
+            cout << "mvp" << mvp << endl;
+
+        }
+        //cout << "Angle " << angle << endl;
 
         rasterizer.clearFramebuffer();
         rasterizer.rasterize(v1, v2, v3);

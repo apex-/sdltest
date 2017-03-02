@@ -36,10 +36,8 @@ class Transform
 
     private:
 
-        //Matrix4 affineMatrix;
-        Matrix4 mpos;
-        Matrix4 mrot;
-        Matrix4 mscale;
+        Matrix4 transform;
+
 
 };
 

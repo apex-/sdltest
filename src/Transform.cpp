@@ -3,7 +3,9 @@
 
 Transform::Transform()
 {
-    //ctor
+    scalevect.x = 1.0;
+    scalevect.y = 1.0;
+    scalevect.z = 1.0;
 }
 
 Transform::~Transform()
@@ -77,22 +79,15 @@ void Transform::rotate(Vector4 &axis, float angle) {
 
 Matrix4& Transform::getTransformation() {
 
-    // translation matrix * rotation matrix * scale matrix
-    // column major order!
-    mpos.set(1,0,0,0, // 1st column
-             0,1,0,0, // 2nd column
-             0,0,1,0, // 3rd column
-             pos.x,pos.y,pos.z,1 // 4th column
-    );
-
+    Matrix4 mpos(1,0,0,0, // 1st column
+                 0,1,0,0, // 2nd column
+                 0,0,1,0, // 3rd column
+                 pos.x,pos.y,pos.z,1); // 4th column
+    Matrix4 mrot;
     rot.getMatrix(mrot, Vector3());
-
+    Matrix4 mscale;
     mscale.scale(scalevect.x, scalevect.y, scalevect.z);
 
-    // TODO:
-    //Matrix4 mtransform = mpos * mrot * mscale;
-
-   // return mtransform
-   return mrot;
-
+    transform = mpos * mrot * mscale;
+    return this->transform;
 }

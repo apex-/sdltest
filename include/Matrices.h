@@ -681,7 +681,6 @@ inline Matrix4::Matrix4(float m00, float m01, float m02, float m03,
 
 inline void Matrix4::set(const float src[16])
 {
-std::cout << "call " << m[0] << " " << m[1] << std::endl;
 
     m[0] = src[0];  m[1] = src[1];  m[2] = src[2];  m[3] = src[3];
     m[4] = src[4];  m[5] = src[5];  m[6] = src[6];  m[7] = src[7];

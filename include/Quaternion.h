@@ -337,7 +337,8 @@ inline void quaternion::getMatrix(Matrix4 &dest,
 	m[14] = center.z;
 	m[15] = 1.f;
 
-	std::cout << "x " << x << " y " << y << std::endl;
+	// TODO: Remove
+	//std::cout << "x " << x << " y " << y << std::endl;
 
 	dest.set(m);
 
