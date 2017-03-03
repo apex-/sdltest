@@ -75,12 +75,14 @@ class quaternion
 		// rotates around a given axis (from 3D Software Rendere BennyBox)
 		inline quaternion& rotate(const Vector4 &axis, float angle);
 
-				//! returns if this quaternion equals the other one, taking floating point rounding errors into account
+		//! returns if this quaternion equals the other one, taking floating point rounding errors into account
 		inline bool equals(const quaternion& other,
 				const float tolerance = ROUNDING_ERROR_FLOAT ) const;
 
-				//! Normalizes the quaternion
+		//! Normalizes the quaternion
 		inline quaternion& normalize();
+
+		inline quaternion& conjugate();
 
 		//! Creates a matrix from this quaternion
 		void getMatrix( Matrix4 &dest, const Vector3 &translation=Vector3() ) const;
@@ -307,6 +309,16 @@ inline quaternion& quaternion::normalize()
 	return (*this *= 1.f/sqrt(n));
 }
 
+// conjugate the quaternion
+inline quaternion& quaternion::conjugate()
+{
+    x *= -1;
+    y *= -1;
+    z *= -1;
+
+    return *this;
+
+}
 
 /*!
 	Creates a matrix from this quaternion

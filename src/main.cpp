@@ -64,17 +64,17 @@ int main(int argc, char* argv[]) {
     //t1.movePosition(300,0,0);
 
 
-    for (i=0; i<50; i++) {
+    for (i=0; i<500; i++) {
 
-        t1.rotate(r1, i*0.02);
+        t1.rotate(r1, i*0.1);
         //t1.scale(1.6,1.2,1.2);
 
         Vertex v1(50, 50, 0);
         Vertex v2(200, 100, 0);
         Vertex v3(500, 400, 0);
 
-        Matrix4 mv = t1.getTransformation(); //
-        Matrix4 vp = camera.getPerspectiveTransformation();
+        Matrix4 mv = t1.getTransformation(); // model-world transformation
+        Matrix4 vp = camera.getViewProjection(); // view projection
         Matrix4 mvp = vp * mv; // Model-View Projection
 
         //cout << "v1" << endl;

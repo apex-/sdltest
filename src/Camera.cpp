@@ -55,3 +55,22 @@ Matrix4& Camera::getPerspectiveTransformation() {
 
     return perspectiveTransformation;
 }
+
+
+Matrix4 Camera::getViewProjection() {
+
+    Matrix4 cameraRotation;
+    Vector3 origin;
+
+    rot.conjugate().getMatrix(cameraRotation, origin);
+
+    // negative translation
+    Matrix4 cameraTranslation(1,0,0,0, // 1st column
+                 0,1,0,0, // 2nd column
+                 0,0,1,0, // 3rd column
+                 -pos.x,-pos.y,-pos.z,1); // 4th column
+
+
+    return perspectiveTransformation * cameraRotation * cameraTranslation;
+
+}
