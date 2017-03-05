@@ -13,6 +13,7 @@ class Vertex
         Vertex(float x, float y, float z);
         virtual ~Vertex();
 
+        void perspectiveDivide();
         void print();
 
         Vector4 m_pos;

@@ -27,6 +27,7 @@ class Camera
     Vector3 pos;
     quaternion rot;
 
+    Matrix4 viewProjection;
 };
 
 #endif // _CAMERA_H

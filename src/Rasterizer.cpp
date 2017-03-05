@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Rasterizer.h"
+#include "global.h"
 
+#include <cassert>
 #include "math.h"
 
 using namespace std;
@@ -43,6 +45,13 @@ void Rasterizer::drawScanBuffer(uint32_t yCoord, uint32_t xMin, uint32_t xMax) {
 }
 
 
+void Rasterizer::toScreenCoordinates(Vertex &v) {
+
+    v.m_pos.x = ((VIEWPORT_WIDTH -1) * (v.m_pos.x + 1)) / 2.0;
+    v.m_pos.y = ((VIEWPORT_HEIGHT -1) * (v.m_pos.y + 1)) / 2.0;
+
+}
+
 void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
 
     if (v2.m_pos.y < v1.m_pos.y) {
@@ -54,6 +63,10 @@ void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
     if (v2.m_pos.y < v1.m_pos.y) {
         swap(v1, v2);
     }
+
+    toScreenCoordinates(v1);
+    toScreenCoordinates(v2);
+    toScreenCoordinates(v3);
 
     scanConvertTriangle(v1, v2, v3);
     fillShape(ceil(v1.m_pos.y), ceil(v3.m_pos.y));
@@ -81,8 +94,15 @@ void Rasterizer::scanConvertLine(Vertex& vminy, Vertex& vmaxy, int side) {
     float xstep = (vmaxy.m_pos.x - vminy.m_pos.x) / ydist;
     float curx = vminy.m_pos.x + (ystart - vminy.m_pos.y) * xstep;
 
+    // TODO: Debug code
+    assert(ystart >= 0 && ystart <= VIEWPORT_HEIGHT);
+
     for (int i=ystart; i<yend; i++) {
         scanbuffer[i][side] = ceil(curx);
+
+        // TODO: Debug code
+        assert(ceil(curx) >= 0 && ceil(curx) <= VIEWPORT_WIDTH);
+
         curx += xstep;
     }
 }

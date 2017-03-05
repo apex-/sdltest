@@ -79,6 +79,9 @@ class quaternion
 		inline bool equals(const quaternion& other,
 				const float tolerance = ROUNDING_ERROR_FLOAT ) const;
 
+        //! returns the norm of the quaternion
+        inline float getNorm();
+
 		//! Normalizes the quaternion
 		inline quaternion& normalize();
 
@@ -111,8 +114,8 @@ inline quaternion::quaternion(float x, float y, float z)
 // Constructor which rotates around a given axis (from 3D Software Rendere BennyBox)
 inline quaternion::quaternion(const Vector4 &axis, float angle)
 {
-    float sinHalfAngle = (float) sin(angle) / 2.0;
-    float cosHalfAngle = (float) cos(angle) / 2.0;
+    float sinHalfAngle = (float) sin(angle / 2.0);
+    float cosHalfAngle = (float) cos(angle/ 2.0) ;
 
     x = axis.x * sinHalfAngle;
     y = axis.y * sinHalfAngle;
@@ -275,13 +278,16 @@ inline quaternion& quaternion::set(const quaternion& quat)
 
 inline quaternion& quaternion::rotate(const Vector4 &axis, float angle) {
 
-    float sinHalfAngle = (float) sin(angle) / 2.0;
-    float cosHalfAngle = (float) cos(angle) / 2.0;
+    float sinHalfAngle = (float) sin(angle/2.0);
+    float cosHalfAngle = (float) cos(angle/2.0);
 
     x = axis.x * sinHalfAngle;
     y = axis.y * sinHalfAngle;
     z = axis.z * sinHalfAngle;
     w = cosHalfAngle;
+
+    // TODO: Check
+    normalize();
 
     return *this;
 }
@@ -293,6 +299,14 @@ inline bool quaternion::equals(const quaternion& other, const float tolerance) c
 		y+tolerance >= other.y &&  y-tolerance <= other.y &&
 		z+tolerance >= other.z &&  z-tolerance <= other.z &&
 		w+tolerance >= other.w &&  w-tolerance <= other.w;
+}
+
+
+inline float quaternion::getNorm()
+{
+    const float n = x*x + y*y + z*z + w*w;
+
+    return sqrt(n);
 }
 
 
@@ -317,7 +331,6 @@ inline quaternion& quaternion::conjugate()
     z *= -1;
 
     return *this;
-
 }
 
 /*!

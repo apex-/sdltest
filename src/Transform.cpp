@@ -77,7 +77,7 @@ void Transform::rotate(Vector4 &axis, float angle) {
 
 }
 
-Matrix4& Transform::getTransformation() {
+Matrix4 Transform::getTransformation() {
 
     Matrix4 mpos(1,0,0,0, // 1st column
                  0,1,0,0, // 2nd column
@@ -88,6 +88,5 @@ Matrix4& Transform::getTransformation() {
     Matrix4 mscale;
     mscale.scale(scalevect.x, scalevect.y, scalevect.z);
 
-    transform = mpos * mrot * mscale;
-    return this->transform;
+    return mpos * mrot * mscale;
 }

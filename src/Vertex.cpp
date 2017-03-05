@@ -28,6 +28,15 @@ Vertex::Vertex(float x, float y, float z) {
 }
 
 
+void Vertex::perspectiveDivide() {
+
+    m_pos.x /= m_pos.w;
+    m_pos.y /= m_pos.w;
+    m_pos.z /= m_pos.w;
+    m_pos.w /= m_pos.w;
+
+}
+
 void Vertex::print() {
 
     std::cout << "x:" << m_pos.x << " y:" << m_pos.y << " z:" << m_pos.z << " argb:" << hex << argb << std::endl;

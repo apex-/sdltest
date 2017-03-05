@@ -71,6 +71,9 @@ Matrix4 Camera::getViewProjection() {
                  -pos.x,-pos.y,-pos.z,1); // 4th column
 
 
-    return perspectiveTransformation * cameraRotation * cameraTranslation;
+    viewProjection = perspectiveTransformation * cameraRotation * cameraTranslation;
+
+    return viewProjection;
+    //return perspectiveTransformation * cameraRotation * cameraTranslation;
 
 }

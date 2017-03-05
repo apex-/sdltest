@@ -59,21 +59,32 @@ int main(int argc, char* argv[]) {
     Camera camera;
     Transform t1;
 
-    Vector4 r1(0,1,0,1);
+    Vector4 r1(0.0,1,0,1);
 
     //t1.movePosition(300,0,0);
+
+    Vertex v1in(0.4, 0.4, 0.5);
+    Vertex v2in(0.3, 0.6, 0.5);
+    Vertex v3in(0.5, 0.6, 0.5);
+
+
+    //Vertex v1in(300, 200, 2);
+    //Vertex v2in(280, 300, 2);
+    //Vertex v3in(320, 300, 2);
 
 
     for (i=0; i<500; i++) {
 
-        t1.rotate(r1, i*0.1);
-        //t1.scale(1.6,1.2,1.2);
+        t1.rotate(r1, i*0.1+0.1);
+        //t1.setPosition(300,300,0);
+        //t1.scale(1.3,1.2,1.2);
 
-        Vertex v1(50, 50, 0);
-        Vertex v2(200, 100, 0);
-        Vertex v3(500, 400, 0);
+        Vertex v1(v1in);
+        Vertex v2(v2in);
+        Vertex v3(v3in);
 
         Matrix4 mv = t1.getTransformation(); // model-world transformation
+
         Matrix4 vp = camera.getViewProjection(); // view projection
         Matrix4 mvp = vp * mv; // Model-View Projection
 
@@ -95,14 +106,20 @@ int main(int argc, char* argv[]) {
         //cout << "v3upd" << endl;
         //v3.print();
 
-        Vector3 angle = mv.getAngle();
 
+        Vector3 angle = mv.getAngle();
         if (i % 10 == 0) {
             cout << "mv" << mv << endl;
+            cout << "vp" << vp << endl;
             cout << "mvp" << mvp << endl;
 
         }
         //cout << "Angle " << angle << endl;
+
+        //v1.perspectiveDivide();
+        //v2.perspectiveDivide();
+        //v3.perspectiveDivide();
+
 
         rasterizer.clearFramebuffer();
         rasterizer.rasterize(v1, v2, v3);
