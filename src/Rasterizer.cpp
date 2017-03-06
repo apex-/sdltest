@@ -45,13 +45,6 @@ void Rasterizer::drawScanBuffer(uint32_t yCoord, uint32_t xMin, uint32_t xMax) {
 }
 
 
-void Rasterizer::toScreenCoordinates(Vertex &v) {
-
-    v.m_pos.x = ((VIEWPORT_WIDTH -1) * (v.m_pos.x + 1)) / 2.0;
-    v.m_pos.y = ((VIEWPORT_HEIGHT -1) * (v.m_pos.y + 1)) / 2.0;
-
-}
-
 void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
 
     if (v2.m_pos.y < v1.m_pos.y) {
@@ -64,10 +57,6 @@ void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
         swap(v1, v2);
     }
 
-    toScreenCoordinates(v1);
-    toScreenCoordinates(v2);
-    toScreenCoordinates(v3);
-
     scanConvertTriangle(v1, v2, v3);
     fillShape(ceil(v1.m_pos.y), ceil(v3.m_pos.y));
 }
@@ -75,8 +64,14 @@ void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
 
 void Rasterizer::scanConvertTriangle(Vertex &vminy, Vertex &vmidy, Vertex &vmaxy) {
 
-    float cproduct = vminy.m_pos.y * vmidy.m_pos.x - vminy.m_pos.x * vmidy.m_pos.y;
-    int side = cproduct < 0 ? 0 : 1;
+    float x1 = vmaxy.m_pos.x - vminy.m_pos.x;
+    float y1 = vmaxy.m_pos.y - vminy.m_pos.y;
+    float x2 = vmidy.m_pos.x - vminy.m_pos.x;
+    float y2 = vmidy.m_pos.y - vminy.m_pos.y;
+
+    float cproduct = (x1 * y2 - x2 * y1);
+    int side = cproduct > 0 ? 0 : 1;
+
     scanConvertLine(vminy, vmidy, side);
     scanConvertLine(vmidy, vmaxy, side);
     scanConvertLine(vminy, vmaxy, 1 - side);
@@ -102,7 +97,6 @@ void Rasterizer::scanConvertLine(Vertex& vminy, Vertex& vmaxy, int side) {
 
         // TODO: Debug code
         assert(ceil(curx) >= 0 && ceil(curx) <= VIEWPORT_WIDTH);
-
         curx += xstep;
     }
 }

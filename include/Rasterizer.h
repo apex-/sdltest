@@ -13,7 +13,6 @@ class Rasterizer
         void clearFramebuffer();
         void drawScanBuffer(uint32_t yCoord, uint32_t xMin, uint32_t xMax);
         void fillShape(uint32_t yMin, uint32_t yMax);
-        void toScreenCoordinates(Vertex &v);
         void rasterize(Vertex &v1, Vertex &v2, Vertex &v3);
         void inline scanConvertLine(Vertex& minYVert, Vertex& maxYVert, int whichSide);
         void scanConvertTriangle(Vertex &v1, Vertex &v2, Vertex &v3);

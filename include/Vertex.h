@@ -14,6 +14,8 @@ class Vertex
         virtual ~Vertex();
 
         void perspectiveDivide();
+        void toScreenCoordinates();
+
         void print();
 
         Vector4 m_pos;
