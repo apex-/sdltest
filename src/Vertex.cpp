@@ -22,6 +22,7 @@ Vertex::Vertex(Vertex &rhs) {
 
 }
 
+
 Vertex::Vertex(float x, float y, float z) {
 
     this->m_pos.x = x;
@@ -38,8 +39,8 @@ void Vertex::perspectiveDivide() {
     m_pos.y /= m_pos.w;
     m_pos.z /= m_pos.w;
     m_pos.w /= m_pos.w;
-
 }
+
 
 void Vertex::toScreenCoordinates() {
 
@@ -48,12 +49,14 @@ void Vertex::toScreenCoordinates() {
 
 }
 
+
 void Vertex::print() {
 
     std::cout << ::std::fixed
     << ::std::setw( 12 )<< "x:" << m_pos.x << " y:" << m_pos.y << " z:" << m_pos.z << " w:" << m_pos.w << std::endl;
 
 }
+
 
 Vertex::~Vertex()
 {

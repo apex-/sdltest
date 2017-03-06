@@ -87,7 +87,7 @@ Matrix4 Camera::getViewProjection() {
 
     // negative translation
     Matrix4 cameraTranslation(1,0,0,0, // 1st column
-                 0,1,0,0, // 2nd column
+                 0,1,0,0, // 2nd columnsx
                  0,0,1,0, // 3rd column
                  -pos.x,-pos.y,-pos.z,1); // 4th column
 

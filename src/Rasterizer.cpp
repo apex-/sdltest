@@ -94,7 +94,6 @@ void Rasterizer::scanConvertLine(Vertex& vminy, Vertex& vmaxy, int side) {
 
     for (int i=ystart; i<yend; i++) {
         scanbuffer[i][side] = ceil(curx);
-
         // TODO: Debug code
         assert(ceil(curx) >= 0 && ceil(curx) <= VIEWPORT_WIDTH);
         curx += xstep;
@@ -106,7 +105,7 @@ void Rasterizer::fillShape(uint32_t yMin, uint32_t yMax) {
 
     for (uint32_t j=yMin; j<yMax; j++) {
         for (uint32_t i=scanbuffer[j][0]; i<scanbuffer[j][1]; i++) {
-            framebuffer[j*VIEWPORT_WIDTH+i] = 0xffffffff;
+            framebuffer[j*VIEWPORT_WIDTH+i] = 0xff8888ff;
         }
     }
 }
