@@ -22,6 +22,9 @@ class quaternion
 		// Constructor which rotates around a given axis (from 3D Software Rendere BennyBox)
         quaternion(const Vector4 &axis, float angle);
 
+        // copy constructor
+        quaternion(const quaternion &rhs);
+
         virtual ~quaternion() { };
 
         //////////////////////
@@ -122,6 +125,16 @@ inline quaternion::quaternion(const Vector4 &axis, float angle)
     z = axis.z * sinHalfAngle;
     w = cosHalfAngle;
 }
+
+
+inline quaternion::quaternion(const quaternion &rhs)
+{
+    x = rhs.x;
+    y = rhs.y;
+    z = rhs.z;
+    w = rhs.w;
+}
+
 
 
 /////////////////////////////

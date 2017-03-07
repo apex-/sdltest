@@ -46,15 +46,15 @@ void Vertex::toScreenCoordinates() {
 
     m_pos.x = ((VIEWPORT_WIDTH -1) * (m_pos.x + 1)) / 2.0;
     m_pos.y = ((VIEWPORT_HEIGHT -1) * (m_pos.y + 1)) / 2.0;
-
 }
 
 
-void Vertex::print() {
-
-    std::cout << ::std::fixed
-    << ::std::setw( 12 )<< "x:" << m_pos.x << " y:" << m_pos.y << " z:" << m_pos.z << " w:" << m_pos.w << std::endl;
-
+std::ostream& operator<<(std::ostream& os, const Vertex& m)
+{
+    os << std::fixed << std::setprecision(5);
+    os << "vertexpos [" << std::setw(10) << m.m_pos.x << " " << std::setw(10) << m.m_pos.y << " " << std::setw(10) << m.m_pos.z  <<  " " << std::setw(10) << m.m_pos.w << "]\n";
+    os << std::resetiosflags(std::ios_base::fixed | std::ios_base::floatfield);
+    return os;
 }
 
 

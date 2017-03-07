@@ -46,15 +46,15 @@ int main(int argc, char* argv[]) {
 
     Camera camera;
     Transform t1;
-
-    Vector4 r1(0.0,1,0.5,1);
-    t1.setPosition(0, 0, 1.0);
+    Vector4 r1(0.0,1.0,0.0,1.0);
 
     Vertex v1in(0.0, 0.5, 0.0);
     Vertex v2in(0.3, -0.5, 0.0);
     Vertex v3in(-0.3, -0.5, 0.0);
 
-    float z = 1.0;
+    t1.setPosition(0, 0, -1.0);
+
+    float z = -1.01;
     //uint32_t i = 0;
     bool zinc = true;
 
@@ -67,19 +67,26 @@ int main(int argc, char* argv[]) {
 
         cout << " z " << z << endl;
 
-        if (z > 8.0) {
-            zinc = false;
-        } else if (z < 0.9) {
-            zinc = true;
-        }
+       // t1.setPosition(0,0,999.0);
 
-        if (zinc) {
-            t1.movePosition(0,0,0.02);
-            z+=0.05;
-        } else {
-            t1.movePosition(0,0,-0.02);
-             z-=0.05;
-        }
+       //t1.movePosition(0,0,-0.001);
+
+        z-=0.001;
+        t1.movePosition(0,0,-0.01);
+
+//        if (z > 10.0) {
+//            zinc = false;
+//        } else if (z < 1.2) {
+//            zinc = true;
+//        }
+//
+//        if (zinc) {
+//            t1.movePosition(0,0,0.01);
+//            z+=0.01;
+//        } else {
+//           t1.movePosition(0,0,-0.01);
+//             z-=0.01;
+//        }
 
         //t1.setPosition(0, 0, 1.0 + i*0.1);
 
@@ -96,17 +103,24 @@ int main(int argc, char* argv[]) {
         v2.m_pos = mvp * v2.m_pos;
         v3.m_pos = mvp * v3.m_pos;
 
+        // clipping
+
+        cout << " perspectiveDivide " << endl;
+        cout << v1; //.print();
         v1.perspectiveDivide();
+        cout << v1;
+
+        cout << v2;
         v2.perspectiveDivide();
+        cout << v2;
+
+        cout << v3;
         v3.perspectiveDivide();
+        cout << v3;
 
         v1.toScreenCoordinates();
         v2.toScreenCoordinates();
         v3.toScreenCoordinates();
-
-        v1.print();
-        v2.print();
-        v3.print();
 
         rasterizer.clearFramebuffer();
         rasterizer.rasterize(v1, v2, v3);

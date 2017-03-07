@@ -1,6 +1,7 @@
 #ifndef VERTEX_H
 #define VERTEX_H
 
+#include <iostream>
 #include <stdint.h>
 #include "Vectors.h"
 #include "Matrices.h"
@@ -16,7 +17,10 @@ class Vertex
         void perspectiveDivide();
         void toScreenCoordinates();
 
-        void print();
+        friend std::ostream& operator<<(std::ostream& os, const Vertex& m);
+
+        //friend std::ostream& operator<<(std::ostream& os, const Matrix4& m);
+
 
         Vector4 m_pos;
         uint32_t argb;

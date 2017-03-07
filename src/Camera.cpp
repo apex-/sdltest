@@ -5,61 +5,21 @@
 #include "Matrices.h"
 
 
-Camera::Camera()
+Camera::Camera() : fov(DEG2RAD * 90.0f),
+                    aspectRatio( (float) VIEWPORT_WIDTH / VIEWPORT_HEIGHT),
+                    n(-1.0f),
+                    f(-1000.0f)
 {
-    fov = DEG2RAD * 90.0f;
-    aspectRatio = VIEWPORT_WIDTH / VIEWPORT_HEIGHT;
-    zNear = 0.1f;
-    zFar = 1000.0f;
 
-    float tanHalfFOV = (float)tan(fov / 2.0);
-    //float zRange = zNear - zFar;
-    float m[16];
-//    m[0] = 1.0f / (tanHalfFOV * aspectRatio);
-//    m[1] = 0;
-//    m[2] = 0;
-//    m[3] = 0;
-//    m[4] = 0;
-//    m[5] = 1.0f / tanHalfFOV;
-//    m[6] = 0;
-//    m[7] = 0;
-//    m[8] = 0;
-//    m[9] = 0;
-//    m[10] = (-zNear -zFar)/zRange;
-//    m[11] = 1;
-//    m[12] = 0;
-//    m[13] = 0;
-//    m[14] = 2 * zFar * zNear / zRange;
-//    m[15] = 0;
-
-
-    float zRange = zFar - zNear;
-    m[0] = 1.0f / (tanHalfFOV * aspectRatio);
-    m[1] = 0;
-    m[2] = 0;
-    m[3] = 0;
-    m[4] = 0;
-    m[5] = 1.0f / tanHalfFOV;
-    m[6] = 0;
-    m[7] = 0;
-    m[8] = 0;
-    m[9] = 0;
-    m[10] = -zFar/zRange;
-    m[11] = -1;
-    m[12] = 0;
-    m[13] = 0;
-    m[14] = zFar * zNear / zRange;
-    m[15] = 0;
-
-
-    perspectiveTransformation.set(m);
-
+      setPerspectiveProjection();
 }
+
 
 Camera::~Camera()
 {
     //dtor
 }
+
 
 Camera::Camera(const Camera& other)
 {
@@ -67,14 +27,33 @@ Camera::Camera(const Camera& other)
 }
 
 
-//void Camera::getViewProjection(Matrix4& vp) const {
+void Camera::setPerspectiveProjection() {
 
-//    Matrix4 rot = m
-//}
+    float tanHalfFov = (float)tan(fov / 2.0);
 
-Matrix4& Camera::getPerspectiveTransformation() {
+    float m[16];
+    m[0] = 1.0f/(tanHalfFov*aspectRatio);
+    m[1] = 0;
+    m[2] = 0;
+    m[3] = 0;
 
-    return perspectiveTransformation;
+    m[4] = 0;
+    m[5] = 1.0f/tanHalfFov;
+    m[6] = 0;
+    m[7] = 0;
+
+    m[8] = 0;
+    m[9] = 0;
+    m[10] = -(f+n)/(f-n);
+    //m[10] = (f+n)/(f-n);
+    m[11] = -1;
+
+    m[12] = 0;
+    m[13] = 0;
+    m[14] = -(2*n*f)/(f-n);
+    //m[14] = (2*n*f)/(f-n);
+    m[15] = 0;
+    projectionMatrix.set(m);
 }
 
 
@@ -83,7 +62,8 @@ Matrix4 Camera::getViewProjection() {
     Matrix4 cameraRotation;
     Vector3 origin;
 
-    rot.conjugate().getMatrix(cameraRotation, origin);
+    quaternion qRot(rot);
+    qRot.conjugate().getMatrix(cameraRotation, origin);
 
     // negative translation
     Matrix4 cameraTranslation(1,0,0,0, // 1st column
@@ -91,10 +71,9 @@ Matrix4 Camera::getViewProjection() {
                  0,0,1,0, // 3rd column
                  -pos.x,-pos.y,-pos.z,1); // 4th column
 
+                 viewProjectionMatrix = projectionMatrix * cameraRotation * cameraTranslation;
 
-    viewProjection = perspectiveTransformation * cameraRotation * cameraTranslation;
-
-    return viewProjection;
-    //return perspectiveTransformation * cameraRotation * cameraTranslation;
-
+       return viewProjectionMatrix;
+    //return projectionMatrix * cameraRotation * cameraTranslation;
 }
+

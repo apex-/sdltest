@@ -74,7 +74,6 @@ void Transform::scale(Vector3 scale) {
 void Transform::rotate(Vector4 &axis, float angle) {
 
     rot.rotate(axis, angle);
-
 }
 
 Matrix4 Transform::getTransformation() {

@@ -11,23 +11,26 @@ class Camera
         virtual ~Camera();
         Camera(const Camera& other);
 
-        Matrix4& getPerspectiveTransformation();
+        void setPerspectiveProjection();
         Matrix4 getViewProjection();
 
     protected:
 
     private:
-    Matrix4 perspectiveTransformation;
 
-    float fov;
-    float zNear;
-    float zFar;
-    float aspectRatio;
+        // view frustrum parameters
+        float fov; // [radians]
+        float aspectRatio;
+        float n; // near plane
+        float f; // far plane
+        Matrix4 projectionMatrix;
 
-    Vector3 pos;
-    quaternion rot;
+        // camera position and orientation
+        Vector3 pos;
+        quaternion rot;
 
-    Matrix4 viewProjection;
+        Matrix4 viewProjectionMatrix;
+
 };
 
 #endif // _CAMERA_H

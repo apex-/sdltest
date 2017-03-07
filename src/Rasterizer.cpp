@@ -64,11 +64,11 @@ void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
 
 void Rasterizer::scanConvertTriangle(Vertex &vminy, Vertex &vmidy, Vertex &vmaxy) {
 
+    // determine the handedness of the triangle
     float x1 = vmaxy.m_pos.x - vminy.m_pos.x;
     float y1 = vmaxy.m_pos.y - vminy.m_pos.y;
     float x2 = vmidy.m_pos.x - vminy.m_pos.x;
     float y2 = vmidy.m_pos.y - vminy.m_pos.y;
-
     float cproduct = (x1 * y2 - x2 * y1);
     int side = cproduct > 0 ? 0 : 1;
 
