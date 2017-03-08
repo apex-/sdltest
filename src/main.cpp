@@ -52,7 +52,9 @@ int main(int argc, char* argv[]) {
     Vertex v2in(0.3, -0.5, 0.0);
     Vertex v3in(-0.3, -0.5, 0.0);
 
-    t1.setPosition(0, 0, -1.0);
+    Vertex vTestIn(1500.0, 2000.0, -999.0);
+
+    t1.setPosition(0, 0, 0.0);
 
     float z = -1.01;
     //uint32_t i = 0;
@@ -60,19 +62,22 @@ int main(int argc, char* argv[]) {
 
     //for (i=0; i<1000; i++) {
     while (true) {
-
-
         i++;
-        t1.rotate(r1, i*0.05);
 
-        cout << " z " << z << endl;
 
-       // t1.setPosition(0,0,999.0);
+        camera.pos.set(i*0.01,0.0, i*0.01);
+
+
+       t1.rotate(r1, i*0.05);
+
+        //cout << " z " << z << endl;
+
+       t1.setPosition(0,0,-1.0);
 
        //t1.movePosition(0,0,-0.001);
 
         z-=0.001;
-        t1.movePosition(0,0,-0.01);
+       //t1.movePosition(0,0,-1.01);
 
 //        if (z > 10.0) {
 //            zinc = false;
@@ -94,6 +99,10 @@ int main(int argc, char* argv[]) {
         Vertex v2(v2in);
         Vertex v3(v3in);
 
+
+        Vertex vTest(vTestIn);
+
+
         Matrix4 mv = t1.getTransformation(); // model-world transformation
 
         Matrix4 vp = camera.getViewProjection(); // view projection
@@ -103,20 +112,29 @@ int main(int argc, char* argv[]) {
         v2.m_pos = mvp * v2.m_pos;
         v3.m_pos = mvp * v3.m_pos;
 
+        vTest.m_pos = vp * vTest.m_pos;
+
+        cout << vTest;
+
+        vTest.perspectiveDivide();
+
+        cout << vTest;
+        cout << endl;
+
+
         // clipping
-
-        cout << " perspectiveDivide " << endl;
-        cout << v1; //.print();
+        //cout << " perspectiveDivide " << endl;
+        //cout << v1; //.print();
         v1.perspectiveDivide();
-        cout << v1;
+        //cout << v1;
 
-        cout << v2;
+        //cout << v2;
         v2.perspectiveDivide();
-        cout << v2;
+        //cout << v2;
 
-        cout << v3;
+        //cout << v3;
         v3.perspectiveDivide();
-        cout << v3;
+        //cout << v3;
 
         v1.toScreenCoordinates();
         v2.toScreenCoordinates();

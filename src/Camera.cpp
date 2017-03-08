@@ -7,10 +7,9 @@
 
 Camera::Camera() : fov(DEG2RAD * 90.0f),
                     aspectRatio( (float) VIEWPORT_WIDTH / VIEWPORT_HEIGHT),
-                    n(-1.0f),
-                    f(-1000.0f)
+                    n(1.0f),
+                    f(1000.0f)
 {
-
       setPerspectiveProjection();
 }
 
@@ -45,13 +44,11 @@ void Camera::setPerspectiveProjection() {
     m[8] = 0;
     m[9] = 0;
     m[10] = -(f+n)/(f-n);
-    //m[10] = (f+n)/(f-n);
     m[11] = -1;
 
     m[12] = 0;
     m[13] = 0;
     m[14] = -(2*n*f)/(f-n);
-    //m[14] = (2*n*f)/(f-n);
     m[15] = 0;
     projectionMatrix.set(m);
 }
@@ -71,9 +68,6 @@ Matrix4 Camera::getViewProjection() {
                  0,0,1,0, // 3rd column
                  -pos.x,-pos.y,-pos.z,1); // 4th column
 
-                 viewProjectionMatrix = projectionMatrix * cameraRotation * cameraTranslation;
-
-       return viewProjectionMatrix;
-    //return projectionMatrix * cameraRotation * cameraTranslation;
+    return projectionMatrix * cameraRotation * cameraTranslation;
 }
 

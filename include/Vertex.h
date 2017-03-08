@@ -19,9 +19,6 @@ class Vertex
 
         friend std::ostream& operator<<(std::ostream& os, const Vertex& m);
 
-        //friend std::ostream& operator<<(std::ostream& os, const Matrix4& m);
-
-
         Vector4 m_pos;
         uint32_t argb;
 

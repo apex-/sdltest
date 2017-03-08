@@ -14,6 +14,10 @@ class Camera
         void setPerspectiveProjection();
         Matrix4 getViewProjection();
 
+        // camera position and orientation
+        Vector3 pos;
+        quaternion rot;
+
     protected:
 
     private:
@@ -23,14 +27,8 @@ class Camera
         float aspectRatio;
         float n; // near plane
         float f; // far plane
+
         Matrix4 projectionMatrix;
-
-        // camera position and orientation
-        Vector3 pos;
-        quaternion rot;
-
-        Matrix4 viewProjectionMatrix;
-
 };
 
 #endif // _CAMERA_H
