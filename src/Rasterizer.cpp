@@ -80,8 +80,8 @@ void Rasterizer::scanConvertTriangle(Vertex &vminy, Vertex &vmidy, Vertex &vmaxy
 
 void Rasterizer::scanConvertLine(Vertex& vminy, Vertex& vmaxy, int side) {
 
-    int ystart = (int) (ceil(vminy.m_pos.y));
-    int yend = (int) (ceil(vmaxy.m_pos.y));
+    uint32_t ystart = (int) (ceil(vminy.m_pos.y));
+    uint32_t yend = (int) (ceil(vmaxy.m_pos.y));
     float ydist = vmaxy.m_pos.y - vminy.m_pos.y;
     if (ydist <= EPSILON) {
         return;
@@ -92,7 +92,7 @@ void Rasterizer::scanConvertLine(Vertex& vminy, Vertex& vmaxy, int side) {
     // TODO: Debug code
     assert(ystart >= 0 && ystart <= VIEWPORT_HEIGHT);
 
-    for (int i=ystart; i<yend; i++) {
+    for (uint32_t i=ystart; i<yend; i++) {
         scanbuffer[i][side] = ceil(curx);
         // TODO: Debug code
         assert(ceil(curx) >= 0 && ceil(curx) <= VIEWPORT_WIDTH);
