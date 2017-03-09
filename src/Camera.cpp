@@ -19,12 +19,10 @@ Camera::~Camera()
     //dtor
 }
 
-
 Camera::Camera(const Camera& other)
 {
     //copy ctor
 }
-
 
 void Camera::setPerspectiveProjection() {
 
@@ -51,6 +49,12 @@ void Camera::setPerspectiveProjection() {
     m[14] = -(2*n*f)/(f-n);
     m[15] = 0;
     projectionMatrix.set(m);
+}
+
+
+Matrix4& Camera::getProjectionMatrix() {
+
+    return projectionMatrix;
 }
 
 

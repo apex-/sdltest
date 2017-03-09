@@ -60,6 +60,13 @@ int main(int argc, char* argv[]) {
     //uint32_t i = 0;
     bool zinc = true;
 
+    cout << "Vertex test (0,0,-1.0): " << camera.getProjectionMatrix() * Vertex(0,0,-1.0).m_pos << endl;
+    cout << "Vertex test (0,0,-1000.0): " << camera.getProjectionMatrix() * Vertex(0,0,-1000.0).m_pos << endl;
+    cout << "Vertex test (100,100,-100.0): " << camera.getProjectionMatrix() * Vertex(-100,-100,-1.0).m_pos << endl;
+    cout << "Vertex test (0,0,1.0): " << camera.getProjectionMatrix() * Vertex(0,0,1.0).m_pos << endl;
+    cout << "Vertex test (0,0,1000.0): " << camera.getProjectionMatrix() * Vertex(0,0,1000.0).m_pos << endl;
+
+
     //for (i=0; i<1000; i++) {
     while (true) {
         i++;
@@ -106,20 +113,13 @@ int main(int argc, char* argv[]) {
         Matrix4 mv = t1.getTransformation(); // model-world transformation
 
         Matrix4 vp = camera.getViewProjection(); // view projection
+
         Matrix4 mvp = vp * mv; // Model-View Projection
 
         v1.m_pos = mvp * v1.m_pos;
         v2.m_pos = mvp * v2.m_pos;
         v3.m_pos = mvp * v3.m_pos;
 
-        vTest.m_pos = vp * vTest.m_pos;
-
-        cout << vTest;
-
-        vTest.perspectiveDivide();
-
-        cout << vTest;
-        cout << endl;
 
 
         // clipping

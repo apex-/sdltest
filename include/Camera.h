@@ -12,7 +12,10 @@ class Camera
         Camera(const Camera& other);
 
         void setPerspectiveProjection();
+
+        Matrix4& getProjectionMatrix();
         Matrix4 getViewProjection();
+
 
         // camera position and orientation
         Vector3 pos;
