@@ -24,13 +24,13 @@ uint32_t TLCPrimitive::getNumberOfVertices()
 }
 
 
-//vector<Vertex> TLCPrimitive::getVertexArray()
-//{
-//    return vertexArray;
-//}
+vector<Vertex>& TLCPrimitive::getVertexArray()
+{
+    return vertexArray;
+}
 
 
-vector<uint32_t> TLCPrimitive::getIndices()
+vector<uint32_t>& TLCPrimitive::getIndices()
 {
     return indices;
 }
@@ -42,8 +42,20 @@ uint32_t TLCPrimitive::getNumberOfIndices()
 }
 
 
-bool TLCPrimitive::isInsideFrustrum() {
-    // TODO: Implement
-    return true;
+Transform& TLCPrimitive::getModelWorldTransform()
+{
+    return modelWorldTransform;
+}
+
+
+VIEWSTATUS TLCPrimitive::isInsideFrustrum(Camera& camera) {
+
+    Matrix4 vp = camera.getViewProjection();
+    Matrix4 mvp = vp * modelWorldTransform.getTransformation();
+
+    Vector4 mvpbb0 = mvp * aabb[0];
+    Vector4 mvpbb1 = mvp * aabb[0];
+
+    return inside;
 
 }

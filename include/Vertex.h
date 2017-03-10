@@ -10,7 +10,7 @@ class Vertex
 {
     public:
         Vertex();
-        Vertex(Vertex &rhs);
+        Vertex(const Vertex &rhs);
         Vertex(float x, float y, float z);
         virtual ~Vertex();
 

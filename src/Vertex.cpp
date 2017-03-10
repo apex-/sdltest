@@ -12,7 +12,7 @@ Vertex::Vertex()
     //ctor
 }
 
-Vertex::Vertex(Vertex &rhs) {
+Vertex::Vertex(const Vertex &rhs) {
 
     m_pos.x = rhs.m_pos.x;
     m_pos.y = rhs.m_pos.y;

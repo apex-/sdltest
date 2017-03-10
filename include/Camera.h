@@ -16,7 +16,6 @@ class Camera
         Matrix4& getProjectionMatrix();
         Matrix4 getViewProjection();
 
-
         // camera position and orientation
         Vector3 pos;
         quaternion rot;
@@ -32,6 +31,10 @@ class Camera
         float f; // far plane
 
         Matrix4 projectionMatrix;
+        Matrix4 rotationMatrix;
+        Matrix4 translationMatrix;
+
+        Matrix4 viewProjectionMatrix;
 };
 
 #endif // _CAMERA_H
