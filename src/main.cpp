@@ -11,6 +11,7 @@
 #include "Rasterizer.h"
 #include "Quaternion.h"
 #include "Transform.h"
+#include "TLCPrimitive.h"
 
 
 using namespace std;
@@ -44,9 +45,14 @@ int main(int argc, char* argv[]) {
         VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
 
+    TLCPrimitive primitive;
+    primitive.loadFromFile("res/Monkey0.obj");
+
+
+
     Camera camera;
     Transform t1;
-    Vector4 r1(0.0,1.0,0.0,1.0);
+    Vector4 r1(0.3,1.0,0.3,1.0);
 
     Vertex v1in(0.0, 0.5, 0.0);
     Vertex v2in(0.3, -0.5, 0.0);
@@ -70,37 +76,20 @@ int main(int argc, char* argv[]) {
     //for (i=0; i<1000; i++) {
     while (true) {
         i++;
+rasterizer.clearFramebuffer();
 
-
-        camera.pos.set(i*0.01,0.0, i*0.01);
+       // camera.pos.set(i*0.01,0.0, i*0.01);
 
 
        t1.rotate(r1, i*0.05);
 
         //cout << " z " << z << endl;
 
-       t1.setPosition(0,0,-1.0);
+       t1.setPosition(0,0,-3.5);
 
        //t1.movePosition(0,0,-0.001);
 
         z-=0.001;
-       //t1.movePosition(0,0,-1.01);
-
-//        if (z > 10.0) {
-//            zinc = false;
-//        } else if (z < 1.2) {
-//            zinc = true;
-//        }
-//
-//        if (zinc) {
-//            t1.movePosition(0,0,0.01);
-//            z+=0.01;
-//        } else {
-//           t1.movePosition(0,0,-0.01);
-//             z-=0.01;
-//        }
-
-        //t1.setPosition(0, 0, 1.0 + i*0.1);
 
         Vertex v1(v1in);
         Vertex v2(v2in);
@@ -119,6 +108,64 @@ int main(int argc, char* argv[]) {
         v1.m_pos = mvp * v1.m_pos;
         v2.m_pos = mvp * v2.m_pos;
         v3.m_pos = mvp * v3.m_pos;
+
+        //primitive.modelWorldTransform.setPosition(0.0, 0.0, -30.0);
+
+        for (int i=0; i<primitive.getNumberOfIndices(); i+=3) {
+
+            Vertex v1pin = primitive.getVertexArray()[primitive.getIndices()[i]];
+            Vertex v2pin = primitive.getVertexArray()[primitive.getIndices()[i+1]];
+            Vertex v3pin = primitive.getVertexArray()[primitive.getIndices()[i+2]];
+
+
+//            cout << v1pin;
+//            cout << v2pin;
+//            cout << v3pin;
+
+            //primitive.getModelWorldTransform().rot.rotate(r1, i*0.05);
+
+            //Matrix4 mvp = primitive.getModelWorldTransform().getTransformation();
+
+           // cout << mvp;
+
+
+            Vertex v1p(v1pin);
+            Vertex v2p(v2pin);
+            Vertex v3p(v3pin);
+
+
+//            cout << v1p;
+//            cout << v2p;
+//            cout << v3p;
+
+            v1p.m_pos = mvp * v1pin.m_pos;
+            v2p.m_pos = mvp * v2pin.m_pos;
+            v3p.m_pos = mvp * v3pin.m_pos;
+
+
+//            cout << v1p;
+//            cout << v2p;
+//            cout << v3p;
+
+            v1p.perspectiveDivide();
+            v2p.perspectiveDivide();
+            v3p.perspectiveDivide();
+
+//            cout << v1p;
+//            cout << v2p;
+//            cout << v3p;
+
+            v1p.toScreenCoordinates();
+            v2p.toScreenCoordinates();
+            v3p.toScreenCoordinates();
+
+
+//            cout << v1p;
+//            cout << v2p;
+//            cout << v3p;
+
+            rasterizer.rasterize(v1p, v2p, v3p);
+        }
 
 
 
@@ -140,8 +187,8 @@ int main(int argc, char* argv[]) {
         v2.toScreenCoordinates();
         v3.toScreenCoordinates();
 
-        rasterizer.clearFramebuffer();
-        rasterizer.rasterize(v1, v2, v3);
+
+        //rasterizer.rasterize(v1, v2, v3);
 
         SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
         SDL_RenderClear(sdlRenderer);

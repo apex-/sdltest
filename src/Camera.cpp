@@ -5,7 +5,7 @@
 #include "Matrices.h"
 
 
-Camera::Camera() : fov(DEG2RAD * 90.0f),
+Camera::Camera() :  fov(DEG2RAD * 90.0f),
                     aspectRatio( (float) VIEWPORT_WIDTH / VIEWPORT_HEIGHT),
                     n(1.0f),
                     f(1000.0f)
@@ -66,11 +66,11 @@ Matrix4 Camera::getViewProjection() {
     quaternion qRot(rot);
     qRot.conjugate().getMatrix(cameraRotation, origin);
 
-    // negative translation
-    Matrix4 cameraTranslation(1,0,0,0, // 1st column
-                 0,1,0,0, // 2nd columnsx
-                 0,0,1,0, // 3rd column
-                 -pos.x,-pos.y,-pos.z,1); // 4th column
+    Matrix4 cameraTranslation(
+                 1,0,0,0,
+                 0,1,0,0,
+                 0,0,1,0,
+                 -pos.x,-pos.y,-pos.z,1);
 
     return projectionMatrix * cameraRotation * cameraTranslation;
 }
