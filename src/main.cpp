@@ -46,13 +46,11 @@ int main(int argc, char* argv[]) {
 
 
     TLCPrimitive primitive;
-    primitive.loadFromFile("res/Monkey0.obj");
-
-
+    primitive.loadFromFile("res/monkey0.obj");
 
     Camera camera;
     Transform t1;
-    Vector4 r1(0.3,1.0,0.3,1.0);
+    Vector4 r1(0.0,1.0,1.0,1.0);
 
     Vertex v1in(0.0, 0.5, 0.0);
     Vertex v2in(0.3, -0.5, 0.0);
@@ -76,7 +74,7 @@ int main(int argc, char* argv[]) {
     //for (i=0; i<1000; i++) {
     while (true) {
         i++;
-rasterizer.clearFramebuffer();
+        rasterizer.clearFramebuffer();
 
        // camera.pos.set(i*0.01,0.0, i*0.01);
 
@@ -85,7 +83,7 @@ rasterizer.clearFramebuffer();
 
         //cout << " z " << z << endl;
 
-       t1.setPosition(0,0,-3.5);
+       t1.setPosition(0,0,-2.5);
 
        //t1.movePosition(0,0,-0.001);
 
@@ -117,17 +115,15 @@ rasterizer.clearFramebuffer();
             Vertex v2pin = primitive.getVertexArray()[primitive.getIndices()[i+1]];
             Vertex v3pin = primitive.getVertexArray()[primitive.getIndices()[i+2]];
 
-
-//            cout << v1pin;
-//            cout << v2pin;
-//            cout << v3pin;
+            //cout << v1pin;
+            //cout << v2pin;
+            //cout << v3pin;
 
             //primitive.getModelWorldTransform().rot.rotate(r1, i*0.05);
 
             //Matrix4 mvp = primitive.getModelWorldTransform().getTransformation();
 
            // cout << mvp;
-
 
             Vertex v1p(v1pin);
             Vertex v2p(v2pin);
@@ -159,12 +155,15 @@ rasterizer.clearFramebuffer();
             v2p.toScreenCoordinates();
             v3p.toScreenCoordinates();
 
+               // cout << "to screen coords " << i << endl;
 
 //            cout << v1p;
 //            cout << v2p;
 //            cout << v3p;
 
             rasterizer.rasterize(v1p, v2p, v3p);
+
+           // cout << "rasterize " << i << endl;
         }
 
 
@@ -198,7 +197,7 @@ rasterizer.clearFramebuffer();
         if (SDL_QuitRequested()) {
             break;
         }
-        SDL_Delay(30);
+        //SDL_Delay(30);
     }
 
     SDL_Quit();

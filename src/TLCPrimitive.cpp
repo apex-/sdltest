@@ -33,61 +33,22 @@ bool TLCPrimitive::loadFromFile(const char *filename)
     }
 
 
-//    for (int i=0; i<attrib.vertices.size(); i+=3) {
-//
-//        //shapes[0].mesh
-//
-//        float x = attrib.vertices[i];
-//        float y = attrib.vertices[i+1];
-//        float z = attrib.vertices[i+2];
-//
-//        Vertex v(x,y,z);
-//        vertexArray.push_back(v);
-//    }
+cout << " TOTAL NUM FACE VERTICES: " << shapes[0].mesh.num_face_vertices.size() << endl;
+cout << " TOTAL NUM INDICES: " << shapes[0].mesh.indices.size() << endl;
+cout << " TOTAL NUM VERTICES: " << attrib.vertices.size() << endl;
 
-    int j = 0;
-    for (int i=0; i<shapes[0].mesh.indices.size(); i+=3) {
-
-        //shapes[0].mesh
-        tinyobj::index_t xi = shapes[0].mesh.indices[i];
-        tinyobj::index_t yi = shapes[0].mesh.indices[i+1];
-        tinyobj::index_t zi = shapes[0].mesh.indices[i+2];
-
-        float x = attrib.vertices[xi.vertex_index];
-        float y = attrib.vertices[yi.vertex_index];
-        float z = attrib.vertices[zi.vertex_index];
-
-        Vertex v(x,y,z);
-
-        //cout << " xi:" << xi.vertex_index << " yi:" << yi.vertex_index << " zi:" << zi.vertex_index << endl;
-        //cout << " x:" << x << " y:" << y << " z:" << z << endl;
-       // cout << endl;
-
-        vertexArray.push_back(v);
-        indices.push_back(j);
-        j++;
-
-        //indices.push_back(xi.vertex_index);
-        //indices.push_back(yi.vertex_index);
-        //indices.push_back(zi.vertex_index);
+    for (int fi=0; fi<shapes[0].mesh.num_face_vertices.size(); fi++) { // iterate over tris
+        for (int vi=0; vi<3; vi++) { // iterate each vertex
+            tinyobj::index_t vidx = shapes[0].mesh.indices[fi+vi];
+            float x = attrib.vertices[vidx.vertex_index];
+            float y = attrib.vertices[vidx.vertex_index+1];
+            float z = attrib.vertices[vidx.vertex_index+2];
+            Vertex v(x,y,z);
+            vertexArray.push_back(v);
+            indices.push_back(3 * fi + vi);
+        }
     }
-
-
     return result;
-/// Loads .obj from a file.
-/// 'attrib', 'shapes' and 'materials' will be filled with parsed shape data
-/// 'shapes' will be filled with parsed shape data
-/// Returns true when loading .obj become success.
-/// Returns warning and error message into `err`
-/// 'mtl_basedir' is optional, and used for base directory for .mtl file.
-/// In default(`NULL'), .mtl file is searched from an application's working
-/// directory.
-/// 'triangulate' is optional, and used whether triangulate polygon face in .obj
-/// or not.
-//bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
-//             std::vector<material_t> *materials, std::string *err,
-//             const char *filename, const char *mtl_basedir = NULL,
-//             bool triangulate = true);
 
 }
 

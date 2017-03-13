@@ -12,6 +12,8 @@ set(SOURCES
     src/Matrices.cpp  
     src/Rasterizer.cpp
     src/Transform.cpp
+    src/TLCPrimitive.cpp
+    src/tiny_obj_loader.cpp
     src/Vertex.cpp 
 )                                                                                                             
 include_directories(include)                                                                               
