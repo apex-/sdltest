@@ -46,11 +46,11 @@ int main(int argc, char* argv[]) {
 
 
     TLCPrimitive primitive;
-    primitive.loadFromFile("res/monkey0.obj");
+    primitive.loadFromFile("res/cube.obj");
 
     Camera camera;
     Transform t1;
-    Vector4 r1(0.0,1.0,1.0,1.0);
+    Vector4 r1(0.3,1.0,0.3,1.0);
 
     Vertex v1in(0.0, 0.5, 0.0);
     Vertex v2in(0.3, -0.5, 0.0);
@@ -75,6 +75,7 @@ int main(int argc, char* argv[]) {
     while (true) {
         i++;
         rasterizer.clearFramebuffer();
+        rasterizer.clearZBuffer();
 
        // camera.pos.set(i*0.01,0.0, i*0.01);
 
@@ -83,7 +84,7 @@ int main(int argc, char* argv[]) {
 
         //cout << " z " << z << endl;
 
-       t1.setPosition(0,0,-2.5);
+       t1.setPosition(0,0,-3.5);
 
        //t1.movePosition(0,0,-0.001);
 
@@ -109,11 +110,19 @@ int main(int argc, char* argv[]) {
 
         //primitive.modelWorldTransform.setPosition(0.0, 0.0, -30.0);
 
+        //cout << "NOFINDICES " << primitive.getNumberOfIndices() << endl;
+
         for (int i=0; i<primitive.getNumberOfIndices(); i+=3) {
 
             Vertex v1pin = primitive.getVertexArray()[primitive.getIndices()[i]];
             Vertex v2pin = primitive.getVertexArray()[primitive.getIndices()[i+1]];
             Vertex v3pin = primitive.getVertexArray()[primitive.getIndices()[i+2]];
+
+            //cout << primitive.getIndices()[i] << endl;
+            //cout << primitive.getIndices()[i+1] << endl;
+            //cout << primitive.getIndices()[i+2] << endl;
+            //cout << endl;
+
 
             //cout << v1pin;
             //cout << v2pin;
@@ -197,7 +206,7 @@ int main(int argc, char* argv[]) {
         if (SDL_QuitRequested()) {
             break;
         }
-        //SDL_Delay(30);
+        SDL_Delay(30);
     }
 
     SDL_Quit();

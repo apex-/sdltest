@@ -37,15 +37,33 @@ cout << " TOTAL NUM FACE VERTICES: " << shapes[0].mesh.num_face_vertices.size() 
 cout << " TOTAL NUM INDICES: " << shapes[0].mesh.indices.size() << endl;
 cout << " TOTAL NUM VERTICES: " << attrib.vertices.size() << endl;
 
+
+    for (int i=0; i<attrib.vertices.size(); i+=3) {
+
+        cout << attrib.vertices[i] << " " <<attrib.vertices[i+1] << " " << attrib.vertices[i+2] << endl;
+    }
+
+
     for (int fi=0; fi<shapes[0].mesh.num_face_vertices.size(); fi++) { // iterate over tris
+
         for (int vi=0; vi<3; vi++) { // iterate each vertex
+
             tinyobj::index_t vidx = shapes[0].mesh.indices[fi+vi];
+            tinyobj::index_t vidx2 = shapes[0].mesh.indices[fi+vi+1];
+            tinyobj::index_t vidx3 = shapes[0].mesh.indices[fi+vi+2];
+
             float x = attrib.vertices[vidx.vertex_index];
-            float y = attrib.vertices[vidx.vertex_index+1];
-            float z = attrib.vertices[vidx.vertex_index+2];
+            float y = attrib.vertices[vidx2.vertex_index];
+            float z = attrib.vertices[vidx3.vertex_index];
+
+            cout << "x(" << vidx.vertex_index << "): "<< x << " y(" << vidx.vertex_index+1 << "): " << y << " z(" << vidx.vertex_index+2 << "): " << z << endl;
+
             Vertex v(x,y,z);
             vertexArray.push_back(v);
             indices.push_back(3 * fi + vi);
+
+            // indices.push_back(fi + vi);
+
         }
     }
     return result;

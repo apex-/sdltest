@@ -15,7 +15,9 @@ Rasterizer::Rasterizer()
     }
 
     framebuffer = new uint32_t[VIEWPORT_PIXELS];
+    zBuffer = new float[VIEWPORT_PIXELS];
     clearFramebuffer();
+    clearZBuffer();
 }
 
 
@@ -34,6 +36,13 @@ void Rasterizer::clearFramebuffer() {
 
     for (uint32_t i=0; i<VIEWPORT_PIXELS; i++) {
         framebuffer[i] = 0x00000000;
+    }
+}
+
+void Rasterizer::clearZBuffer() {
+
+    for (uint32_t i=0; i<VIEWPORT_PIXELS; i++) {
+        zBuffer[i] = 0.0;
     }
 }
 
