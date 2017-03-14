@@ -1,10 +1,16 @@
 #include "TLCPrimitive.h"
 
 #include <vector>
+#include <limits>
 
 TLCPrimitive::TLCPrimitive()
 {
-    //ctor
+    aabb[0].x = std::numeric_limits<int>::max();
+    aabb[1].x = std::numeric_limits<int>::min();
+    aabb[0].y = std::numeric_limits<int>::max();
+    aabb[1].y = std::numeric_limits<int>::min();
+    aabb[0].z = std::numeric_limits<int>::max();
+    aabb[1].z = std::numeric_limits<int>::min();
 }
 
 TLCPrimitive::~TLCPrimitive()
@@ -32,9 +38,6 @@ bool TLCPrimitive::loadFromFile(const char *filename)
         cout << "Failed loading obj file" << filename << endl;
     }
 
-    cout << " TOTAL NUM FACE VERTICES: " << shapes[0].mesh.num_face_vertices.size() << endl;
-    cout << " TOTAL NUM INDICES: " << shapes[0].mesh.indices.size() << endl;
-    cout << " TOTAL NUM VERTICES: " << attrib.vertices.size() << endl;
 
     for (int i=0; i<attrib.vertices.size(); i+= 3) {
           float x = attrib.vertices[0 + i];
@@ -48,6 +51,13 @@ bool TLCPrimitive::loadFromFile(const char *filename)
         int index = shapes[0].mesh.indices[i].vertex_index;
         indices.push_back(index);
     }
+
+    calculateAabb();
+
+    cout << "FACES (triangulated): " << shapes[0].mesh.num_face_vertices.size() << endl;
+    cout << "INDICES (vertex, normal, uv): " << shapes[0].mesh.indices.size() << endl;
+    cout << "VERTICES: (*3)" << attrib.vertices.size() << endl;
+    cout << "AABB (min x,y,z) " << aabb[0] << " (max x,y,z) " << aabb[1] << endl;
 
     return result;
 }
@@ -80,6 +90,35 @@ uint32_t TLCPrimitive::getNumberOfIndices()
 Transform& TLCPrimitive::getModelWorldTransform()
 {
     return modelWorldTransform;
+}
+
+
+void TLCPrimitive::calculateAabb()
+{
+    for (int i=0; i<vertexArray.size(); i++) {
+        float x = vertexArray[i].m_pos.x;
+        float y = vertexArray[i].m_pos.y;
+        float z = vertexArray[i].m_pos.z;
+
+        if (x < aabb[0].x) {
+            aabb[0].x = x;
+        }
+        if (x > aabb[1].x) {
+            aabb[1].x = x;
+        }
+        if (y < aabb[0].y) {
+            aabb[0].y = y;
+        }
+        if (y > aabb[1].y) {
+            aabb[1].y = y;
+        }
+        if (z < aabb[0].z) {
+            aabb[0].z = z;
+        }
+        if (z > aabb[1].z) {
+            aabb[1].z = z;
+        }
+    }
 }
 
 

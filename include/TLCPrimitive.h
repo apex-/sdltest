@@ -29,14 +29,18 @@ class TLCPrimitive
         vector<uint32_t>& getIndices();
         uint32_t getNumberOfIndices();
         Transform& getModelWorldTransform();
+        inline Vector4* getAabb() { return aabb; }
         VIEWSTATUS isInsideFrustrum(Camera& camera);
 
          Transform modelWorldTransform;
     protected:
 
     private:
+
         vector<Vertex> vertexArray;
         vector<uint32_t> indices;
+
+        void calculateAabb();
 
         Vector4 aabb[2]; // axis-aligned bounding box
 
