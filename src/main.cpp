@@ -46,11 +46,11 @@ int main(int argc, char* argv[]) {
 
 
     TLCPrimitive primitive;
-    primitive.loadFromFile("res/cube.obj");
+    primitive.loadFromFile("res/monkeyTestYForwardZUp.obj");
 
     Camera camera;
     Transform t1;
-    Vector4 r1(0.3,1.0,0.3,1.0);
+    Vector4 r1(0.0,0.3,1.0,1.0);
 
     Vertex v1in(0.0, 0.5, 0.0);
     Vertex v2in(0.3, -0.5, 0.0);
@@ -70,7 +70,6 @@ int main(int argc, char* argv[]) {
     cout << "Vertex test (0,0,1.0): " << camera.getProjectionMatrix() * Vertex(0,0,1.0).m_pos << endl;
     cout << "Vertex test (0,0,1000.0): " << camera.getProjectionMatrix() * Vertex(0,0,1000.0).m_pos << endl;
 
-
     //for (i=0; i<1000; i++) {
     while (true) {
         i++;
@@ -80,13 +79,13 @@ int main(int argc, char* argv[]) {
        // camera.pos.set(i*0.01,0.0, i*0.01);
 
 
-       t1.rotate(r1, i*0.05);
+       t1.rotate(r1, i*0.02);
 
         //cout << " z " << z << endl;
 
-       t1.setPosition(0,0,-3.5);
+       t1.setPosition(0,0,-2.5);
 
-       //t1.movePosition(0,0,-0.001);
+       t1.movePosition(0,0,-0.01);
 
         z-=0.001;
 
@@ -175,28 +174,6 @@ int main(int argc, char* argv[]) {
            // cout << "rasterize " << i << endl;
         }
 
-
-
-        // clipping
-        //cout << " perspectiveDivide " << endl;
-        //cout << v1; //.print();
-        v1.perspectiveDivide();
-        //cout << v1;
-
-        //cout << v2;
-        v2.perspectiveDivide();
-        //cout << v2;
-
-        //cout << v3;
-        v3.perspectiveDivide();
-        //cout << v3;
-
-        v1.toScreenCoordinates();
-        v2.toScreenCoordinates();
-        v3.toScreenCoordinates();
-
-
-        //rasterizer.rasterize(v1, v2, v3);
 
         SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
         SDL_RenderClear(sdlRenderer);

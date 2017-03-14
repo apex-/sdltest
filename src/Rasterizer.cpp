@@ -67,7 +67,8 @@ void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
     }
 
     scanConvertTriangle(v1, v2, v3);
-    fillShape(ceil(v1.m_pos.y), ceil(v3.m_pos.y));
+    //fillShape(ceil(v1.m_pos.y), ceil(v3.m_pos.y));
+    wireframe(ceil(v1.m_pos.y), ceil(v3.m_pos.y));
 }
 
 
@@ -123,7 +124,7 @@ void Rasterizer::scanConvertLine(Vertex& vminy, Vertex& vmaxy, int side) {
 }
 
 
-void Rasterizer::fillShape(uint32_t yMin, uint32_t yMax) {
+inline void Rasterizer::fillShape(uint32_t yMin, uint32_t yMax) {
 
     //int output = min + (rand() % (int)(max - min + 1))
 
@@ -133,3 +134,15 @@ void Rasterizer::fillShape(uint32_t yMin, uint32_t yMax) {
         }
     }
 }
+
+
+inline void Rasterizer::wireframe(uint32_t yMin, uint32_t yMax) {
+
+    //int output = min + (rand() % (int)(max - min + 1))
+
+    for (uint32_t j=yMin; j<yMax; j++) {
+        framebuffer[j*VIEWPORT_WIDTH+scanbuffer[j][0]] = 0xAAAAAAAA;
+        framebuffer[j*VIEWPORT_WIDTH+scanbuffer[j][1]] = 0xAAAAAAAA;
+    }
+}
+

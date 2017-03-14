@@ -74,4 +74,3 @@ Matrix4 Camera::getViewProjection() {
 
     return projectionMatrix * cameraRotation * cameraTranslation;
 }
-

@@ -50,7 +50,6 @@ bool TLCPrimitive::loadFromFile(const char *filename)
     }
 
     return result;
-
 }
 
 
