@@ -55,7 +55,7 @@ bool TLCPrimitive::loadFromFile(const char *filename)
     calculateAabb();
 
     cout << "FACES (triangulated): " << shapes[0].mesh.num_face_vertices.size() << endl;
-    cout << "INDICES (vertex, normal, uv): " << shapes[0].mesh.indices.size() << endl;
+    cout << "INDICES (vertex+normal+uv): " << shapes[0].mesh.indices.size() << endl;
     cout << "VERTICES: (*3)" << attrib.vertices.size() << endl;
     cout << "AABB (min x,y,z) " << aabb[0] << " (max x,y,z) " << aabb[1] << endl;
 
@@ -129,6 +129,35 @@ VIEWSTATUS TLCPrimitive::isInsideFrustrum(Camera& camera) {
 
     Vector4 mvpbb0 = mvp * aabb[0];
     Vector4 mvpbb1 = mvp * aabb[1];
+
+    //int outside = 0;
+
+    cout << mvpbb0 << endl;
+    cout << mvpbb1 << endl;
+
+    if (mvpbb0.x < -mvpbb0.w || mvpbb1.x < -mvpbb0.w) {
+        return outside;
+    }
+
+    if (mvpbb0.x > mvpbb0.w || mvpbb1.x > mvpbb0.w) {
+        return outside;
+    }
+
+    if (mvpbb0.y < -mvpbb0.w || mvpbb1.y < -mvpbb0.w) {
+        return outside;
+    }
+
+    if (mvpbb0.y > mvpbb0.w || mvpbb1.y > mvpbb0.w) {
+        return outside;
+    }
+
+    if (mvpbb0.z < -mvpbb0.w || mvpbb1.z < -mvpbb0.w) {
+        return outside;
+    }
+
+    if (mvpbb0.z > mvpbb0.w || mvpbb1.z > mvpbb0.w) {
+        return outside;
+    }
 
     return inside;
 
