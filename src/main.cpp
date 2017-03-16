@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 
 
     TLCPrimitive primitive;
-    primitive.loadFromFile("res/mymonkey.obj");
+    primitive.loadFromFile("res/monkey0.obj");
     primitive.getModelWorldTransform().setPosition(0.0,0.0,-3.0);
 
     Camera camera;
@@ -71,7 +71,9 @@ int main(int argc, char* argv[]) {
     cout << "Vertex test (0,0,1.0): " << camera.getProjectionMatrix() * Vertex(0,0,1.0).m_pos << endl;
     cout << "Vertex test (0,0,1000.0): " << camera.getProjectionMatrix() * Vertex(0,0,1000.0).m_pos << endl;
 
-     t1.setPosition(0,0,-2.2);
+    t1.setPosition(0,0,-2.2);
+
+    primitive.getModelWorldTransform().setPosition(0.0, 0.0, -2.5);
 
     //for (i=0; i<1000; i++) {
     while (true) {
@@ -79,33 +81,20 @@ int main(int argc, char* argv[]) {
         rasterizer.clearFramebuffer();
         rasterizer.clearZBuffer();
 
-       // camera.pos.set(i*0.01,0.0, i*0.01);
+        // camera.pos.set(i*0.01,0.0, i*0.01);
 
-       t1.rotate(r1, i*0.02);
-
-        //cout << " z " << z << endl;
-
-       t1.movePosition(0.0, 0.0, 0.000);
-
+        t1.rotate(r1, i*0.02);
+        t1.movePosition(0.0, 0.0, 0.000);
         z-=0.001;
-
         Vertex v1(v1in);
         Vertex v2(v2in);
         Vertex v3(v3in);
-
-
-        Vertex vTest(vTestIn);
-
-
         Matrix4 mv = t1.getTransformation(); // model-world transformation
         Matrix4 vp = camera.getViewProjection(); // view projection
         Matrix4 mvp = vp * mv; // Model-View Projection
         v1.m_pos = mvp * v1.m_pos;
         v2.m_pos = mvp * v2.m_pos;
         v3.m_pos = mvp * v3.m_pos;
-
-        //primitive.modelWorldTransform.setPosition(0.0, 0.0, -30.0);
-        //cout << "NOFINDICES " << primitive.getNumberOfIndices() << endl;
         v1.perspectiveDivide();
         v2.perspectiveDivide();
         v3.perspectiveDivide();
@@ -115,78 +104,36 @@ int main(int argc, char* argv[]) {
         //rasterizer.rasterize(v1, v2, v3);
 
 
-
         primitive.getModelWorldTransform().rot.rotate(r1, 0.01);
+        primitive.getModelWorldTransform().movePosition(0.1,0.0,0.0);
 
-        for (int i=0; i<primitive.getNumberOfIndices(); i+=3) {
-
-            Vertex v1pin = primitive.getVertexArray()[primitive.getIndices()[i]];
-            Vertex v2pin = primitive.getVertexArray()[primitive.getIndices()[i+1]];
-            Vertex v3pin = primitive.getVertexArray()[primitive.getIndices()[i+2]];
-
-            //cout << primitive.getIndices()[i] << endl;
-            //cout << primitive.getIndices()[i+1] << endl;
-            //cout << primitive.getIndices()[i+2] << endl;
-            //cout << endl;
-
-
-            //cout << v1pin;
-            //cout << v2pin;
-            //cout << v3pin;
-
-
-            primitive.getModelWorldTransform().movePosition(0.0,0.0001,-2.00);
-
-
-           // primitive.getModelWorldTransform().setPosition(0.0, 0.0, 0.0);
+        if (primitive.isInsideFrustrum(camera) == inside) {
 
             Matrix4 mvpp = primitive.getModelWorldTransform().getTransformation();
 
-           // cout << mvp;
+            for (int i=0; i<primitive.getNumberOfIndices(); i+=3) {
 
-            Vertex v1p(v1pin);
-            Vertex v2p(v2pin);
-            Vertex v3p(v3pin);
+                Vertex v1pin = primitive.getVertexArray()[primitive.getIndices()[i]];
+                Vertex v2pin = primitive.getVertexArray()[primitive.getIndices()[i+1]];
+                Vertex v3pin = primitive.getVertexArray()[primitive.getIndices()[i+2]];
 
+                Vertex v1p(v1pin);
+                Vertex v2p(v2pin);
+                Vertex v3p(v3pin);
 
-//            cout << v1p;
-//            cout << v2p;
-//            cout << v3p;
+                v1p.m_pos = vp * mvpp * v1pin.m_pos;
+                v2p.m_pos = vp * mvpp * v2pin.m_pos;
+                v3p.m_pos = vp * mvpp * v3pin.m_pos;
 
-            v1p.m_pos = vp * mvpp * v1pin.m_pos;
-            v2p.m_pos = vp * mvpp * v2pin.m_pos;
-            v3p.m_pos = vp * mvpp * v3pin.m_pos;
-
-
-//            cout << v1p;
-//            cout << v2p;
-//            cout << v3p;
-
-            v1p.perspectiveDivide();
-            v2p.perspectiveDivide();
-            v3p.perspectiveDivide();
-
-//            cout << v1p;
-//            cout << v2p;
-//            cout << v3p;
-
-            v1p.toScreenCoordinates();
-            v2p.toScreenCoordinates();
-            v3p.toScreenCoordinates();
-
-               // cout << "to screen coords " << i << endl;
-
-//            cout << v1p;
-//            cout << v2p;
-//            cout << v3p;
-
-
-            if (primitive.isInsideFrustrum(camera) == inside) {
+                v1p.perspectiveDivide();
+                v2p.perspectiveDivide();
+                v3p.perspectiveDivide();
+                v1p.toScreenCoordinates();
+                v2p.toScreenCoordinates();
+                v3p.toScreenCoordinates();
 
                 rasterizer.rasterize(v1p, v2p, v3p);
-
             }
-           // cout << "rasterize " << i << endl;
         }
 
 
@@ -198,7 +145,7 @@ int main(int argc, char* argv[]) {
         if (SDL_QuitRequested()) {
             break;
         }
-        SDL_Delay(30);
+        SDL_Delay(500);
     }
 
     SDL_Quit();

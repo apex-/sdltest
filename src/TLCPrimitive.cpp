@@ -135,39 +135,41 @@ VIEWSTATUS TLCPrimitive::isInsideFrustrum(Camera& camera) {
 
     //int outside = 0;
 
-    //cout << mvpbb0 << endl;
-    //cout << mvpbb1 << endl;
+    cout "minlowleft" << mvpbb0 << endl;
+    cout "maxtopright" << mvpbb1 << endl;
 
     if (mvpbb0.x < -mvpbb0.w || mvpbb1.x < -mvpbb1.w) { // left plane
-        cout << "LEFT:" << endl;
+        cout << "LEFT AABB" << endl;
         cout << mvpbb0.x << " < " << -mvpbb1.w << " " << mvpbb1.x << " < " << -mvpbb1.w << endl;
         return outside;
     }
 
     if (mvpbb0.x > mvpbb0.w || mvpbb1.x > mvpbb1.w) { // right plane
-     cout << "RIGHT" << endl;
+     cout << "RIGHT AABB" << endl;
         return outside;
     }
 
     if (mvpbb0.y < -mvpbb0.w || mvpbb1.y < -mvpbb1.w) { // bottom plane
-    cout << "BOTTOM" << endl;
+    cout << "BOTTOM AABB" << endl;
         return outside;
     }
 
     if (mvpbb0.y > mvpbb0.w || mvpbb1.y > mvpbb1.w) { // top plane
-    cout << "TOP" << endl;
+    cout << "TOP AABB" << endl;
         return outside;
     }
 
     if (mvpbb0.z < -mvpbb0.w || mvpbb1.z < -mvpbb1.w) { // front plane
-    cout << "FRONT" << endl;
+    cout << "FRONT AABB" << endl;
         return outside;
     }
 
     if (mvpbb0.z > mvpbb0.w || mvpbb1.z > mvpbb1.w) { // rear plane
-    cout << "REAR" << endl;
+    cout << "REAR AABB" << endl;
         return outside;
     }
+
+    cout << endl;
 
     return inside;
 
