@@ -21,9 +21,7 @@ class TLCPrimitive
         TLCPrimitive();
         virtual ~TLCPrimitive();
         TLCPrimitive(const TLCPrimitive& other);
-
         bool loadFromFile(const char *filename);
-
         vector<Vertex>& getVertexArray();
         uint32_t getNumberOfVertices();
         vector<uint32_t>& getIndices();
@@ -31,7 +29,6 @@ class TLCPrimitive
         Transform& getModelWorldTransform();
         inline Vector4* getAabb() { return aabb; }
         VIEWSTATUS isInsideFrustrum(Camera& camera);
-
          Transform modelWorldTransform;
     protected:
 
@@ -39,9 +36,7 @@ class TLCPrimitive
 
         vector<Vertex> vertexArray;
         vector<uint32_t> indices;
-
         void calculateAabb();
-
         Vector4 aabb[2]; // axis-aligned bounding box
 
     // UV Map

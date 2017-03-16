@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
 
         //cout << " z " << z << endl;
 
-       t1.movePosition(0.00 ,0.0, 0.000);
+       t1.movePosition(0.0, 0.0, 0.000);
 
         z-=0.001;
 
@@ -105,7 +105,6 @@ int main(int argc, char* argv[]) {
         v3.m_pos = mvp * v3.m_pos;
 
         //primitive.modelWorldTransform.setPosition(0.0, 0.0, -30.0);
-
         //cout << "NOFINDICES " << primitive.getNumberOfIndices() << endl;
         v1.perspectiveDivide();
         v2.perspectiveDivide();
@@ -113,8 +112,11 @@ int main(int argc, char* argv[]) {
         v1.toScreenCoordinates();
         v2.toScreenCoordinates();
         v3.toScreenCoordinates();
-        rasterizer.rasterize(v1, v2, v3);
+        //rasterizer.rasterize(v1, v2, v3);
 
+
+
+        primitive.getModelWorldTransform().rot.rotate(r1, 0.01);
 
         for (int i=0; i<primitive.getNumberOfIndices(); i+=3) {
 
@@ -132,10 +134,11 @@ int main(int argc, char* argv[]) {
             //cout << v2pin;
             //cout << v3pin;
 
-            //primitive.getModelWorldTransform().rot.rotate(r1, i*0.05);
-            primitive.getModelWorldTransform().movePosition(0.00001,0.0,0.0);
+
+            primitive.getModelWorldTransform().movePosition(0.0,0.0001,-2.00);
 
 
+           // primitive.getModelWorldTransform().setPosition(0.0, 0.0, 0.0);
 
             Matrix4 mvpp = primitive.getModelWorldTransform().getTransformation();
 
@@ -178,11 +181,11 @@ int main(int argc, char* argv[]) {
 //            cout << v3p;
 
 
-            //if (primitive.isInsideFrustrum(camera) == inside) {
+            if (primitive.isInsideFrustrum(camera) == inside) {
 
                 rasterizer.rasterize(v1p, v2p, v3p);
 
-           // }
+            }
            // cout << "rasterize " << i << endl;
         }
 

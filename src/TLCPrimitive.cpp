@@ -118,6 +118,9 @@ void TLCPrimitive::calculateAabb()
         if (z > aabb[1].z) {
             aabb[1].z = z;
         }
+
+        aabb[0].w = 1.0f;
+        aabb[1].w = 1.0f;
     }
 }
 
@@ -125,37 +128,44 @@ void TLCPrimitive::calculateAabb()
 VIEWSTATUS TLCPrimitive::isInsideFrustrum(Camera& camera) {
 
     Matrix4 vp = camera.getViewProjection();
-    Matrix4 mvp = vp * modelWorldTransform.getTransformation();
+    //Matrix4 mvp = vp * modelWorldTransform.getTransformation();
 
-    Vector4 mvpbb0 = mvp * aabb[0];
-    Vector4 mvpbb1 = mvp * aabb[1];
+    Vector4 mvpbb0 = vp * modelWorldTransform.getTransformation() * aabb[0];
+    Vector4 mvpbb1 = vp * modelWorldTransform.getTransformation() * aabb[1];
 
     //int outside = 0;
 
-    cout << mvpbb0 << endl;
-    cout << mvpbb1 << endl;
+    //cout << mvpbb0 << endl;
+    //cout << mvpbb1 << endl;
 
-    if (mvpbb0.x < -mvpbb0.w || mvpbb1.x < -mvpbb0.w) {
+    if (mvpbb0.x < -mvpbb0.w || mvpbb1.x < -mvpbb1.w) { // left plane
+        cout << "LEFT:" << endl;
+        cout << mvpbb0.x << " < " << -mvpbb1.w << " " << mvpbb1.x << " < " << -mvpbb1.w << endl;
         return outside;
     }
 
-    if (mvpbb0.x > mvpbb0.w || mvpbb1.x > mvpbb0.w) {
+    if (mvpbb0.x > mvpbb0.w || mvpbb1.x > mvpbb1.w) { // right plane
+     cout << "RIGHT" << endl;
         return outside;
     }
 
-    if (mvpbb0.y < -mvpbb0.w || mvpbb1.y < -mvpbb0.w) {
+    if (mvpbb0.y < -mvpbb0.w || mvpbb1.y < -mvpbb1.w) { // bottom plane
+    cout << "BOTTOM" << endl;
         return outside;
     }
 
-    if (mvpbb0.y > mvpbb0.w || mvpbb1.y > mvpbb0.w) {
+    if (mvpbb0.y > mvpbb0.w || mvpbb1.y > mvpbb1.w) { // top plane
+    cout << "TOP" << endl;
         return outside;
     }
 
-    if (mvpbb0.z < -mvpbb0.w || mvpbb1.z < -mvpbb0.w) {
+    if (mvpbb0.z < -mvpbb0.w || mvpbb1.z < -mvpbb1.w) { // front plane
+    cout << "FRONT" << endl;
         return outside;
     }
 
-    if (mvpbb0.z > mvpbb0.w || mvpbb1.z > mvpbb0.w) {
+    if (mvpbb0.z > mvpbb0.w || mvpbb1.z > mvpbb1.w) { // rear plane
+    cout << "REAR" << endl;
         return outside;
     }
 
