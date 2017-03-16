@@ -46,11 +46,11 @@ int main(int argc, char* argv[]) {
 
 
     TLCPrimitive primitive;
-    primitive.loadFromFile("res/monkeyTestYForwardZUp.obj");
+    primitive.loadFromFile("res/mymonkey.obj");
 
     Camera camera;
     Transform t1;
-    Vector4 r1(0.0,0.3,1.0,1.0);
+    Vector4 r1(0.3,1.0,0.0,1.0);
 
     Vertex v1in(0.0, 0.5, 0.0);
     Vertex v2in(0.3, -0.5, 0.0);
@@ -70,6 +70,8 @@ int main(int argc, char* argv[]) {
     cout << "Vertex test (0,0,1.0): " << camera.getProjectionMatrix() * Vertex(0,0,1.0).m_pos << endl;
     cout << "Vertex test (0,0,1000.0): " << camera.getProjectionMatrix() * Vertex(0,0,1000.0).m_pos << endl;
 
+     t1.setPosition(0,0,-2.2);
+
     //for (i=0; i<1000; i++) {
     while (true) {
         i++;
@@ -78,14 +80,11 @@ int main(int argc, char* argv[]) {
 
        // camera.pos.set(i*0.01,0.0, i*0.01);
 
-
        t1.rotate(r1, i*0.02);
 
         //cout << " z " << z << endl;
 
-       t1.setPosition(0,0,-2.5);
-
-       t1.movePosition(0,0,-0.01);
+       t1.movePosition(0.00 ,0.0, 0.000);
 
         z-=0.001;
 
@@ -98,11 +97,8 @@ int main(int argc, char* argv[]) {
 
 
         Matrix4 mv = t1.getTransformation(); // model-world transformation
-
         Matrix4 vp = camera.getViewProjection(); // view projection
-
         Matrix4 mvp = vp * mv; // Model-View Projection
-
         v1.m_pos = mvp * v1.m_pos;
         v2.m_pos = mvp * v2.m_pos;
         v3.m_pos = mvp * v3.m_pos;
@@ -110,6 +106,14 @@ int main(int argc, char* argv[]) {
         //primitive.modelWorldTransform.setPosition(0.0, 0.0, -30.0);
 
         //cout << "NOFINDICES " << primitive.getNumberOfIndices() << endl;
+        v1.perspectiveDivide();
+        v2.perspectiveDivide();
+        v3.perspectiveDivide();
+        v1.toScreenCoordinates();
+        v2.toScreenCoordinates();
+        v3.toScreenCoordinates();
+        rasterizer.rasterize(v1, v2, v3);
+
 
         for (int i=0; i<primitive.getNumberOfIndices(); i+=3) {
 
