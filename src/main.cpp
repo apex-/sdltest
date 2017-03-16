@@ -47,6 +47,7 @@ int main(int argc, char* argv[]) {
 
     TLCPrimitive primitive;
     primitive.loadFromFile("res/mymonkey.obj");
+    primitive.getModelWorldTransform().setPosition(0.0,0.0,-3.0);
 
     Camera camera;
     Transform t1;
@@ -132,8 +133,11 @@ int main(int argc, char* argv[]) {
             //cout << v3pin;
 
             //primitive.getModelWorldTransform().rot.rotate(r1, i*0.05);
+            primitive.getModelWorldTransform().movePosition(0.00001,0.0,0.0);
 
-            //Matrix4 mvp = primitive.getModelWorldTransform().getTransformation();
+
+
+            Matrix4 mvpp = primitive.getModelWorldTransform().getTransformation();
 
            // cout << mvp;
 
@@ -146,9 +150,9 @@ int main(int argc, char* argv[]) {
 //            cout << v2p;
 //            cout << v3p;
 
-            v1p.m_pos = mvp * v1pin.m_pos;
-            v2p.m_pos = mvp * v2pin.m_pos;
-            v3p.m_pos = mvp * v3pin.m_pos;
+            v1p.m_pos = vp * mvpp * v1pin.m_pos;
+            v2p.m_pos = vp * mvpp * v2pin.m_pos;
+            v3p.m_pos = vp * mvpp * v3pin.m_pos;
 
 
 //            cout << v1p;
@@ -173,8 +177,12 @@ int main(int argc, char* argv[]) {
 //            cout << v2p;
 //            cout << v3p;
 
-            rasterizer.rasterize(v1p, v2p, v3p);
 
+            //if (primitive.isInsideFrustrum(camera) == inside) {
+
+                rasterizer.rasterize(v1p, v2p, v3p);
+
+           // }
            // cout << "rasterize " << i << endl;
         }
 
