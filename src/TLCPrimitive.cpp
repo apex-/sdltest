@@ -135,8 +135,8 @@ VIEWSTATUS TLCPrimitive::isInsideFrustrum(Camera& camera) {
 
     //int outside = 0;
 
-    cout "minlowleft" << mvpbb0 << endl;
-    cout "maxtopright" << mvpbb1 << endl;
+    cout << "minlowleft" << mvpbb0 << endl;
+    cout << "maxtopright" << mvpbb1 << endl;
 
     if (mvpbb0.x < -mvpbb0.w || mvpbb1.x < -mvpbb1.w) { // left plane
         cout << "LEFT AABB" << endl;
