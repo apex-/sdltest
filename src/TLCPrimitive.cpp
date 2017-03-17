@@ -9,8 +9,8 @@ TLCPrimitive::TLCPrimitive()
     aabb[1].x = std::numeric_limits<int>::min();
     aabb[0].y = std::numeric_limits<int>::max();
     aabb[1].y = std::numeric_limits<int>::min();
-    aabb[0].z = std::numeric_limits<int>::max();
-    aabb[1].z = std::numeric_limits<int>::min();
+    aabb[0].z = std::numeric_limits<int>::min();
+    aabb[1].z = std::numeric_limits<int>::max();
 }
 
 TLCPrimitive::~TLCPrimitive()
@@ -112,10 +112,10 @@ void TLCPrimitive::calculateAabb()
         if (y > aabb[1].y) {
             aabb[1].y = y;
         }
-        if (z < aabb[0].z) {
+        if (z > aabb[0].z) {
             aabb[0].z = z;
         }
-        if (z > aabb[1].z) {
+        if (z < aabb[1].z) {
             aabb[1].z = z;
         }
 
@@ -125,52 +125,43 @@ void TLCPrimitive::calculateAabb()
 }
 
 
-VIEWSTATUS TLCPrimitive::isInsideFrustrum(Camera& camera) {
+uint8_t TLCPrimitive::getAabbClipFlags(Matrix4& modelViewTransform) {
 
-    Matrix4 vp = camera.getViewProjection();
-    //Matrix4 mvp = vp * modelWorldTransform.getTransformation();
+    uint8_t clipFlags = 0;
+    Vector4 mvpbb0 = modelViewTransform * aabb[0];
+    Vector4 mvpbb1 = modelViewTransform * aabb[1];
 
-    Vector4 mvpbb0 = vp * modelWorldTransform.getTransformation() * aabb[0];
-    Vector4 mvpbb1 = vp * modelWorldTransform.getTransformation() * aabb[1];
+    //cout << "minlowleft" << mvpbb0 << endl;
+    //cout << "maxtopright" << mvpbb1 << endl;
 
-    //int outside = 0;
-
-    cout << "minlowleft" << mvpbb0 << endl;
-    cout << "maxtopright" << mvpbb1 << endl;
-
-    if (mvpbb0.x < -mvpbb0.w || mvpbb1.x < -mvpbb1.w) { // left plane
-        cout << "LEFT AABB" << endl;
-        cout << mvpbb0.x << " < " << -mvpbb1.w << " " << mvpbb1.x << " < " << -mvpbb1.w << endl;
-        return outside;
+    // whole mesh outside (this rejects most of the objects)
+    if (mvpbb0.x < -mvpbb0.w && mvpbb1.x < -mvpbb0.w || // left plane
+        mvpbb1.x > mvpbb0.w && mvpbb0.x > mvpbb0.w  || // right plane
+        mvpbb0.y < -mvpbb0.w && mvpbb1.y < -mvpbb0.w || // bottom plane
+        mvpbb1.y > mvpbb0.w && mvpbb0.y > mvpbb0.w || // top plane
+        mvpbb0.z < -mvpbb0.w && mvpbb1.z < -mvpbb0.w || // front plane
+        mvpbb1.z > mvpbb1.w && mvpbb0.z > mvpbb0.w) { // rear plane
+        return (1 << 7);
     }
 
-    if (mvpbb0.x > mvpbb0.w || mvpbb1.x > mvpbb1.w) { // right plane
-     cout << "RIGHT AABB" << endl;
-        return outside;
+    // partially inside / partially outside (needs clipping)
+    if (mvpbb0.x < -mvpbb0.w) { // left plane
+        clipFlags |= (1 << 0);
     }
-
-    if (mvpbb0.y < -mvpbb0.w || mvpbb1.y < -mvpbb1.w) { // bottom plane
-    cout << "BOTTOM AABB" << endl;
-        return outside;
+    if (mvpbb1.x > mvpbb0.w) { // right plane
+        clipFlags |= (1 << 1);
     }
-
-    if (mvpbb0.y > mvpbb0.w || mvpbb1.y > mvpbb1.w) { // top plane
-    cout << "TOP AABB" << endl;
-        return outside;
+    if (mvpbb0.y < -mvpbb0.w) { // bottom plane
+        clipFlags |= (1 << 2);
     }
-
-    if (mvpbb0.z < -mvpbb0.w || mvpbb1.z < -mvpbb1.w) { // front plane
-    cout << "FRONT AABB" << endl;
-        return outside;
+    if (mvpbb1.y > mvpbb0.w) { // top plane
+        clipFlags |= (1 << 3);
     }
-
-    if (mvpbb0.z > mvpbb0.w || mvpbb1.z > mvpbb1.w) { // rear plane
-    cout << "REAR AABB" << endl;
-        return outside;
+    if (mvpbb0.z < -mvpbb0.w) { // front plane
+        clipFlags |= (1 << 4);
     }
-
-    cout << endl;
-
-    return inside;
-
+    if (mvpbb1.z > mvpbb1.w) { // rear plane
+        clipFlags |= (1 << 5);
+    }
+    return clipFlags;
 }

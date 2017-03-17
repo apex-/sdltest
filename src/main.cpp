@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 
 
     TLCPrimitive primitive;
-    primitive.loadFromFile("res/monkey0.obj");
+    primitive.loadFromFile("res/mymonkey.obj");
     primitive.getModelWorldTransform().setPosition(0.0,0.0,-3.0);
 
     Camera camera;
@@ -71,9 +71,8 @@ int main(int argc, char* argv[]) {
     cout << "Vertex test (0,0,1.0): " << camera.getProjectionMatrix() * Vertex(0,0,1.0).m_pos << endl;
     cout << "Vertex test (0,0,1000.0): " << camera.getProjectionMatrix() * Vertex(0,0,1000.0).m_pos << endl;
 
-    t1.setPosition(0,0,-2.2);
-
-    primitive.getModelWorldTransform().setPosition(0.0, 0.0, -2.5);
+    //t1.setPosition(0,0,-2.2);
+    primitive.getModelWorldTransform().setPosition(0.0, 0.0, -10.0);
 
     //for (i=0; i<1000; i++) {
     while (true) {
@@ -83,7 +82,7 @@ int main(int argc, char* argv[]) {
 
         // camera.pos.set(i*0.01,0.0, i*0.01);
 
-        t1.rotate(r1, i*0.02);
+        //t1.rotate(r1, i*0.02);
         t1.movePosition(0.0, 0.0, 0.000);
         z-=0.001;
         Vertex v1(v1in);
@@ -103,13 +102,23 @@ int main(int argc, char* argv[]) {
         v3.toScreenCoordinates();
         //rasterizer.rasterize(v1, v2, v3);
 
+        //primitive.getModelWorldTransform().rot.rotate(r1, i*0.01);
+        //primitive.getModelWorldTransform().movePosition(0.0,0.0,(i%400) > 200 ? 0.01 : -0.01);
 
-        primitive.getModelWorldTransform().rot.rotate(r1, 0.01);
-        primitive.getModelWorldTransform().movePosition(0.1,0.0,0.0);
+        primitive.getModelWorldTransform().movePosition(0.0,0.1,0.0);
 
-        if (primitive.isInsideFrustrum(camera) == inside) {
+        Matrix4 mw = primitive.getModelWorldTransform().getTransformation();
+        Matrix4 mvPrimitive = vp * mw;
 
-            Matrix4 mvpp = primitive.getModelWorldTransform().getTransformation();
+        //uint8_t clipFlags = primitive.getAabbClipFlags(mvPrimitive);
+
+       // cout << "clipFlags: " << (int)clipFlags << endl;
+
+       // if (clipFlags < 128 && clipFlags > 0) {
+       //     cout << "NEEDS CLIPPING" << endl;
+       // }
+
+       // if (clipFlags == 0) {
 
             for (int i=0; i<primitive.getNumberOfIndices(); i+=3) {
 
@@ -121,21 +130,21 @@ int main(int argc, char* argv[]) {
                 Vertex v2p(v2pin);
                 Vertex v3p(v3pin);
 
-                v1p.m_pos = vp * mvpp * v1pin.m_pos;
-                v2p.m_pos = vp * mvpp * v2pin.m_pos;
-                v3p.m_pos = vp * mvpp * v3pin.m_pos;
+                v1p.m_pos = mvPrimitive * v1pin.m_pos;
+                v2p.m_pos = mvPrimitive * v2pin.m_pos;
+                v3p.m_pos = mvPrimitive * v3pin.m_pos;
 
                 v1p.perspectiveDivide();
                 v2p.perspectiveDivide();
                 v3p.perspectiveDivide();
+
                 v1p.toScreenCoordinates();
                 v2p.toScreenCoordinates();
                 v3p.toScreenCoordinates();
 
                 rasterizer.rasterize(v1p, v2p, v3p);
             }
-        }
-
+       // }
 
         SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
         SDL_RenderClear(sdlRenderer);
@@ -145,7 +154,7 @@ int main(int argc, char* argv[]) {
         if (SDL_QuitRequested()) {
             break;
         }
-        SDL_Delay(500);
+        SDL_Delay(30);
     }
 
     SDL_Quit();

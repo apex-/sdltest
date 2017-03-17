@@ -13,7 +13,7 @@
 using namespace std;
 
 
-enum VIEWSTATUS { inside, outside, clipped };
+enum CLIPPLANES { left, right, bottom, top, front, rear };
 
 class TLCPrimitive
 {
@@ -28,12 +28,11 @@ class TLCPrimitive
         uint32_t getNumberOfIndices();
         Transform& getModelWorldTransform();
         inline Vector4* getAabb() { return aabb; }
-        VIEWSTATUS isInsideFrustrum(Camera& camera);
+        uint8_t getAabbClipFlags(Matrix4& modelViewTransform);
          Transform modelWorldTransform;
     protected:
 
     private:
-
         vector<Vertex> vertexArray;
         vector<uint32_t> indices;
         void calculateAabb();
