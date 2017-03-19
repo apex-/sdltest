@@ -49,9 +49,15 @@ int main(int argc, char* argv[]) {
     primitive.loadFromFile("res/mymonkey.obj");
     primitive.getModelWorldTransform().setPosition(0.0,0.0,-3.0);
 
+    Vector4 r1(0.0,0.0,1.0,1.0);
+    //primitive.getModelWorldTransform().rot.rotate(r1, 3.1415);
+
+    //Vector4 r1(0.0,0.0,1.0,1.0);
+    //primitive.getModelWorldTransform().rot.rotate(r1, 3.1415);
+
     Camera camera;
     Transform t1;
-    Vector4 r1(0.3,1.0,0.0,1.0);
+
 
     Vertex v1in(0.0, 0.5, 0.0);
     Vertex v2in(0.3, -0.5, 0.0);
@@ -71,8 +77,10 @@ int main(int argc, char* argv[]) {
     cout << "Vertex test (0,0,1.0): " << camera.getProjectionMatrix() * Vertex(0,0,1.0).m_pos << endl;
     cout << "Vertex test (0,0,1000.0): " << camera.getProjectionMatrix() * Vertex(0,0,1000.0).m_pos << endl;
 
-    //t1.setPosition(0,0,-2.2);
-    primitive.getModelWorldTransform().setPosition(0.0, 0.0, -10.0);
+    t1.setPosition(0,0,-2.2);
+
+
+    primitive.getModelWorldTransform().setPosition(0.0, 0.0, -5.0);
 
     //for (i=0; i<1000; i++) {
     while (true) {
@@ -80,45 +88,45 @@ int main(int argc, char* argv[]) {
         rasterizer.clearFramebuffer();
         rasterizer.clearZBuffer();
 
+        Matrix4 vp = camera.getViewProjection(); // view projection
+
         // camera.pos.set(i*0.01,0.0, i*0.01);
 
         //t1.rotate(r1, i*0.02);
-        t1.movePosition(0.0, 0.0, 0.000);
-        z-=0.001;
-        Vertex v1(v1in);
-        Vertex v2(v2in);
-        Vertex v3(v3in);
-        Matrix4 mv = t1.getTransformation(); // model-world transformation
-        Matrix4 vp = camera.getViewProjection(); // view projection
-        Matrix4 mvp = vp * mv; // Model-View Projection
-        v1.m_pos = mvp * v1.m_pos;
-        v2.m_pos = mvp * v2.m_pos;
-        v3.m_pos = mvp * v3.m_pos;
-        v1.perspectiveDivide();
-        v2.perspectiveDivide();
-        v3.perspectiveDivide();
-        v1.toScreenCoordinates();
-        v2.toScreenCoordinates();
-        v3.toScreenCoordinates();
-        //rasterizer.rasterize(v1, v2, v3);
+        //t1.movePosition(0.0, 0.1, 0.000);
+        //z-=0.001;
+//        Vertex v1(v1in);
+//        Vertex v2(v2in);
+//        Vertex v3(v3in);
+//        Matrix4 mv = t1.getTransformation(); // model-world transformation
+//        Matrix4 mvp = vp * mv; // Model-View Projection
+//        v1.m_pos = mvp * v1.m_pos;
+//        v2.m_pos = mvp * v2.m_pos;
+//        v3.m_pos = mvp * v3.m_pos;
+//        v1.perspectiveDivide();
+//        v2.perspectiveDivide();
+//        v3.perspectiveDivide();
+//        v1.toScreenCoordinates();
+//        v2.toScreenCoordinates();
+//        v3.toScreenCoordinates();
+//        rasterizer.rasterize(v1, v2, v3);
 
-        //primitive.getModelWorldTransform().rot.rotate(r1, i*0.01);
+        primitive.getModelWorldTransform().rot.rotate(r1, i*0.1);
         //primitive.getModelWorldTransform().movePosition(0.0,0.0,(i%400) > 200 ? 0.01 : -0.01);
-
-        primitive.getModelWorldTransform().movePosition(0.0,0.1,0.0);
+        primitive.getModelWorldTransform().movePosition(0.0,-0.1,0.0);
 
         Matrix4 mw = primitive.getModelWorldTransform().getTransformation();
         Matrix4 mvPrimitive = vp * mw;
+        cout << "MW: " << endl << mw << endl;
+        cout << "VP: " << endl << vp << endl;
+        cout << "MV: " << endl << mvPrimitive << endl;
+        uint8_t clipFlags = primitive.getAabbClipFlags(mvPrimitive);
+        cout << "clipFlags: " << (int)clipFlags << endl;
+        if (clipFlags < 128 && clipFlags > 0) {
+            cout << "NEEDS CLIPPING" << endl;
+        }
 
-        //uint8_t clipFlags = primitive.getAabbClipFlags(mvPrimitive);
-
-       // cout << "clipFlags: " << (int)clipFlags << endl;
-
-       // if (clipFlags < 128 && clipFlags > 0) {
-       //     cout << "NEEDS CLIPPING" << endl;
-       // }
-
-       // if (clipFlags == 0) {
+        if (clipFlags == 0) {
 
             for (int i=0; i<primitive.getNumberOfIndices(); i+=3) {
 
@@ -144,7 +152,7 @@ int main(int argc, char* argv[]) {
 
                 rasterizer.rasterize(v1p, v2p, v3p);
             }
-       // }
+        }
 
         SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
         SDL_RenderClear(sdlRenderer);
@@ -154,7 +162,7 @@ int main(int argc, char* argv[]) {
         if (SDL_QuitRequested()) {
             break;
         }
-        SDL_Delay(30);
+        SDL_Delay(300);
     }
 
     SDL_Quit();

@@ -101,6 +101,7 @@ void Rasterizer::scanConvertLine(Vertex& vminy, Vertex& vmaxy, int side) {
 
     // TODO: Debug code
     assert(ystart >= 0 && ystart <= VIEWPORT_HEIGHT);
+    assert(yend >= 0 && yend <= VIEWPORT_HEIGHT);
 
     // TODO: REMOVE
 //    if (ystart < 0) {

@@ -23,9 +23,10 @@ class Vertex
             m_pos.w /= m_pos.w;
         }
 
+
         inline void toScreenCoordinates() {
-                m_pos.x = ((VIEWPORT_WIDTH -1) * (m_pos.x + 1)) / 2.0;
-                m_pos.y = ((VIEWPORT_HEIGHT -1) * (m_pos.y + 1)) / 2.0;
+                m_pos.x = ((VIEWPORT_WIDTH -1) * -(m_pos.x - 1)) / 2.0;
+                m_pos.y = ((VIEWPORT_HEIGHT -1) * -(m_pos.y - 1)) / 2.0;
         }
 
         friend std::ostream& operator<<(std::ostream& os, const Vertex& m);

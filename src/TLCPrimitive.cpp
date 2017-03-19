@@ -131,8 +131,8 @@ uint8_t TLCPrimitive::getAabbClipFlags(Matrix4& modelViewTransform) {
     Vector4 mvpbb0 = modelViewTransform * aabb[0];
     Vector4 mvpbb1 = modelViewTransform * aabb[1];
 
-    //cout << "minlowleft" << mvpbb0 << endl;
-    //cout << "maxtopright" << mvpbb1 << endl;
+    cout << "minlowleft" << mvpbb0 << endl;
+    cout << "maxtopright" << mvpbb1 << endl;
 
     // whole mesh outside (this rejects most of the objects)
     if (mvpbb0.x < -mvpbb0.w && mvpbb1.x < -mvpbb0.w || // left plane
