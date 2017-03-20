@@ -33,22 +33,6 @@ Vertex::Vertex(float x, float y, float z) {
 }
 
 
-//void Vertex::perspectiveDivide() {
-//
-//    m_pos.x /= m_pos.w;
-//    m_pos.y /= m_pos.w;
-//    m_pos.z /= m_pos.w;
-//    m_pos.w /= m_pos.w;
-//}
-
-
-//void Vertex::toScreenCoordinates() {
-//
-//    m_pos.x = ((VIEWPORT_WIDTH -1) * (m_pos.x + 1)) / 2.0;
-//    m_pos.y = ((VIEWPORT_HEIGHT -1) * (m_pos.y + 1)) / 2.0;
-//}
-
-
 std::ostream& operator<<(std::ostream& os, const Vertex& m)
 {
     os << std::fixed << std::setprecision(5);

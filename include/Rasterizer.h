@@ -21,6 +21,9 @@ class Rasterizer
     protected:
 
     private:
+        int sgn(int x);
+        void gbham(int xstart,int ystart,int xend,int yend);
+
         static const float EPSILON = 0.00001;
         uint32_t *framebuffer;
         float *zBuffer;

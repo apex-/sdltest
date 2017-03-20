@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     primitive.loadFromFile("res/mymonkey.obj");
     primitive.getModelWorldTransform().setPosition(0.0,0.0,-3.0);
 
-    Vector4 r1(0.0,0.0,1.0,1.0);
+    Vector4 r1(0.3,1.0,0.3,1.0);
     //primitive.getModelWorldTransform().rot.rotate(r1, 3.1415);
 
     //Vector4 r1(0.0,0.0,1.0,1.0);
@@ -57,14 +57,10 @@ int main(int argc, char* argv[]) {
 
     Camera camera;
     Transform t1;
-
-
     Vertex v1in(0.0, 0.5, 0.0);
     Vertex v2in(0.3, -0.5, 0.0);
     Vertex v3in(-0.3, -0.5, 0.0);
-
     Vertex vTestIn(1500.0, 2000.0, -999.0);
-
     t1.setPosition(0, 0, 0.0);
 
     float z = -1.01;
@@ -78,9 +74,7 @@ int main(int argc, char* argv[]) {
     cout << "Vertex test (0,0,1000.0): " << camera.getProjectionMatrix() * Vertex(0,0,1000.0).m_pos << endl;
 
     t1.setPosition(0,0,-2.2);
-
-
-    primitive.getModelWorldTransform().setPosition(0.0, 0.0, -5.0);
+   // primitive.getModelWorldTransform().setPosition(0.0, 0.0, -2.7);
 
     //for (i=0; i<1000; i++) {
     while (true) {
@@ -111,9 +105,9 @@ int main(int argc, char* argv[]) {
 //        v3.toScreenCoordinates();
 //        rasterizer.rasterize(v1, v2, v3);
 
-        primitive.getModelWorldTransform().rot.rotate(r1, i*0.1);
+        primitive.getModelWorldTransform().rot.rotate(r1, i*0.01);
         //primitive.getModelWorldTransform().movePosition(0.0,0.0,(i%400) > 200 ? 0.01 : -0.01);
-        primitive.getModelWorldTransform().movePosition(0.0,-0.1,0.0);
+        //primitive.getModelWorldTransform().movePosition(0.0,-0.003,0.0);
 
         Matrix4 mw = primitive.getModelWorldTransform().getTransformation();
         Matrix4 mvPrimitive = vp * mw;
@@ -162,7 +156,7 @@ int main(int argc, char* argv[]) {
         if (SDL_QuitRequested()) {
             break;
         }
-        SDL_Delay(300);
+        SDL_Delay(30);
     }
 
     SDL_Quit();

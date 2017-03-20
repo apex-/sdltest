@@ -66,9 +66,16 @@ void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
         swap(v1, v2);
     }
 
-    scanConvertTriangle(v1, v2, v3);
+
+    // Wireframe using Bresenhams line drawing algorithm
+    gbham(ceil(v1.m_pos.x), ceil(v1.m_pos.y), ceil(v2.m_pos.x), ceil(v2.m_pos.y));
+    gbham(ceil(v1.m_pos.x), ceil(v1.m_pos.y), ceil(v3.m_pos.x), ceil(v3.m_pos.y));
+    gbham(ceil(v2.m_pos.x), ceil(v2.m_pos.y), ceil(v3.m_pos.x), ceil(v3.m_pos.y));
+
+    //scanConvertTriangle(v1, v2, v3);
     //fillShape(ceil(v1.m_pos.y), ceil(v3.m_pos.y));
-    wireframe(ceil(v1.m_pos.y), ceil(v3.m_pos.y));
+    //wireframe(ceil(v1.m_pos.y), ceil(v3.m_pos.y));
+
 }
 
 
@@ -146,4 +153,86 @@ inline void Rasterizer::wireframe(uint32_t yMin, uint32_t yMax) {
         framebuffer[j*VIEWPORT_WIDTH+scanbuffer[j][1]] = 0xAAAAAAAA;
     }
 }
+
+
+/* signum function */
+int Rasterizer::sgn(int x){
+  return (x > 0) ? 1 : (x < 0) ? -1 : 0;
+}
+
+
+void Rasterizer::gbham(int xstart,int ystart,int xend,int yend)
+/*--------------------------------------------------------------
+ * Bresenham-Algorithmus: Linien auf Rastergeräten zeichnen
+ *
+ * Eingabeparameter:
+ *    int xstart, ystart        = Koordinaten des Startpunkts
+ *    int xend, yend            = Koordinaten des Endpunkts
+ *
+ * Ausgabe:
+ *    void SetPixel(int x, int y) setze ein Pixel in der Grafik
+ *         (wird in dieser oder aehnlicher Form vorausgesetzt)
+ *---------------------------------------------------------------
+ */
+{
+    int x, y, t, dx, dy, incx, incy, pdx, pdy, ddx, ddy, es, el, err;
+
+/* Entfernung in beiden Dimensionen berechnen */
+   dx = xend - xstart;
+   dy = yend - ystart;
+
+/* Vorzeichen des Inkrements bestimmen */
+   incx = sgn(dx);
+   incy = sgn(dy);
+   if(dx<0) dx = -dx;
+   if(dy<0) dy = -dy;
+
+/* feststellen, welche Entfernung größer ist */
+   if (dx>dy)
+   {
+      /* x ist schnelle Richtung */
+      pdx=incx; pdy=0;    /* pd. ist Parallelschritt */
+      ddx=incx; ddy=incy; /* dd. ist Diagonalschritt */
+      es =dy;   el =dx;   /* Fehlerschritte schnell, langsam */
+   } else
+   {
+      /* y ist schnelle Richtung */
+      pdx=0;    pdy=incy; /* pd. ist Parallelschritt */
+      ddx=incx; ddy=incy; /* dd. ist Diagonalschritt */
+      es =dx;   el =dy;   /* Fehlerschritte schnell, langsam */
+   }
+
+/* Initialisierungen vor Schleifenbeginn */
+   x = xstart;
+   y = ystart;
+   err = el/2;
+
+   framebuffer[y*VIEWPORT_WIDTH+x] = 0xAAAAAAAA;
+   //SetPixel(x,y);
+
+/* Pixel berechnen */
+   for(t=0; t<el; ++t) /* t zaehlt die Pixel, el ist auch Anzahl */
+   {
+      /* Aktualisierung Fehlerterm */
+      err -= es;
+      if(err<0)
+      {
+          /* Fehlerterm wieder positiv (>=0) machen */
+          err += el;
+          /* Schritt in langsame Richtung, Diagonalschritt */
+          x += ddx;
+          y += ddy;
+      } else
+      {
+          /* Schritt in schnelle Richtung, Parallelschritt */
+          x += pdx;
+          y += pdy;
+      }
+
+      framebuffer[y*VIEWPORT_WIDTH+x] = 0xAAAAAAAA;
+
+      //SetPixel(x,y);
+   }
+} /* gbham() */
+
 
