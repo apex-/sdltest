@@ -145,6 +145,64 @@ int main(int argc, char* argv[]) {
                 v3p.toScreenCoordinates();
 
                 rasterizer.rasterize(v1p, v2p, v3p);
+
+
+                // draw bounding box
+                Vector4 *aabb = primitive.getAabbModelSpace();
+                Vertex blf(aabb[0].x, aabb[0].y, aabb[0].z);
+                Vertex brf(aabb[1].x, aabb[0].y, aabb[0].z);
+                Vertex tlf(aabb[0].x, aabb[1].y, aabb[0].z);
+                Vertex trf(aabb[1].x, aabb[1].y, aabb[0].z);
+                Vertex blr(aabb[0].x, aabb[0].y, aabb[1].z);
+                Vertex brr(aabb[1].x, aabb[0].y, aabb[1].z);
+                Vertex tlr(aabb[0].x, aabb[1].y, aabb[1].z);
+                Vertex trr(aabb[1].x, aabb[1].y, aabb[1].z);
+                blf.m_pos = mvPrimitive * blf.m_pos;
+                brf.m_pos = mvPrimitive * brf.m_pos;
+                tlf.m_pos = mvPrimitive * tlf.m_pos;
+                trf.m_pos = mvPrimitive * trf.m_pos;
+                blr.m_pos = mvPrimitive * blr.m_pos;
+                brr.m_pos = mvPrimitive * brr.m_pos;
+                tlr.m_pos = mvPrimitive * tlr.m_pos;
+                trr.m_pos = mvPrimitive * trr.m_pos;
+
+                blf.perspectiveDivide();
+                brf.perspectiveDivide();
+                tlf.perspectiveDivide();
+                trf.perspectiveDivide();
+                blr.perspectiveDivide();
+                brr.perspectiveDivide();
+                tlr.perspectiveDivide();
+                trr.perspectiveDivide();
+
+                blf.toScreenCoordinates();
+                brf.toScreenCoordinates();
+                tlf.toScreenCoordinates();
+                trf.toScreenCoordinates();
+                blr.toScreenCoordinates();
+                brr.toScreenCoordinates();
+                tlr.toScreenCoordinates();
+                trr.toScreenCoordinates();
+
+                // front
+                rasterizer.gbham(blf, brf);
+                rasterizer.gbham(brf, trf);
+                rasterizer.gbham(trf, tlf);
+                rasterizer.gbham(tlf, blf);
+
+                //back
+                rasterizer.gbham(blr, brr);
+                rasterizer.gbham(brr, trr);
+                rasterizer.gbham(trr, tlr);
+                rasterizer.gbham(tlr, blr);
+
+                // connections between front and back
+                rasterizer.gbham(blf, blr);
+                rasterizer.gbham(brf, brr);
+                rasterizer.gbham(trf, trr);
+                rasterizer.gbham(tlf, tlr);
+
+                //rasterizer.gbham();
             }
         }
 

@@ -161,6 +161,15 @@ int Rasterizer::sgn(int x){
 }
 
 
+
+void Rasterizer::gbham(Vertex &v1, Vertex &v2)
+{
+
+    gbham(ceil(v1.m_pos.x), ceil(v1.m_pos.y), ceil(v2.m_pos.x), ceil(v2.m_pos.y));
+
+}
+
+
 void Rasterizer::gbham(int xstart,int ystart,int xend,int yend)
 /*--------------------------------------------------------------
  * Bresenham-Algorithmus: Linien auf Rastergeräten zeichnen

@@ -27,9 +27,9 @@ class TLCPrimitive
         vector<uint32_t>& getIndices();
         uint32_t getNumberOfIndices();
         Transform& getModelWorldTransform();
-        inline Vector4* getAabb() { return aabb; }
+        inline Vector4* getAabbModelSpace() { return aabb; }
         uint8_t getAabbClipFlags(Matrix4& modelViewTransform);
-         Transform modelWorldTransform;
+        Transform modelWorldTransform;
     protected:
 
     private:

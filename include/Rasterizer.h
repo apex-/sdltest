@@ -18,11 +18,17 @@ class Rasterizer
         void rasterize(Vertex &v1, Vertex &v2, Vertex &v3);
         void inline scanConvertLine(Vertex& minYVert, Vertex& maxYVert, int whichSide);
         void scanConvertTriangle(Vertex &v1, Vertex &v2, Vertex &v3);
+
+        void gbham(int xstart,int ystart,int xend,int yend);
+        void gbham(Vertex &v1, Vertex &v2);
+
     protected:
 
     private:
         int sgn(int x);
-        void gbham(int xstart,int ystart,int xend,int yend);
+
+
+
 
         static const float EPSILON = 0.00001;
         uint32_t *framebuffer;

@@ -16,6 +16,7 @@ class Vertex
         Vertex(float x, float y, float z);
         virtual ~Vertex();
 
+
         inline void perspectiveDivide() {
             m_pos.x /= m_pos.w;
             m_pos.y /= m_pos.w;
