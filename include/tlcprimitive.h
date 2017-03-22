@@ -4,11 +4,11 @@
 #include <stdint.h>
 #include <vector>
 
-#include "Camera.h"
-#include "Vectors.h"
-#include "Vertex.h"
-#include "tiny_obj_loader.h"
-#include "Transform.h"
+#include "camera.h"
+#include "vectors.h"
+#include "vertex.h"
+#include "tinyobjloader.h"
+#include "transform.h"
 
 using namespace std;
 

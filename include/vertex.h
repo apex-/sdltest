@@ -5,8 +5,8 @@
 #include <stdint.h>
 
 #include "global.h"
-#include "Vectors.h"
-#include "Matrices.h"
+#include "vectors.h"
+#include "matrices.h"
 
 class Vertex
 {

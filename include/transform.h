@@ -1,9 +1,9 @@
 #ifndef _TRANSFORM_H
 #define _TRANSFORM_H
 
-#include "Vectors.h"
-#include "Matrices.h"
-#include "Quaternion.h"
+#include "vectors.h"
+#include "matrices.h"
+#include "quaternion.h"
 
 class Transform
 {

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Rasterizer.h"
+#include "rasterizer.h"
 #include "global.h"
 
 #include <cassert>

@@ -5,13 +5,13 @@
 #include <iostream>
 
 #include "global.h"
-#include "Camera.h"
-#include "Vectors.h"
-#include "Matrices.h"
-#include "Rasterizer.h"
-#include "Quaternion.h"
-#include "Transform.h"
-#include "TLCPrimitive.h"
+#include "camera.h"
+#include "vectors.h"
+#include "matrices.h"
+#include "rasterizer.h"
+#include "quaternion.h"
+#include "transform.h"
+#include "tlcprimitive.h"
 
 
 using namespace std;
@@ -111,11 +111,11 @@ int main(int argc, char* argv[]) {
 
         Matrix4 mw = primitive.getModelWorldTransform().getTransformation();
         Matrix4 mvPrimitive = vp * mw;
-        cout << "MW: " << endl << mw << endl;
-        cout << "VP: " << endl << vp << endl;
-        cout << "MV: " << endl << mvPrimitive << endl;
+        //cout << "MW: " << endl << mw << endl;
+        //cout << "VP: " << endl << vp << endl;
+        //cout << "MV: " << endl << mvPrimitive << endl;
         uint8_t clipFlags = primitive.getAabbClipFlags(mvPrimitive);
-        cout << "clipFlags: " << (int)clipFlags << endl;
+        //cout << "clipFlags: " << (int)clipFlags << endl;
         if (clipFlags < 128 && clipFlags > 0) {
             cout << "NEEDS CLIPPING" << endl;
         }
@@ -145,9 +145,9 @@ int main(int argc, char* argv[]) {
                 v3p.toScreenCoordinates();
 
                 rasterizer.rasterize(v1p, v2p, v3p);
+            }
 
-
-                // draw bounding box
+                            // draw bounding box
                 Vector4 *aabb = primitive.getAabbModelSpace();
                 Vertex blf(aabb[0].x, aabb[0].y, aabb[0].z);
                 Vertex brf(aabb[1].x, aabb[0].y, aabb[0].z);
@@ -203,7 +203,6 @@ int main(int argc, char* argv[]) {
                 rasterizer.gbham(tlf, tlr);
 
                 //rasterizer.gbham();
-            }
         }
 
         SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
@@ -214,7 +213,7 @@ int main(int argc, char* argv[]) {
         if (SDL_QuitRequested()) {
             break;
         }
-        SDL_Delay(30);
+        SDL_Delay(15);
     }
 
     SDL_Quit();

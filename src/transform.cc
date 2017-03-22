@@ -1,5 +1,5 @@
-#include "Transform.h"
-#include "Quaternion.h"
+#include "transform.h"
+#include "quaternion.h"
 
 Transform::Transform()
 {

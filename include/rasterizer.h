@@ -3,7 +3,8 @@
 #include <stdint.h>
 
 #include "global.h"
-#include "Vertex.h"
+#include "vertex.h"
+
 class Rasterizer
 {
     public:

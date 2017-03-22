@@ -1,8 +1,8 @@
 #ifndef _CAMERA_H
 #define _CAMERA_H
 
-#include "Matrices.h"
-#include "Quaternion.h"
+#include "matrices.h"
+#include "quaternion.h"
 
 class Camera
 {

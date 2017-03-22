@@ -1,4 +1,4 @@
-#include "TLCPrimitive.h"
+#include "tlcprimitive.h"
 
 #include <vector>
 #include <limits>

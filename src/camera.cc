@@ -1,8 +1,8 @@
 #include <math.h>
 
 #include "global.h"
-#include "Camera.h"
-#include "Matrices.h"
+#include "camera.h"
+#include "matrices.h"
 
 
 Camera::Camera() :  fov(DEG2RAD * 90.0f),
