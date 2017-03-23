@@ -67,11 +67,11 @@ int main(int argc, char* argv[]) {
     //uint32_t i = 0;
     bool zinc = true;
 
-    cout << "Vertex test (0,0,-1.0): " << camera.getProjectionMatrix() * Vertex(0,0,-1.0).m_pos << endl;
-    cout << "Vertex test (0,0,-1000.0): " << camera.getProjectionMatrix() * Vertex(0,0,-1000.0).m_pos << endl;
-    cout << "Vertex test (100,100,-100.0): " << camera.getProjectionMatrix() * Vertex(-100,-100,-1.0).m_pos << endl;
-    cout << "Vertex test (0,0,1.0): " << camera.getProjectionMatrix() * Vertex(0,0,1.0).m_pos << endl;
-    cout << "Vertex test (0,0,1000.0): " << camera.getProjectionMatrix() * Vertex(0,0,1000.0).m_pos << endl;
+    cout << "Vertex test (0,0,-1.0): " << camera.projectionMatrix() * Vertex(0,0,-1.0).m_pos << endl;
+    cout << "Vertex test (0,0,-1000.0): " << camera.projectionMatrix() * Vertex(0,0,-1000.0).m_pos << endl;
+    cout << "Vertex test (100,100,-100.0): " << camera.projectionMatrix() * Vertex(-100,-100,-1.0).m_pos << endl;
+    cout << "Vertex test (0,0,1.0): " << camera.projectionMatrix() * Vertex(0,0,1.0).m_pos << endl;
+    cout << "Vertex test (0,0,1000.0): " << camera.projectionMatrix() * Vertex(0,0,1000.0).m_pos << endl;
 
     t1.setPosition(0,0,-2.2);
    // primitive.getModelWorldTransform().setPosition(0.0, 0.0, -2.7);
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
         rasterizer.clearFramebuffer();
         rasterizer.clearZBuffer();
 
-        Matrix4 vp = camera.getViewProjection(); // view projection
+        Matrix4 vp = camera.viewProjection(); // view projection
 
         // camera.pos.set(i*0.01,0.0, i*0.01);
 

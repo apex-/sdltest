@@ -2,8 +2,8 @@
 
 #include "global.h"
 
-#include "Vertex.h"
-#include "Matrices.h"
+#include "vertex.h"
+#include "matrices.h"
 
 using namespace std;
 
