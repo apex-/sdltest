@@ -7,14 +7,15 @@ cmake_minimum_required (VERSION 2.6)
 project (sdltest CXX)                                                                                         
                                                                                                                
 set(SOURCES                                                                                                   
-    src/Camera.cpp
-    src/main.cpp 
-    src/Matrices.cpp  
-    src/Rasterizer.cpp
-    src/Transform.cpp
-    src/TLCPrimitive.cpp
-    src/tiny_obj_loader.cpp
-    src/Vertex.cpp 
+    src/camera.cc
+    src/main.cc 
+    src/matrices.cc  
+    src/plane.cc
+    src/rasterizer.cc
+    src/tinyobjloader.cc
+    src/tlcprimitive.cc
+    src/transform.cc
+    src/vertex.cc 
 )                                                                                                             
 include_directories(include)                                                                               
 add_executable(sdltest ${SOURCES})                                                                            
