@@ -8,7 +8,8 @@
 Camera::Camera() :  fov_(DEG2RAD * 90.0f),
                     aspect_ratio_( (float) VIEWPORT_WIDTH / VIEWPORT_HEIGHT),
                     near_plane_(1.0f),
-                    far_plane_(1000.0f)
+                    far_plane_(1000.0f),
+                    is_up2date_(false)
 {
       setPerspectiveProjection();
 }
@@ -50,6 +51,7 @@ void Camera::setPerspectiveProjection() {
     m[14] = -(2*near_plane_*far_plane_)/(far_plane_-near_plane_);
     m[15] = 0;
     projection_matrix_.set(m);
+    is_up2date_ = false;
 }
 
 
@@ -59,19 +61,28 @@ Matrix4& Camera::projectionMatrix() {
 }
 
 
-Matrix4 Camera::viewProjection() {
+Matrix4& Camera::viewProjectionMatrix() {
 
-    Matrix4 camera_rotation;
-    Vector3 origin;
+    if (!is_up2date_) {
+        update();
+    }
+    return view_projection_matrix_;
+}
 
-    quaternion qrot(rot_);
-    qrot.conjugate().getMatrix(camera_rotation, origin);
 
-    Matrix4 camera_translation(
+void Camera::update() {
+
+        Matrix4 camera_rotation;
+        Vector3 origin;
+        quaternion qrot(rot_);
+        qrot.conjugate().getMatrix(camera_rotation, origin);
+        Matrix4 camera_translation(
                  1, 0, 0, 0,
                  0, 1, 0, 0,
                  0, 0, 1, 0,
                  -pos_.x, -pos_.y, -pos_.z, 1);
+        view_projection_matrix_ = projection_matrix_ * camera_rotation * camera_translation;
 
-    return projection_matrix_ * camera_rotation * camera_translation;
+        frustrum.updatePlanes(view_projection_matrix_);
+        is_up2date_ = true;
 }

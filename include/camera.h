@@ -1,6 +1,7 @@
 #ifndef _CAMERA_H
 #define _CAMERA_H
 
+#include "frustrum.h"
 #include "matrices.h"
 #include "quaternion.h"
 
@@ -14,11 +15,11 @@ class Camera
         void setPerspectiveProjection();
 
         Matrix4& projectionMatrix();
-        Matrix4 viewProjection();
+        Matrix4& viewProjectionMatrix();
         Vector3 pos() const { return pos_; };
-        void pos(Vector3 pos) { pos_ = pos; };
+        void pos(Vector3 pos) { pos_ = pos; is_up2date_ = false; };
         quaternion rot() const { return rot_; };
-        void rot (quaternion rot) { rot_ = rot; };
+        void rot (quaternion rot) { rot_ = rot; is_up2date_ = false; };
 
     protected:
 
@@ -32,6 +33,12 @@ class Camera
         Vector3 pos_; // Camera position
         quaternion rot_; // Camera rotation
         Matrix4 projection_matrix_;
+
+        bool is_up2date_;
+        Matrix4 view_projection_matrix_;
+        Frustrum frustrum;
+
+        void update(); // updates all necessary informations
 };
 
 #endif // _CAMERA_H

@@ -6,6 +6,7 @@
 class Plane
 {
     public:
+        Plane() {};
         Plane(float a, float b, float c, float d) : a_(a), b_(b), c_(c), d_(d) {};
         virtual ~Plane();
 
@@ -17,6 +18,8 @@ class Plane
         void c(float c) { c_ = c; }
         float d() const { return d_; }
         void d(float d) { d_ = d; }
+
+        void set(float a, float b, float c, float d) {a_=a, b_=b, c_=c, d_=d; };
 
         /** Dot product, gives the distnace from the plane to a point */
         float dot(Vector3 vec) const;

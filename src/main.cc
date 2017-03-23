@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
         rasterizer.clearFramebuffer();
         rasterizer.clearZBuffer();
 
-        Matrix4 vp = camera.viewProjection(); // view projection
+        Matrix4 vp = camera.viewProjectionMatrix(); // view projection
 
         // camera.pos.set(i*0.01,0.0, i*0.01);
 
