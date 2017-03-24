@@ -14,21 +14,21 @@ Vertex::Vertex()
 
 Vertex::Vertex(const Vertex &rhs) {
 
-    m_pos.x = rhs.m_pos.x;
-    m_pos.y = rhs.m_pos.y;
-    m_pos.z = rhs.m_pos.z;
-    m_pos.w = rhs.m_pos.w;
-    argb = rhs.argb;
+    pos_.x = rhs.pos_.x;
+    pos_.y = rhs.pos_.y;
+    pos_.z = rhs.pos_.z;
+    pos_.w = rhs.pos_.w;
+    argb_ = rhs.argb_;
 
 }
 
 
 Vertex::Vertex(float x, float y, float z) {
 
-    this->m_pos.x = x;
-    this->m_pos.y = y;
-    this->m_pos.z = z;
-    this->m_pos.w = 1.0;
+    this->pos_.x = x;
+    this->pos_.y = y;
+    this->pos_.z = z;
+    this->pos_.w = 1.0;
 
 }
 
@@ -36,7 +36,7 @@ Vertex::Vertex(float x, float y, float z) {
 std::ostream& operator<<(std::ostream& os, const Vertex& m)
 {
     os << std::fixed << std::setprecision(5);
-    os << "vertexpos [" << std::setw(10) << m.m_pos.x << " " << std::setw(10) << m.m_pos.y << " " << std::setw(10) << m.m_pos.z  <<  " " << std::setw(10) << m.m_pos.w << "]\n";
+    os << "vertexpos [" << std::setw(10) << m.pos_.x << " " << std::setw(10) << m.pos_.y << " " << std::setw(10) << m.pos_.z  <<  " " << std::setw(10) << m.pos_.w << "]\n";
     os << std::resetiosflags(std::ios_base::fixed | std::ios_base::floatfield);
     return os;
 }

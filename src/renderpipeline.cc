@@ -23,13 +23,17 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
             vector<Vertex> vertices = primitive->getVertexArray();
             for (uint32_t i=0; i<primitive->getNumberOfVertices(); i++) {
 
-                // Transform Into Pipeline Vertices
-                //vertices[i]
+                // Transform Vertex from model-space to view space
+                vb_[i].ViewSpacePos(mvpm * vertices[i].Pos());
 
+
+                // Calculate the screen position
+                vb_[i].CalcScreenSpacePos();
             }
 
 
             // Clipping
+
 
             // Perspective Divide
 

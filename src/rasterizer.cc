@@ -56,25 +56,25 @@ void Rasterizer::drawScanBuffer(uint32_t yCoord, uint32_t xMin, uint32_t xMax) {
 
 void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
 
-    if (v2.m_pos.y < v1.m_pos.y) {
+    if (v2.Pos().y < v1.Pos().y) {
        swap(v1, v2);
     }
-    if (v3.m_pos.y < v2.m_pos.y) {
+    if (v3.Pos().y < v2.Pos().y) {
         swap(v2, v3);
     }
-    if (v2.m_pos.y < v1.m_pos.y) {
+    if (v2.Pos().y < v1.Pos().y) {
         swap(v1, v2);
     }
 
 
     // Wireframe using Bresenhams line drawing algorithm
-    gbham(ceil(v1.m_pos.x), ceil(v1.m_pos.y), ceil(v2.m_pos.x), ceil(v2.m_pos.y));
-    gbham(ceil(v1.m_pos.x), ceil(v1.m_pos.y), ceil(v3.m_pos.x), ceil(v3.m_pos.y));
-    gbham(ceil(v2.m_pos.x), ceil(v2.m_pos.y), ceil(v3.m_pos.x), ceil(v3.m_pos.y));
+    gbham(ceil(v1.Pos().x), ceil(v1.Pos().y), ceil(v2.Pos().x), ceil(v2.Pos().y));
+    gbham(ceil(v1.Pos().x), ceil(v1.Pos().y), ceil(v3.Pos().x), ceil(v3.Pos().y));
+    gbham(ceil(v2.Pos().x), ceil(v2.Pos().y), ceil(v3.Pos().x), ceil(v3.Pos().y));
 
     //scanConvertTriangle(v1, v2, v3);
-    //fillShape(ceil(v1.m_pos.y), ceil(v3.m_pos.y));
-    //wireframe(ceil(v1.m_pos.y), ceil(v3.m_pos.y));
+    //fillShape(ceil(v1.Pos().y), ceil(v3.Pos().y));
+    //wireframe(ceil(v1.Pos().y), ceil(v3.Pos().y));
 
 }
 
@@ -82,10 +82,10 @@ void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
 void Rasterizer::scanConvertTriangle(Vertex &vminy, Vertex &vmidy, Vertex &vmaxy) {
 
     // determine the handedness of the triangle
-    float x1 = vmaxy.m_pos.x - vminy.m_pos.x;
-    float y1 = vmaxy.m_pos.y - vminy.m_pos.y;
-    float x2 = vmidy.m_pos.x - vminy.m_pos.x;
-    float y2 = vmidy.m_pos.y - vminy.m_pos.y;
+    float x1 = vmaxy.Pos().x - vminy.Pos().x;
+    float y1 = vmaxy.Pos().y - vminy.Pos().y;
+    float x2 = vmidy.Pos().x - vminy.Pos().x;
+    float y2 = vmidy.Pos().y - vminy.Pos().y;
     float cproduct = (x1 * y2 - x2 * y1);
     int side = cproduct > 0 ? 0 : 1;
 
@@ -97,14 +97,14 @@ void Rasterizer::scanConvertTriangle(Vertex &vminy, Vertex &vmidy, Vertex &vmaxy
 
 void Rasterizer::scanConvertLine(Vertex& vminy, Vertex& vmaxy, int side) {
 
-    uint32_t ystart = (int) (ceil(vminy.m_pos.y));
-    uint32_t yend = (int) (ceil(vmaxy.m_pos.y));
-    float ydist = vmaxy.m_pos.y - vminy.m_pos.y;
+    uint32_t ystart = (int) (ceil(vminy.Pos().y));
+    uint32_t yend = (int) (ceil(vmaxy.Pos().y));
+    float ydist = vmaxy.Pos().y - vminy.Pos().y;
     if (ydist <= EPSILON) {
         return;
     }
-    float xstep = (vmaxy.m_pos.x - vminy.m_pos.x) / ydist;
-    float curx = vminy.m_pos.x + (ystart - vminy.m_pos.y) * xstep;
+    float xstep = (vmaxy.Pos().x - vminy.Pos().x) / ydist;
+    float curx = vminy.Pos().x + (ystart - vminy.Pos().y) * xstep;
 
     // TODO: Debug code
     assert(ystart >= 0 && ystart <= VIEWPORT_HEIGHT);
@@ -165,7 +165,7 @@ int Rasterizer::sgn(int x){
 void Rasterizer::gbham(Vertex &v1, Vertex &v2)
 {
 
-    gbham(ceil(v1.m_pos.x), ceil(v1.m_pos.y), ceil(v2.m_pos.x), ceil(v2.m_pos.y));
+    gbham(ceil(v1.Pos().x), ceil(v1.Pos().y), ceil(v2.Pos().x), ceil(v2.Pos().y));
 
 }
 

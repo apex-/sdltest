@@ -3,7 +3,11 @@
 
 #include "tlcinstance.h"
 #include "camera.h"
+#include "pipelinevertex.h"
 #include "rasterizer.h"
+#include "vertex.h"
+
+#define VERTEX_BUFFER_SIZE 100000
 
 class RenderPipeline
 {
@@ -18,7 +22,7 @@ class RenderPipeline
     private:
         Camera camera_;
         Rasterizer rasterizer_;
-
+        PipelineVertex vb_[VERTEX_BUFFER_SIZE];
 };
 
 #endif // RENDERPIPELINE_H

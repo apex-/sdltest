@@ -67,11 +67,11 @@ int main(int argc, char* argv[]) {
     //uint32_t i = 0;
     //bool zinc = true;
 
-    cout << "Vertex test (0,0,-1.0): " << camera.projectionMatrix() * Vertex(0,0,-1.0).m_pos << endl;
-    cout << "Vertex test (0,0,-1000.0): " << camera.projectionMatrix() * Vertex(0,0,-1000.0).m_pos << endl;
-    cout << "Vertex test (100,100,-100.0): " << camera.projectionMatrix() * Vertex(-100,-100,-1.0).m_pos << endl;
-    cout << "Vertex test (0,0,1.0): " << camera.projectionMatrix() * Vertex(0,0,1.0).m_pos << endl;
-    cout << "Vertex test (0,0,1000.0): " << camera.projectionMatrix() * Vertex(0,0,1000.0).m_pos << endl;
+    cout << "Vertex test (0,0,-1.0): " << camera.projectionMatrix() * Vertex(0,0,-1.0).Pos() << endl;
+    cout << "Vertex test (0,0,-1000.0): " << camera.projectionMatrix() * Vertex(0,0,-1000.0).Pos() << endl;
+    cout << "Vertex test (100,100,-100.0): " << camera.projectionMatrix() * Vertex(-100,-100,-1.0).Pos() << endl;
+    cout << "Vertex test (0,0,1.0): " << camera.projectionMatrix() * Vertex(0,0,1.0).Pos() << endl;
+    cout << "Vertex test (0,0,1000.0): " << camera.projectionMatrix() * Vertex(0,0,1000.0).Pos() << endl;
 
     t1.setPosition(0,0,-2.2);
    // primitive.getModelWorldTransform().setPosition(0.0, 0.0, -2.7);
@@ -132,9 +132,9 @@ int main(int argc, char* argv[]) {
                 Vertex v2p(v2pin);
                 Vertex v3p(v3pin);
 
-                v1p.m_pos = mvPrimitive * v1pin.m_pos;
-                v2p.m_pos = mvPrimitive * v2pin.m_pos;
-                v3p.m_pos = mvPrimitive * v3pin.m_pos;
+                v1p.Pos(mvPrimitive * v1pin.Pos());
+                v2p.Pos(mvPrimitive * v2pin.Pos());
+                v3p.Pos(mvPrimitive * v3pin.Pos());
 
                 v1p.perspectiveDivide();
                 v2p.perspectiveDivide();
@@ -157,14 +157,14 @@ int main(int argc, char* argv[]) {
                 Vertex brr(aabb[1].x, aabb[0].y, aabb[1].z);
                 Vertex tlr(aabb[0].x, aabb[1].y, aabb[1].z);
                 Vertex trr(aabb[1].x, aabb[1].y, aabb[1].z);
-                blf.m_pos = mvPrimitive * blf.m_pos;
-                brf.m_pos = mvPrimitive * brf.m_pos;
-                tlf.m_pos = mvPrimitive * tlf.m_pos;
-                trf.m_pos = mvPrimitive * trf.m_pos;
-                blr.m_pos = mvPrimitive * blr.m_pos;
-                brr.m_pos = mvPrimitive * brr.m_pos;
-                tlr.m_pos = mvPrimitive * tlr.m_pos;
-                trr.m_pos = mvPrimitive * trr.m_pos;
+                blf.Pos(mvPrimitive * blf.Pos());
+                brf.Pos(mvPrimitive * brf.Pos());
+                tlf.Pos(mvPrimitive * tlf.Pos());
+                trf.Pos(mvPrimitive * trf.Pos());
+                blr.Pos(mvPrimitive * blr.Pos());
+                brr.Pos(mvPrimitive * brr.Pos());
+                tlr.Pos(mvPrimitive * tlr.Pos());
+                trr.Pos(mvPrimitive * trr.Pos());
 
                 blf.perspectiveDivide();
                 brf.perspectiveDivide();

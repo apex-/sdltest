@@ -14,26 +14,30 @@ class Vertex
         Vertex();
         Vertex(const Vertex &rhs);
         Vertex(float x, float y, float z);
+
+        inline Vector4 Pos() { return pos_; }
+        inline void Pos(Vector4 pos) { pos_ = pos; }
+
         virtual ~Vertex();
 
 
         inline void perspectiveDivide() {
-            m_pos.x /= m_pos.w;
-            m_pos.y /= m_pos.w;
-            m_pos.z /= m_pos.w;
-            m_pos.w /= m_pos.w;
+            pos_.x /= pos_.w;
+            pos_.y /= pos_.w;
+            pos_.z /= pos_.w;
+            pos_.w /= pos_.w;
         }
 
 
         inline void toScreenCoordinates() {
-                m_pos.x = ((VIEWPORT_WIDTH -1) * -(m_pos.x - 1)) / 2.0;
-                m_pos.y = ((VIEWPORT_HEIGHT -1) * -(m_pos.y - 1)) / 2.0;
+                pos_.x = ((VIEWPORT_WIDTH -1) * -(pos_.x - 1)) / 2.0;
+                pos_.y = ((VIEWPORT_HEIGHT -1) * -(pos_.y - 1)) / 2.0;
         }
 
         friend std::ostream& operator<<(std::ostream& os, const Vertex& m);
 
-        Vector4 m_pos;
-        uint32_t argb;
+        Vector4 pos_;
+        uint32_t argb_;
 
     protected:
 

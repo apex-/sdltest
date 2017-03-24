@@ -96,9 +96,9 @@ Transform& TLCPrimitive::getModelWorldTransform()
 void TLCPrimitive::calculateAabb()
 {
     for (int i=0; i<vertexArray.size(); i++) {
-        float x = vertexArray[i].m_pos.x;
-        float y = vertexArray[i].m_pos.y;
-        float z = vertexArray[i].m_pos.z;
+        float x = vertexArray[i].Pos().x;
+        float y = vertexArray[i].Pos().y;
+        float z = vertexArray[i].Pos().z;
 
         if (x < aabb[0].x) {
             aabb[0].x = x;
