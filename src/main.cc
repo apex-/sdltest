@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 
     TLCPrimitive primitive;
     primitive.loadFromFile("res/mymonkey.obj");
-    primitive.getModelWorldTransform().setPosition(0.0,0.0,-3.0);
+    primitive.getModelWorldTransform().setPosition(0.0,0.0,-2.8);
 
     Vector4 r1(0.3,1.0,0.3,1.0);
     //primitive.getModelWorldTransform().rot.rotate(r1, 3.1415);
@@ -63,9 +63,9 @@ int main(int argc, char* argv[]) {
     Vertex vTestIn(1500.0, 2000.0, -999.0);
     t1.setPosition(0, 0, 0.0);
 
-    float z = -1.01;
+    //float z = -1.01;
     //uint32_t i = 0;
-    bool zinc = true;
+    //bool zinc = true;
 
     cout << "Vertex test (0,0,-1.0): " << camera.projectionMatrix() * Vertex(0,0,-1.0).m_pos << endl;
     cout << "Vertex test (0,0,-1000.0): " << camera.projectionMatrix() * Vertex(0,0,-1000.0).m_pos << endl;
@@ -106,23 +106,23 @@ int main(int argc, char* argv[]) {
 //        rasterizer.rasterize(v1, v2, v3);
 
         primitive.getModelWorldTransform().rot.rotate(r1, i*0.01);
-        //primitive.getModelWorldTransform().movePosition(0.0,0.0,(i%400) > 200 ? 0.01 : -0.01);
-        //primitive.getModelWorldTransform().movePosition(0.0,-0.003,0.0);
+        //primitive.getModelWorldTransform().movePosition(0.0,0.0,(i%400) > 200 ? 0.1 : -0.1);
+        //primitive.getModelWorldTransform().movePosition(0.0,0.0,-0.1);
 
         Matrix4 mw = primitive.getModelWorldTransform().getTransformation();
         Matrix4 mvPrimitive = vp * mw;
         //cout << "MW: " << endl << mw << endl;
         //cout << "VP: " << endl << vp << endl;
         //cout << "MV: " << endl << mvPrimitive << endl;
-        uint8_t clipFlags = primitive.getAabbClipFlags(mvPrimitive);
+        bool boxInsideFrustrum = primitive.isBoxInsideFrustrum(mvPrimitive);
         //cout << "clipFlags: " << (int)clipFlags << endl;
-        if (clipFlags < 128 && clipFlags > 0) {
-            cout << "NEEDS CLIPPING" << endl;
-        }
+        //if (clipFlags < 128 && clipFlags > 0) {
+        //    cout << "NEEDS CLIPPING" << endl;
+        //}
 
-        if (clipFlags == 0) {
+        if (boxInsideFrustrum) {
 
-            for (int i=0; i<primitive.getNumberOfIndices(); i+=3) {
+            for (uint32_t i=0; i<primitive.getNumberOfIndices(); i+=3) {
 
                 Vertex v1pin = primitive.getVertexArray()[primitive.getIndices()[i]];
                 Vertex v2pin = primitive.getVertexArray()[primitive.getIndices()[i+1]];

@@ -27,13 +27,6 @@ class Transform
         quaternion rot;
         Vector3 scalevect;
 
-        //Vector3 pos;
-        //quaternion rot;
-        //Vector4 scale;
-
-
-    protected:
-
     private:
 
 

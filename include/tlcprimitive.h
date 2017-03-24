@@ -28,7 +28,7 @@ class TLCPrimitive
         uint32_t getNumberOfIndices();
         Transform& getModelWorldTransform();
         inline Vector4* getAabbModelSpace() { return aabb; }
-        uint8_t getAabbClipFlags(Matrix4& modelViewTransform);
+        bool isBoxInsideFrustrum(Matrix4& modelViewTransform);
         Transform modelWorldTransform;
     protected:
 

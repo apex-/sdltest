@@ -28,9 +28,6 @@ class Rasterizer
     private:
         int sgn(int x);
 
-
-
-
         static const float EPSILON = 0.00001;
         uint32_t *framebuffer;
         float *zBuffer;

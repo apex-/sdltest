@@ -125,43 +125,36 @@ void TLCPrimitive::calculateAabb()
 }
 
 
-uint8_t TLCPrimitive::getAabbClipFlags(Matrix4& modelViewTransform) {
+bool TLCPrimitive::isBoxInsideFrustrum(Matrix4& modelViewTransform) {
 
-    uint8_t clipFlags = 0;
-    Vector4 mvpbb0 = modelViewTransform * aabb[0];
-    Vector4 mvpbb1 = modelViewTransform * aabb[1];
+    uint8_t num_vertices_outside_bb[6] = {0, 0, 0, 0, 0, 0};
 
-    cout << "minlowleft" << mvpbb0 << endl;
-    cout << "maxtopright" << mvpbb1 << endl;
+    Vector4 bb_vertices[8] = {
+        Vector4(aabb[0].x, aabb[0].y, aabb[0].z, 1.0),
+        Vector4(aabb[1].x, aabb[0].y, aabb[0].z, 1.0),
+        Vector4(aabb[0].x, aabb[1].y, aabb[0].z, 1.0),
+        Vector4(aabb[1].x, aabb[1].y, aabb[0].z, 1.0),
+        Vector4(aabb[0].x, aabb[0].y, aabb[1].z, 1.0),
+        Vector4(aabb[1].x, aabb[0].y, aabb[1].z, 1.0),
+        Vector4(aabb[0].x, aabb[1].y, aabb[1].z, 1.0),
+        Vector4(aabb[1].x, aabb[1].y, aabb[1].z, 1.0)};
 
-    // whole mesh outside (this rejects most of the objects)
-    if (mvpbb0.x < -mvpbb0.w && mvpbb1.x < -mvpbb0.w || // left plane
-        mvpbb1.x > mvpbb0.w && mvpbb0.x > mvpbb0.w  || // right plane
-        mvpbb0.y < -mvpbb0.w && mvpbb1.y < -mvpbb0.w || // bottom plane
-        mvpbb1.y > mvpbb0.w && mvpbb0.y > mvpbb0.w || // top plane
-        mvpbb0.z < -mvpbb0.w && mvpbb1.z < -mvpbb0.w || // front plane
-        mvpbb1.z > mvpbb1.w && mvpbb0.z > mvpbb0.w) { // rear plane
-        return (1 << 7);
+    for (int i=0; i<8; i++) {
+        Vector4 p_mv = modelViewTransform * bb_vertices[i];
+
+        if (p_mv.x < -p_mv.w) num_vertices_outside_bb[0]++;
+        if (p_mv.x > p_mv.w) num_vertices_outside_bb[1]++;
+        if (p_mv.y < -p_mv.w) num_vertices_outside_bb[2]++;
+        if (p_mv.y > p_mv.w) num_vertices_outside_bb[3]++;
+        if (p_mv.z > p_mv.w) num_vertices_outside_bb[4]++;
+        if (p_mv.z < -p_mv.w) num_vertices_outside_bb[5]++;
     }
 
-    // partially inside / partially outside (needs clipping)
-    if (mvpbb0.x < -mvpbb0.w) { // left plane
-        clipFlags |= (1 << 0);
+
+    for (int i=0; i<6; i++) {
+        if (num_vertices_outside_bb[i] > 0) {
+            return false;
+        }
     }
-    if (mvpbb1.x > mvpbb0.w) { // right plane
-        clipFlags |= (1 << 1);
-    }
-    if (mvpbb0.y < -mvpbb0.w) { // bottom plane
-        clipFlags |= (1 << 2);
-    }
-    if (mvpbb1.y > mvpbb0.w) { // top plane
-        clipFlags |= (1 << 3);
-    }
-    if (mvpbb0.z < -mvpbb0.w) { // front plane
-        clipFlags |= (1 << 4);
-    }
-    if (mvpbb1.z > mvpbb1.w) { // rear plane
-        clipFlags |= (1 << 5);
-    }
-    return clipFlags;
+    return true;
 }
