@@ -74,7 +74,7 @@ void Camera::update() {
 
         Matrix4 camera_rotation;
         Vector3 origin;
-        quaternion qrot(rot_);
+        Quaternion qrot(rot_);
         qrot.conjugate().getMatrix(camera_rotation, origin);
         Matrix4 camera_translation(
                  1, 0, 0, 0,

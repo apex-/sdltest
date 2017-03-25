@@ -5,8 +5,8 @@
 
 const float DEG2RAD = 3.14159265f/180.0f;
 
-const uint32_t VIEWPORT_WIDTH = 1920;
-const uint32_t VIEWPORT_HEIGHT = 1080;
+const uint32_t VIEWPORT_WIDTH = 1280;
+const uint32_t VIEWPORT_HEIGHT = 720;
 const uint32_t VIEWPORT_PIXELS = VIEWPORT_WIDTH * VIEWPORT_HEIGHT;
 
 #endif // GLOBAL_H_INCLUDED

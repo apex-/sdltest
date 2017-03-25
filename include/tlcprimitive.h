@@ -15,31 +15,30 @@ using namespace std;
 
 enum CLIPPLANES { left, right, bottom, top, front, rear };
 
-class TLCPrimitive
+class TlcPrimitive
 {
     public:
-        TLCPrimitive();
-        virtual ~TLCPrimitive();
-        TLCPrimitive(const TLCPrimitive& other);
+        TlcPrimitive();
+        virtual ~TlcPrimitive();
+        TlcPrimitive(const TlcPrimitive& other);
         bool loadFromFile(const char *filename);
         vector<Vertex>& getVertexArray();
         uint32_t getNumberOfVertices();
         vector<uint32_t>& getIndices();
         uint32_t getNumberOfIndices();
-        Transform& getModelWorldTransform();
-        inline Vector4* getAabbModelSpace() { return aabb; }
-        bool isBoxInsideFrustrum(Matrix4& modelViewTransform);
-        Transform modelWorldTransform;
+        inline Vector4 (& getAabbModelSpace())[8] { return aabb; }
     protected:
 
     private:
         vector<Vertex> vertexArray;
         vector<uint32_t> indices;
-        void calculateAabb();
-        Vector4 aabb[2]; // axis-aligned bounding box
+        Vector4 aabb[8]; // axis-aligned bounding box points in model-space
 
-    // UV Map
-    // Texture and Lighting parameters
+        void calculateAabb();
+
+
+        // UV Map
+        // Texture and Lighting parameters
 
 };
 

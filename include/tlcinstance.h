@@ -8,16 +8,16 @@ class TlcInstance
 {
     public:
 
-        TlcInstance(TLCPrimitive *tlcprimitive) { tlcprimitive_ = tlcprimitive; }
+        TlcInstance(TlcPrimitive *tlcprimitive) { tlcprimitive_ = tlcprimitive; }
 
         TlcInstance();
-        Transform GetTransform() { return transform_; }
+        Transform& GetTransform() { return transform_; }
         void SetTransform(Transform transform) { transform_ = transform; }
-        TLCPrimitive* GetTlcPrimitive() { return tlcprimitive_; }
+        TlcPrimitive* GetTlcPrimitive() { return tlcprimitive_; }
         virtual ~TlcInstance();
 
     private:
-        TLCPrimitive *tlcprimitive_;
+        TlcPrimitive *tlcprimitive_;
         Transform transform_;
 };
 

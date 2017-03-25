@@ -24,7 +24,7 @@ class Transform
         Matrix4 getTransformation();
 
         Vector3 pos;
-        quaternion rot;
+        Quaternion rot;
         Vector3 scalevect;
 
     private:

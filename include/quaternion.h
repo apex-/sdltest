@@ -2,59 +2,59 @@
 #define _QUATERNION_H
 
 
-class quaternion
+class Quaternion
 {
     public:
 
         const static float ROUNDING_ERROR_FLOAT = 0.000001f;
 
         // Default constructor
-        quaternion() : x(0.0f), y(0.0f), z(0.0f), w(1.0f) { }
+        Quaternion() : x(0.0f), y(0.0f), z(0.0f), w(1.0f) { }
 
-        quaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) { }
+        Quaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) { }
 
         // Cnstructor which converts Euler angles (radians) to a quaternion
-		quaternion(float x, float y, float z);
+		Quaternion(float x, float y, float z);
 
         // Constructor which converts Euler angles (radians) to a quaternion
-		quaternion(const Vector3& vec);
+		Quaternion(const Vector3& vec);
 
 		// Constructor which rotates around a given axis (from 3D Software Rendere BennyBox)
-        quaternion(const Vector4 &axis, float angle);
+        Quaternion(const Vector4 &axis, float angle);
 
         // copy constructor
-        quaternion(const quaternion &rhs);
+        Quaternion(const Quaternion &rhs);
 
-        virtual ~quaternion() { };
+        virtual ~Quaternion() { };
 
         //////////////////////
         //////////////////////
 
 
         //! Equality operator
-		bool operator==(const quaternion& other) const;
+		bool operator==(const Quaternion& other) const;
 
 		//! inequality operator
-		bool operator!=(const quaternion& other) const;
+		bool operator!=(const Quaternion& other) const;
 
 		//! Assignment operator
-		inline quaternion& operator=(const quaternion& other);
+		inline Quaternion& operator=(const Quaternion& other);
 
         //! Add operator
-		quaternion operator+(const quaternion& other) const;
+		Quaternion operator+(const Quaternion& other) const;
 
 		//! Multiplication operator
 		//! Be careful, unfortunately the operator order here is opposite of that in CMatrix4::operator*
-		quaternion operator*(const quaternion& other) const;
+		Quaternion operator*(const Quaternion& other) const;
 
 		//! Multiplication operator with scalar
-		quaternion operator*(float s) const;
+		Quaternion operator*(float s) const;
 
 		//! Multiplication operator with scalar
-		quaternion& operator*=(float s);
+		Quaternion& operator*=(float s);
 
 		//! Multiplication operator
-		quaternion& operator*=(const quaternion& other);
+		Quaternion& operator*=(const Quaternion& other);
 
 		//! Multiplication operator
 		Vector3 operator*(const Vector3& v) const;
@@ -64,31 +64,31 @@ class quaternion
         //////////////////////
 
 		//! Sets new quaternion component values
-		inline quaternion& set(float x, float y, float z, float w);
+		inline Quaternion& set(float x, float y, float z, float w);
 
         //! Sets new quaternion based on Euler angles (radians)
-		inline quaternion& set(float x, float y, float z);
+		inline Quaternion& set(float x, float y, float z);
 
 		//! Sets new quaternion based on Euler angles (radians)
-		inline quaternion& set(const Vector3& vec);
+		inline Quaternion& set(const Vector3& vec);
 
 				//! Sets new quaternion from other quaternion
-		inline quaternion& set(const quaternion& quat);
+		inline Quaternion& set(const Quaternion& quat);
 
 		// rotates around a given axis (from 3D Software Rendere BennyBox)
-		inline quaternion& rotate(const Vector4 &axis, float angle);
+		inline Quaternion& rotate(const Vector4 &axis, float angle);
 
 		//! returns if this quaternion equals the other one, taking floating point rounding errors into account
-		inline bool equals(const quaternion& other,
+		inline bool equals(const Quaternion& other,
 				const float tolerance = ROUNDING_ERROR_FLOAT ) const;
 
         //! returns the norm of the quaternion
         inline float getNorm();
 
 		//! Normalizes the quaternion
-		inline quaternion& normalize();
+		inline Quaternion& normalize();
 
-		inline quaternion& conjugate();
+		inline Quaternion& conjugate();
 
 		//! Creates a matrix from this quaternion
 		void getMatrix( Matrix4 &dest, const Vector3 &translation=Vector3() ) const;
@@ -107,7 +107,7 @@ class quaternion
 
 
 // Constructor which converts Euler angles to a quaternion
-inline quaternion::quaternion(float x, float y, float z)
+inline Quaternion::Quaternion(float x, float y, float z)
 {
 	set(x,y,z);
 }
@@ -115,7 +115,7 @@ inline quaternion::quaternion(float x, float y, float z)
 
 
 // Constructor which rotates around a given axis (from 3D Software Rendere BennyBox)
-inline quaternion::quaternion(const Vector4 &axis, float angle)
+inline Quaternion::Quaternion(const Vector4 &axis, float angle)
 {
     float sinHalfAngle = (float) sin(angle / 2.0);
     float cosHalfAngle = (float) cos(angle/ 2.0) ;
@@ -127,7 +127,7 @@ inline quaternion::quaternion(const Vector4 &axis, float angle)
 }
 
 
-inline quaternion::quaternion(const quaternion &rhs)
+inline Quaternion::Quaternion(const Quaternion &rhs)
 {
     x = rhs.x;
     y = rhs.y;
@@ -143,7 +143,7 @@ inline quaternion::quaternion(const quaternion &rhs)
 
 
 // equal operator
-inline bool quaternion::operator==(const quaternion& other) const
+inline bool Quaternion::operator==(const Quaternion& other) const
 {
 	return ((x == other.x) &&
 		(y == other.y) &&
@@ -152,13 +152,13 @@ inline bool quaternion::operator==(const quaternion& other) const
 }
 
 // inequality operator
-inline bool quaternion::operator!=(const quaternion& other) const
+inline bool Quaternion::operator!=(const Quaternion& other) const
 {
 	return !(*this == other);
 }
 
 // assignment operator
-inline quaternion& quaternion::operator=(const quaternion& other)
+inline Quaternion& Quaternion::operator=(const Quaternion& other)
 {
 	x = other.x;
 	y = other.y;
@@ -169,15 +169,15 @@ inline quaternion& quaternion::operator=(const quaternion& other)
 
 
 // add operator
-inline quaternion quaternion::operator+(const quaternion& b) const
+inline Quaternion Quaternion::operator+(const Quaternion& b) const
 {
-	return quaternion(x+b.x, y+b.y, z+b.z, w+b.w);
+	return Quaternion(x+b.x, y+b.y, z+b.z, w+b.w);
 }
 
 // multiplication operator
-inline quaternion quaternion::operator*(const quaternion& other) const
+inline Quaternion Quaternion::operator*(const Quaternion& other) const
 {
-	quaternion tmp;
+	Quaternion tmp;
 
 	tmp.w = (other.w * w) - (other.x * x) - (other.y * y) - (other.z * z);
 	tmp.x = (other.w * x) + (other.x * w) + (other.y * z) - (other.z * y);
@@ -189,14 +189,14 @@ inline quaternion quaternion::operator*(const quaternion& other) const
 
 
 // multiplication operator
-inline quaternion quaternion::operator*(float s) const
+inline Quaternion Quaternion::operator*(float s) const
 {
-	return quaternion(s*x, s*y, s*z, s*w);
+	return Quaternion(s*x, s*y, s*z, s*w);
 }
 
 
 // multiplication operator
-inline quaternion& quaternion::operator*=(float s)
+inline Quaternion& Quaternion::operator*=(float s)
 {
 	x*=s;
 	y*=s;
@@ -206,13 +206,13 @@ inline quaternion& quaternion::operator*=(float s)
 }
 
 // multiplication operator
-inline quaternion& quaternion::operator*=(const quaternion& other)
+inline Quaternion& Quaternion::operator*=(const Quaternion& other)
 {
 	return (*this = other * (*this));
 }
 
 
-inline Vector3 quaternion::operator* (const Vector3& v) const
+inline Vector3 Quaternion::operator* (const Vector3& v) const
 {
 	// nVidia SDK implementation
 
@@ -233,7 +233,7 @@ inline Vector3 quaternion::operator* (const Vector3& v) const
 
 
 // sets new quaternion
-inline quaternion& quaternion::set(float x, float y, float z, float w)
+inline Quaternion& Quaternion::set(float x, float y, float z, float w)
 {
 	x = x;
 	y = y;
@@ -244,7 +244,7 @@ inline quaternion& quaternion::set(float x, float y, float z, float w)
 
 
 // sets new quaternion based on Euler angles
-inline quaternion& quaternion::set(float x, float y, float z)
+inline Quaternion& Quaternion::set(float x, float y, float z)
 {
 	double angle;
 
@@ -275,21 +275,21 @@ inline quaternion& quaternion::set(float x, float y, float z)
 
 
 // sets new quaternion based on Euler angles
-inline quaternion& quaternion::set(const Vector3& vec)
+inline Quaternion& Quaternion::set(const Vector3& vec)
 {
 	return set(vec.x, vec.y, vec.z);
 }
 
 
 // sets new quaternion based on other quaternion
-inline quaternion& quaternion::set(const quaternion& quat)
+inline Quaternion& Quaternion::set(const Quaternion& quat)
 {
 	return (*this=quat);
 }
 
 
 
-inline quaternion& quaternion::rotate(const Vector4 &axis, float angle) {
+inline Quaternion& Quaternion::rotate(const Vector4 &axis, float angle) {
 
     float sinHalfAngle = (float) sin(angle/2.0);
     float cosHalfAngle = (float) cos(angle/2.0);
@@ -306,7 +306,7 @@ inline quaternion& quaternion::rotate(const Vector4 &axis, float angle) {
 }
 
 //! returns if this quaternion equals the other one, taking floating point rounding errors into account
-inline bool quaternion::equals(const quaternion& other, const float tolerance) const
+inline bool Quaternion::equals(const Quaternion& other, const float tolerance) const
 {
 	return x+tolerance >= other.x &&  x-tolerance <= other.x &&
 		y+tolerance >= other.y &&  y-tolerance <= other.y &&
@@ -315,7 +315,7 @@ inline bool quaternion::equals(const quaternion& other, const float tolerance) c
 }
 
 
-inline float quaternion::getNorm()
+inline float Quaternion::getNorm()
 {
     const float n = x*x + y*y + z*z + w*w;
 
@@ -324,7 +324,7 @@ inline float quaternion::getNorm()
 
 
 // normalizes the quaternion
-inline quaternion& quaternion::normalize()
+inline Quaternion& Quaternion::normalize()
 {
 	const float n = x*x + y*y + z*z + w*w;
 
@@ -337,7 +337,7 @@ inline quaternion& quaternion::normalize()
 }
 
 // conjugate the quaternion
-inline quaternion& quaternion::conjugate()
+inline Quaternion& Quaternion::conjugate()
 {
     x *= -1;
     y *= -1;
@@ -349,7 +349,7 @@ inline quaternion& quaternion::conjugate()
 /*!
 	Creates a matrix from this quaternion
 */
-inline void quaternion::getMatrix(Matrix4 &dest,
+inline void Quaternion::getMatrix(Matrix4 &dest,
 		const Vector3 &center) const
 {
     // TODO: Set directly?
@@ -398,7 +398,7 @@ inline void quaternion::getMatrix(Matrix4 &dest,
 	m2.setInverseTranslation(center);
 	lookat *= m2;
 */
-inline void quaternion::getMatrixCenter(Matrix4 &dest,
+inline void Quaternion::getMatrixCenter(Matrix4 &dest,
 					const Vector3 &center,
 					const Vector3 &translation) const
 {

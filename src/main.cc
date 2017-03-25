@@ -10,11 +10,21 @@
 #include "matrices.h"
 #include "rasterizer.h"
 #include "quaternion.h"
+#include "renderpipeline.h"
+#include "tlcinstance.h"
 #include "transform.h"
 #include "tlcprimitive.h"
 
 
 using namespace std;
+
+Rasterizer rasterizer;
+Camera camera;
+RenderPipeline render_pipeline(&camera, &rasterizer);
+
+SDL_Window *sdlWindow;
+SDL_Renderer *sdlRenderer;
+SDL_Texture *sdlTexture;
 
 /**
 * Entry point of the application
@@ -28,11 +38,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    SDL_Window *sdlWindow;
-    SDL_Renderer *sdlRenderer;
-    SDL_Texture *sdlTexture;
-    Rasterizer rasterizer;
-
     // SDL_WINDOW_FULLSCREEN_DESKTOP
     // SDL_WINDOW_SHOWN
     SDL_CreateWindowAndRenderer(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, SDL_WINDOW_SHOWN, &sdlWindow, &sdlRenderer);
@@ -45,27 +50,16 @@ int main(int argc, char* argv[]) {
         VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
 
-    TLCPrimitive primitive;
+    TlcPrimitive primitive;
     primitive.loadFromFile("res/mymonkey.obj");
-    primitive.getModelWorldTransform().setPosition(0.0,0.0,-2.8);
 
     Vector4 r1(0.3,1.0,0.3,1.0);
-    //primitive.getModelWorldTransform().rot.rotate(r1, 3.1415);
-
-    //Vector4 r1(0.0,0.0,1.0,1.0);
-    //primitive.getModelWorldTransform().rot.rotate(r1, 3.1415);
-
-    Camera camera;
     Transform t1;
     Vertex v1in(0.0, 0.5, 0.0);
     Vertex v2in(0.3, -0.5, 0.0);
     Vertex v3in(-0.3, -0.5, 0.0);
     Vertex vTestIn(1500.0, 2000.0, -999.0);
     t1.setPosition(0, 0, 0.0);
-
-    //float z = -1.01;
-    //uint32_t i = 0;
-    //bool zinc = true;
 
     cout << "Vertex test (0,0,-1.0): " << camera.projectionMatrix() * Vertex(0,0,-1.0).Pos() << endl;
     cout << "Vertex test (0,0,-1000.0): " << camera.projectionMatrix() * Vertex(0,0,-1000.0).Pos() << endl;
@@ -76,134 +70,32 @@ int main(int argc, char* argv[]) {
     t1.setPosition(0,0,-2.2);
    // primitive.getModelWorldTransform().setPosition(0.0, 0.0, -2.7);
 
+    TlcInstance tlcinstance(&primitive);
+    tlcinstance.GetTransform().setPosition(0.0, 0.0, -3.0);
+
     //for (i=0; i<1000; i++) {
     while (true) {
         i++;
-        rasterizer.clearFramebuffer();
-        rasterizer.clearZBuffer();
 
-        Matrix4 vp = camera.viewProjectionMatrix(); // view projection
 
-        // camera.pos.set(i*0.01,0.0, i*0.01);
 
-        //t1.rotate(r1, i*0.02);
-        //t1.movePosition(0.0, 0.1, 0.000);
-        //z-=0.001;
-//        Vertex v1(v1in);
-//        Vertex v2(v2in);
-//        Vertex v3(v3in);
-//        Matrix4 mv = t1.getTransformation(); // model-world transformation
-//        Matrix4 mvp = vp * mv; // Model-View Projection
-//        v1.m_pos = mvp * v1.m_pos;
-//        v2.m_pos = mvp * v2.m_pos;
-//        v3.m_pos = mvp * v3.m_pos;
-//        v1.perspectiveDivide();
-//        v2.perspectiveDivide();
-//        v3.perspectiveDivide();
-//        v1.toScreenCoordinates();
-//        v2.toScreenCoordinates();
-//        v3.toScreenCoordinates();
-//        rasterizer.rasterize(v1, v2, v3);
+            rasterizer.clearFramebuffer();
+       rasterizer.clearZBuffer();
 
-        primitive.getModelWorldTransform().rot.rotate(r1, i*0.01);
-        //primitive.getModelWorldTransform().movePosition(0.0,0.0,(i%400) > 200 ? 0.1 : -0.1);
-        //primitive.getModelWorldTransform().movePosition(0.0,0.0,-0.1);
 
-        Matrix4 mw = primitive.getModelWorldTransform().getTransformation();
-        Matrix4 mvPrimitive = vp * mw;
+
         //cout << "MW: " << endl << mw << endl;
         //cout << "VP: " << endl << vp << endl;
         //cout << "MV: " << endl << mvPrimitive << endl;
-        bool boxInsideFrustrum = primitive.isBoxInsideFrustrum(mvPrimitive);
+
+        //bool boxInsideFrustrum = primitive.isBoxInsideFrustrum(mvPrimitive);
         //cout << "clipFlags: " << (int)clipFlags << endl;
         //if (clipFlags < 128 && clipFlags > 0) {
         //    cout << "NEEDS CLIPPING" << endl;
         //}
 
-        if (boxInsideFrustrum) {
-
-            for (uint32_t i=0; i<primitive.getNumberOfIndices(); i+=3) {
-
-                Vertex v1pin = primitive.getVertexArray()[primitive.getIndices()[i]];
-                Vertex v2pin = primitive.getVertexArray()[primitive.getIndices()[i+1]];
-                Vertex v3pin = primitive.getVertexArray()[primitive.getIndices()[i+2]];
-
-                Vertex v1p(v1pin);
-                Vertex v2p(v2pin);
-                Vertex v3p(v3pin);
-
-                v1p.Pos(mvPrimitive * v1pin.Pos());
-                v2p.Pos(mvPrimitive * v2pin.Pos());
-                v3p.Pos(mvPrimitive * v3pin.Pos());
-
-                v1p.perspectiveDivide();
-                v2p.perspectiveDivide();
-                v3p.perspectiveDivide();
-
-                v1p.toScreenCoordinates();
-                v2p.toScreenCoordinates();
-                v3p.toScreenCoordinates();
-
-                rasterizer.rasterize(v1p, v2p, v3p);
-            }
-
-                            // draw bounding box
-                Vector4 *aabb = primitive.getAabbModelSpace();
-                Vertex blf(aabb[0].x, aabb[0].y, aabb[0].z);
-                Vertex brf(aabb[1].x, aabb[0].y, aabb[0].z);
-                Vertex tlf(aabb[0].x, aabb[1].y, aabb[0].z);
-                Vertex trf(aabb[1].x, aabb[1].y, aabb[0].z);
-                Vertex blr(aabb[0].x, aabb[0].y, aabb[1].z);
-                Vertex brr(aabb[1].x, aabb[0].y, aabb[1].z);
-                Vertex tlr(aabb[0].x, aabb[1].y, aabb[1].z);
-                Vertex trr(aabb[1].x, aabb[1].y, aabb[1].z);
-                blf.Pos(mvPrimitive * blf.Pos());
-                brf.Pos(mvPrimitive * brf.Pos());
-                tlf.Pos(mvPrimitive * tlf.Pos());
-                trf.Pos(mvPrimitive * trf.Pos());
-                blr.Pos(mvPrimitive * blr.Pos());
-                brr.Pos(mvPrimitive * brr.Pos());
-                tlr.Pos(mvPrimitive * tlr.Pos());
-                trr.Pos(mvPrimitive * trr.Pos());
-
-                blf.perspectiveDivide();
-                brf.perspectiveDivide();
-                tlf.perspectiveDivide();
-                trf.perspectiveDivide();
-                blr.perspectiveDivide();
-                brr.perspectiveDivide();
-                tlr.perspectiveDivide();
-                trr.perspectiveDivide();
-
-                blf.toScreenCoordinates();
-                brf.toScreenCoordinates();
-                tlf.toScreenCoordinates();
-                trf.toScreenCoordinates();
-                blr.toScreenCoordinates();
-                brr.toScreenCoordinates();
-                tlr.toScreenCoordinates();
-                trr.toScreenCoordinates();
-
-                // front
-                rasterizer.gbham(blf, brf);
-                rasterizer.gbham(brf, trf);
-                rasterizer.gbham(trf, tlf);
-                rasterizer.gbham(tlf, blf);
-
-                //back
-                rasterizer.gbham(blr, brr);
-                rasterizer.gbham(brr, trr);
-                rasterizer.gbham(trr, tlr);
-                rasterizer.gbham(tlr, blr);
-
-                // connections between front and back
-                rasterizer.gbham(blf, blr);
-                rasterizer.gbham(brf, brr);
-                rasterizer.gbham(trf, trr);
-                rasterizer.gbham(tlf, tlr);
-
-                //rasterizer.gbham();
-        }
+        tlcinstance.GetTransform().rot.rotate(r1, i*0.01);
+        render_pipeline.Draw(tlcinstance);
 
         SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
         SDL_RenderClear(sdlRenderer);

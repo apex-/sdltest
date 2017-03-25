@@ -3,27 +3,27 @@
 #include <vector>
 #include <limits>
 
-TLCPrimitive::TLCPrimitive()
+TlcPrimitive::TlcPrimitive()
 {
     aabb[0].x = std::numeric_limits<int>::max();
-    aabb[1].x = std::numeric_limits<int>::min();
+    aabb[7].x = std::numeric_limits<int>::min();
     aabb[0].y = std::numeric_limits<int>::max();
-    aabb[1].y = std::numeric_limits<int>::min();
+    aabb[7].y = std::numeric_limits<int>::min();
     aabb[0].z = std::numeric_limits<int>::min();
-    aabb[1].z = std::numeric_limits<int>::max();
+    aabb[7].z = std::numeric_limits<int>::max();
 }
 
-TLCPrimitive::~TLCPrimitive()
+TlcPrimitive::~TlcPrimitive()
 {
     //dtor
 }
 
-TLCPrimitive::TLCPrimitive(const TLCPrimitive& other)
+TlcPrimitive::TlcPrimitive(const TlcPrimitive& other)
 {
     //copy ctor
 }
 
-bool TLCPrimitive::loadFromFile(const char *filename)
+bool TlcPrimitive::loadFromFile(const char *filename)
 {
     tinyobj::attrib_t attrib;
     vector<tinyobj::shape_t> shapes;
@@ -57,43 +57,36 @@ bool TLCPrimitive::loadFromFile(const char *filename)
     cout << "FACES (triangulated): " << shapes[0].mesh.num_face_vertices.size() << endl;
     cout << "INDICES (vertex+normal+uv): " << shapes[0].mesh.indices.size() << endl;
     cout << "VERTICES: (*3)" << attrib.vertices.size() << endl;
-    cout << "AABB (min x,y,z) " << aabb[0] << " (max x,y,z) " << aabb[1] << endl;
+    cout << "AABB (min x,y,z) " << aabb[0] << " (max x,y,z) " << aabb[7] << endl;
 
     return result;
 }
 
 
-uint32_t TLCPrimitive::getNumberOfVertices()
+uint32_t TlcPrimitive::getNumberOfVertices()
 {
     return vertexArray.size();
 }
 
 
-vector<Vertex>& TLCPrimitive::getVertexArray()
+vector<Vertex>& TlcPrimitive::getVertexArray()
 {
     return vertexArray;
 }
 
 
-vector<uint32_t>& TLCPrimitive::getIndices()
+vector<uint32_t>& TlcPrimitive::getIndices()
 {
     return indices;
 }
 
 
-uint32_t TLCPrimitive::getNumberOfIndices()
+uint32_t TlcPrimitive::getNumberOfIndices()
 {
     return indices.size();
 }
 
-
-Transform& TLCPrimitive::getModelWorldTransform()
-{
-    return modelWorldTransform;
-}
-
-
-void TLCPrimitive::calculateAabb()
+void TlcPrimitive::calculateAabb()
 {
     for (int i=0; i<vertexArray.size(); i++) {
         float x = vertexArray[i].Pos().x;
@@ -103,58 +96,53 @@ void TLCPrimitive::calculateAabb()
         if (x < aabb[0].x) {
             aabb[0].x = x;
         }
-        if (x > aabb[1].x) {
-            aabb[1].x = x;
+        if (x > aabb[7].x) {
+            aabb[7].x = x;
         }
         if (y < aabb[0].y) {
             aabb[0].y = y;
         }
-        if (y > aabb[1].y) {
-            aabb[1].y = y;
+        if (y > aabb[7].y) {
+            aabb[7].y = y;
         }
         if (z > aabb[0].z) {
             aabb[0].z = z;
         }
-        if (z < aabb[1].z) {
-            aabb[1].z = z;
+        if (z < aabb[7].z) {
+            aabb[7].z = z;
         }
 
         aabb[0].w = 1.0f;
-        aabb[1].w = 1.0f;
-    }
-}
-
-
-bool TLCPrimitive::isBoxInsideFrustrum(Matrix4& modelViewTransform) {
-
-    uint8_t num_vertices_outside_bb[6] = {0, 0, 0, 0, 0, 0};
-
-    Vector4 bb_vertices[8] = {
-        Vector4(aabb[0].x, aabb[0].y, aabb[0].z, 1.0),
-        Vector4(aabb[1].x, aabb[0].y, aabb[0].z, 1.0),
-        Vector4(aabb[0].x, aabb[1].y, aabb[0].z, 1.0),
-        Vector4(aabb[1].x, aabb[1].y, aabb[0].z, 1.0),
-        Vector4(aabb[0].x, aabb[0].y, aabb[1].z, 1.0),
-        Vector4(aabb[1].x, aabb[0].y, aabb[1].z, 1.0),
-        Vector4(aabb[0].x, aabb[1].y, aabb[1].z, 1.0),
-        Vector4(aabb[1].x, aabb[1].y, aabb[1].z, 1.0)};
-
-    for (int i=0; i<8; i++) {
-        Vector4 p_mv = modelViewTransform * bb_vertices[i];
-
-        if (p_mv.x < -p_mv.w) num_vertices_outside_bb[0]++;
-        if (p_mv.x > p_mv.w) num_vertices_outside_bb[1]++;
-        if (p_mv.y < -p_mv.w) num_vertices_outside_bb[2]++;
-        if (p_mv.y > p_mv.w) num_vertices_outside_bb[3]++;
-        if (p_mv.z > p_mv.w) num_vertices_outside_bb[4]++;
-        if (p_mv.z < -p_mv.w) num_vertices_outside_bb[5]++;
+        aabb[7].w = 1.0f;
     }
 
+    aabb[1].x = aabb[7].x;
+    aabb[1].y = aabb[0].y;
+    aabb[1].z = aabb[0].z;
+    aabb[1].w = 1.0;
 
-    for (int i=0; i<6; i++) {
-        if (num_vertices_outside_bb[i] > 0) {
-            return false;
-        }
-    }
-    return true;
+    aabb[2].x = aabb[0].x;
+    aabb[2].y = aabb[7].y;
+    aabb[2].z = aabb[0].z;
+    aabb[2].w = 1.0;
+
+    aabb[3].x = aabb[7].x;
+    aabb[3].y = aabb[7].y;
+    aabb[3].z = aabb[0].z;
+    aabb[3].w = 1.0;
+
+    aabb[4].x = aabb[0].x;
+    aabb[4].y = aabb[0].y;
+    aabb[4].z = aabb[7].z;
+    aabb[4].w = 1.0;
+
+    aabb[5].x = aabb[7].x;
+    aabb[5].y = aabb[0].y;
+    aabb[5].z = aabb[7].z;
+    aabb[5].w = 1.0;
+
+    aabb[6].x = aabb[0].x;
+    aabb[6].y = aabb[7].y;
+    aabb[6].z = aabb[7].z;
+    aabb[6].w = 1.0;
 }
