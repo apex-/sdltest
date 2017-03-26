@@ -18,8 +18,8 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
 
     TlcPrimitive* primitive = tlcinstance.GetTlcPrimitive();
     Matrix4 vpm = camera_->viewProjectionMatrix();
-    Matrix4 tm = tlcinstance.GetTransform().getTransformation();
-    Matrix4 mvpm = vpm * tm;
+    Matrix4 mwt = tlcinstance.GetTransform().getTransformation();
+    Matrix4 mvpm = vpm * mwt;
 
     bool is_inside_frustrum = calculateBoundingBoxParameters(primitive->getAabbModelSpace(), mvpm);
 
@@ -33,27 +33,61 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
 
                 // Calculate the screen position
                 vb_[i].CalcScreenSpacePos();
-            }
 
-            // TODO: Clipping
+                if (bbclipflags_ > 0) { // Check if the bounding-box got clipped
+                    if (bbclipflags_ & 0x01)
+                        vb_[i].ClipFlags((vb_[i].ClipFlags() | (vb_[i].ViewSpacePos().x < -vb_[i].ViewSpacePos().w) ? 0x01 : 0));
+                    if (bbclipflags_ & 0x02)
+                        vb_[i].ClipFlags(vb_[i].ClipFlags() | (vb_[i].ViewSpacePos().x > vb_[i].ViewSpacePos().w) ? 0x02 : 0);
+                    if (bbclipflags_ & 0x04)
+                        vb_[i].ClipFlags((vb_[i].ClipFlags() | (vb_[i].ViewSpacePos().y < -vb_[i].ViewSpacePos().w) ? 0x04 : 0));
+                    if (bbclipflags_ & 0x08)
+                        vb_[i].ClipFlags(vb_[i].ClipFlags() | (vb_[i].ViewSpacePos().y > vb_[i].ViewSpacePos().w) ? 0x08 : 0);
+                    if (bbclipflags_ & 0x10)
+                        vb_[i].ClipFlags((vb_[i].ClipFlags() | (vb_[i].ViewSpacePos().z > vb_[i].ViewSpacePos().w) ? 0x10 : 0));
+                    if (bbclipflags_ & 0x20)
+                        vb_[i].ClipFlags(vb_[i].ClipFlags() | (vb_[i].ViewSpacePos().z < -vb_[i].ViewSpacePos().w) ? 0x20 : 0);
+                }
+            }
 
             for (uint32_t i=0; i<primitive->getNumberOfIndices(); i+=3) {
-                rasterizer_->rasterize(
-                                &vb_[primitive->getIndices()[i]],
-                                &vb_[primitive->getIndices()[i+1]],
-                                &vb_[primitive->getIndices()[i+2]]);
 
+                PipelineVertex *pv1 = &vb_[primitive->getIndices()[i]];
+                PipelineVertex *pv2 = &vb_[primitive->getIndices()[i+1]];
+                PipelineVertex *pv3 = &vb_[primitive->getIndices()[i+2]];
+
+                // back-face culling
+                if ((pv3->ScreenSpacePos().x - pv1->ScreenSpacePos().x) * (pv2->ScreenSpacePos().y - pv1->ScreenSpacePos().y) >=
+                    (pv3->ScreenSpacePos().y - pv1->ScreenSpacePos().y) * (pv2->ScreenSpacePos().x - pv1->ScreenSpacePos().x))
+                        continue;
+
+//                if (pv1->ClipFlags() & pv2->ClipFlags() & pv3->ClipFlags()) {
+//                    continue;
+//                }
+
+                 if (pv1->ClipFlags() | pv2->ClipFlags() | pv3->ClipFlags()) {
+                    continue;
+                }
+
+                rasterizer_->rasterize(pv1, pv2, pv3);
+
+                #ifdef DEBUG
+                DrawBoundingBox();
+                #endif
             }
-            DrawBoundingBox();
+
+
    }
 
 }
 
 bool RenderPipeline::calculateBoundingBoxParameters(Vector4 (&aabb)[8], Matrix4 &mvpm ) {
 
+    int i=0;
+    bbclipflags_ = 0;
     uint8_t num_vertices_outside_bb[6] = {0, 0, 0, 0, 0, 0};
 
-    for (int i=0; i<8; i++) {
+    for (i=0; i<8; i++) {
         view_space_aabb_points_[i] = mvpm * aabb[i];
         if (view_space_aabb_points_[i].x < -view_space_aabb_points_[i].w) num_vertices_outside_bb[0]++;
         if (view_space_aabb_points_[i].x > view_space_aabb_points_[i].w) num_vertices_outside_bb[1]++;
@@ -63,19 +97,25 @@ bool RenderPipeline::calculateBoundingBoxParameters(Vector4 (&aabb)[8], Matrix4 
         if (view_space_aabb_points_[i].z < -view_space_aabb_points_[i].w) num_vertices_outside_bb[5]++;
     }
 
-    for (int i=0; i<6; i++) {
-        if (num_vertices_outside_bb[i] > 0) {
-                cout << i << " bb " <<  num_vertices_outside_bb << endl;
+    for (i=0; i<6; i++) {
+        if (num_vertices_outside_bb[i] == 8) {
+            cout << i << " bb " <<  num_vertices_outside_bb[i] << endl;
             return false;
         }
+        if (num_vertices_outside_bb[i] > 0) bbclipflags_ |= (1 << i);
+
     }
     return true;
-
 }
 
 void RenderPipeline::DrawBoundingBox() {
 
     Vector2 screen_space_aabb_points[8];
+
+    /// TODO: Clip bounding box correctly
+    if (bbclipflags_ > 0) {
+        return;
+    }
 
     for (int i=0; i<8; i++) {
             screen_space_aabb_points[i].x = ((VIEWPORT_WIDTH -1) * -((view_space_aabb_points_[i].x/view_space_aabb_points_[i].w) - 1)) / 2.0f;

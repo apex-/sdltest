@@ -18,6 +18,10 @@
 
 using namespace std;
 
+
+void someVertexTestPoints(Camera &camera);
+
+
 Rasterizer rasterizer;
 Camera camera;
 RenderPipeline render_pipeline(&camera, &rasterizer);
@@ -31,7 +35,7 @@ SDL_Texture *sdlTexture;
 */
 int main(int argc, char* argv[]) {
 
-    uint32_t i = 0;
+    uint32_t num_frame = 0;
 
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0) {
         SDL_Log("Unable to initialize SDL: %s\n", SDL_GetError());
@@ -49,52 +53,25 @@ int main(int argc, char* argv[]) {
         SDL_TEXTUREACCESS_STREAMING,
         VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
-
     TlcPrimitive primitive;
     primitive.loadFromFile("res/mymonkey.obj");
 
     Vector4 r1(0.3,1.0,0.3,1.0);
-    Transform t1;
-    Vertex v1in(0.0, 0.5, 0.0);
-    Vertex v2in(0.3, -0.5, 0.0);
-    Vertex v3in(-0.3, -0.5, 0.0);
-    Vertex vTestIn(1500.0, 2000.0, -999.0);
-    t1.setPosition(0, 0, 0.0);
-
-    cout << "Vertex test (0,0,-1.0): " << camera.projectionMatrix() * Vertex(0,0,-1.0).Pos() << endl;
-    cout << "Vertex test (0,0,-1000.0): " << camera.projectionMatrix() * Vertex(0,0,-1000.0).Pos() << endl;
-    cout << "Vertex test (100,100,-100.0): " << camera.projectionMatrix() * Vertex(-100,-100,-1.0).Pos() << endl;
-    cout << "Vertex test (0,0,1.0): " << camera.projectionMatrix() * Vertex(0,0,1.0).Pos() << endl;
-    cout << "Vertex test (0,0,1000.0): " << camera.projectionMatrix() * Vertex(0,0,1000.0).Pos() << endl;
-
-    t1.setPosition(0,0,-2.2);
-   // primitive.getModelWorldTransform().setPosition(0.0, 0.0, -2.7);
+    someVertexTestPoints(camera);
 
     TlcInstance tlcinstance(&primitive);
     tlcinstance.GetTransform().setPosition(0.0, 0.0, -3.0);
 
-    //for (i=0; i<1000; i++) {
     while (true) {
-        i++;
+        num_frame++;
+        rasterizer.clearFramebuffer();
+        rasterizer.clearZBuffer();
 
+        tlcinstance.GetTransform().rot.rotate(r1, num_frame*0.01);
+        tlcinstance.GetTransform().movePosition(0.0, 0.0, 0.01);
 
+        cout << "TRANS: " << tlcinstance.GetTransform().getTransformation() << endl;
 
-            rasterizer.clearFramebuffer();
-       rasterizer.clearZBuffer();
-
-
-
-        //cout << "MW: " << endl << mw << endl;
-        //cout << "VP: " << endl << vp << endl;
-        //cout << "MV: " << endl << mvPrimitive << endl;
-
-        //bool boxInsideFrustrum = primitive.isBoxInsideFrustrum(mvPrimitive);
-        //cout << "clipFlags: " << (int)clipFlags << endl;
-        //if (clipFlags < 128 && clipFlags > 0) {
-        //    cout << "NEEDS CLIPPING" << endl;
-        //}
-
-        tlcinstance.GetTransform().rot.rotate(r1, i*0.01);
         render_pipeline.Draw(tlcinstance);
 
         SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
@@ -113,8 +90,13 @@ int main(int argc, char* argv[]) {
 }
 
 
-void setup() {
+void someVertexTestPoints(Camera &camera) {
 
+    cout << "Some Vertex test points" << endl;
+    cout << "Vertex test (0,0,-1.0): " << camera.projectionMatrix() * Vertex(0,0,-1.0).Pos() << endl;
+    cout << "Vertex test (0,0,-1000.0): " << camera.projectionMatrix() * Vertex(0,0,-1000.0).Pos() << endl;
+    cout << "Vertex test (100,100,-100.0): " << camera.projectionMatrix() * Vertex(-100,-100,-1.0).Pos() << endl;
+    cout << "Vertex test (0,0,1.0): " << camera.projectionMatrix() * Vertex(0,0,1.0).Pos() << endl;
+    cout << "Vertex test (0,0,1000.0): " << camera.projectionMatrix() * Vertex(0,0,1000.0).Pos() << endl << endl;
 
 }
-

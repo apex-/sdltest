@@ -45,6 +45,9 @@ class PipelineVertex
 
             screen_space_pos_.x = ((VIEWPORT_WIDTH -1) * -((view_space_pos_.x/view_space_pos_.w) - 1)) / 2.0f;
             screen_space_pos_.y = ((VIEWPORT_HEIGHT -1) * -((view_space_pos_.y/view_space_pos_.w) - 1)) / 2.0f;
+
+//            screen_space_pos_.x = ((VIEWPORT_WIDTH -1) * -((view_space_pos_.x/view_space_pos_.w) - 1)) / 2.0f;
+//            screen_space_pos_.y = ((VIEWPORT_HEIGHT -1) * -((view_space_pos_.y/view_space_pos_.w) - 1)) / 2.0f;
         }
 
     private:
