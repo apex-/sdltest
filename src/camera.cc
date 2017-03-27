@@ -11,7 +11,7 @@ Camera::Camera() :  fov_(DEG2RAD * 90.0f),
                     far_plane_(1000.0f),
                     is_up2date_(false)
 {
-      setPerspectiveProjection();
+      SetPerspectiveProjection();
 }
 
 
@@ -26,7 +26,7 @@ Camera::Camera(const Camera& other)
 }
 
 
-void Camera::setPerspectiveProjection() {
+void Camera::SetPerspectiveProjection() {
 
     float tanHalfFov = (float)tan(fov_ / 2.0);
 
@@ -55,13 +55,13 @@ void Camera::setPerspectiveProjection() {
 }
 
 
-Matrix4& Camera::projectionMatrix() {
+Matrix4& Camera::ProjectionMatrix() {
 
     return projection_matrix_;
 }
 
 
-Matrix4& Camera::viewProjectionMatrix() {
+Matrix4& Camera::ViewProjectionMatrix() {
 
     if (!is_up2date_) {
         update();

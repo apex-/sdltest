@@ -21,7 +21,7 @@ class Transform
         void scale(Vector3 scales);
         void rotate(Vector4 &axis, float angle);
 
-        Matrix4 getTransformation();
+        Matrix4 ToMatrix();
 
         Vector3 pos;
         Quaternion rot;

@@ -8,11 +8,15 @@ project (sdltest CXX)
                                                                                                                
 set(SOURCES                                                                                                   
     src/camera.cc
+    src/frustrum.cc
     src/main.cc 
     src/matrices.cc  
+    src/pipelinevertex.cc
     src/plane.cc
+    src/renderpipeline.cc
     src/rasterizer.cc
     src/tinyobjloader.cc
+    src/tlcinstance.cc
     src/tlcprimitive.cc
     src/transform.cc
     src/vertex.cc 

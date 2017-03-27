@@ -76,7 +76,7 @@ void Transform::rotate(Vector4 &axis, float angle) {
     rot.rotate(axis, angle);
 }
 
-Matrix4 Transform::getTransformation() {
+Matrix4 Transform::ToMatrix() {
 
     Matrix4 mpos(1,0,0,0, // 1st column
                  0,1,0,0, // 2nd column

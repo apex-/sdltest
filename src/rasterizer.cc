@@ -47,37 +47,6 @@ void Rasterizer::clearZBuffer() {
 }
 
 
-void Rasterizer::drawScanBuffer(uint32_t yCoord, uint32_t xMin, uint32_t xMax) {
-
-    scanbuffer[yCoord][0] = xMin;
-    scanbuffer[yCoord][1] = xMax;
-}
-
-
-void Rasterizer::rasterize(Vertex &v1, Vertex &v2, Vertex &v3) {
-
-    if (v2.Pos().y < v1.Pos().y) {
-       swap(v1, v2);
-    }
-    if (v3.Pos().y < v2.Pos().y) {
-        swap(v2, v3);
-    }
-    if (v2.Pos().y < v1.Pos().y) {
-        swap(v1, v2);
-    }
-
-
-    // Wireframe using Bresenhams line drawing algorithm
-    gbham(ceil(v1.Pos().x), ceil(v1.Pos().y), ceil(v2.Pos().x), ceil(v2.Pos().y));
-    gbham(ceil(v1.Pos().x), ceil(v1.Pos().y), ceil(v3.Pos().x), ceil(v3.Pos().y));
-    gbham(ceil(v2.Pos().x), ceil(v2.Pos().y), ceil(v3.Pos().x), ceil(v3.Pos().y));
-
-    //scanConvertTriangle(v1, v2, v3);
-    //fillShape(ceil(v1.Pos().y), ceil(v3.Pos().y));
-    //wireframe(ceil(v1.Pos().y), ceil(v3.Pos().y));
-
-}
-
 void Rasterizer::rasterize(PipelineVertex *v1, PipelineVertex *v2, PipelineVertex *v3) {
 
 
@@ -92,23 +61,22 @@ void Rasterizer::rasterize(PipelineVertex *v1, PipelineVertex *v2, PipelineVerte
     }
 
     // Wireframe using Bresenhams line drawing algorithm
-    gbham(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y));
-    gbham(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y));
-    gbham(ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y));
-
-    //scanConvertTriangle(v1, v2, v3);
-    //fillShape(ceil(v1.ScreenSpacePos().y), ceil(v3.ScreenSpacePos().y));
-    //wireframe(ceil(v1.ScreenSpacePos().y), ceil(v3.ScreenSpacePos().y));
+    //gbham(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y));
+    //gbham(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y));
+    //gbham(ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y));
+    scanConvertTriangle(v1, v2, v3);
+    fillShape(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y));
+    wireframe(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y));
 }
 
 
-void Rasterizer::scanConvertTriangle(Vertex &vminy, Vertex &vmidy, Vertex &vmaxy) {
+void Rasterizer::scanConvertTriangle(PipelineVertex *vminy, PipelineVertex *vmidy, PipelineVertex *vmaxy) {
 
     // determine the handedness of the triangle
-    float x1 = vmaxy.Pos().x - vminy.Pos().x;
-    float y1 = vmaxy.Pos().y - vminy.Pos().y;
-    float x2 = vmidy.Pos().x - vminy.Pos().x;
-    float y2 = vmidy.Pos().y - vminy.Pos().y;
+    float x1 = vmaxy->ScreenSpacePos().x - vminy->ScreenSpacePos().x;
+    float y1 = vmaxy->ScreenSpacePos().y - vminy->ScreenSpacePos().y;
+    float x2 = vmidy->ScreenSpacePos().x - vminy->ScreenSpacePos().x;
+    float y2 = vmidy->ScreenSpacePos().y - vminy->ScreenSpacePos().y;
     float cproduct = (x1 * y2 - x2 * y1);
     int side = cproduct > 0 ? 0 : 1;
 
@@ -118,97 +86,27 @@ void Rasterizer::scanConvertTriangle(Vertex &vminy, Vertex &vmidy, Vertex &vmaxy
 }
 
 
-void Rasterizer::scanConvertLine(Vertex& vminy, Vertex& vmaxy, int side) {
+void Rasterizer::scanConvertLine(PipelineVertex *vminy, PipelineVertex *vmaxy, int side) {
 
-    uint32_t ystart = (int) (ceil(vminy.Pos().y));
-    uint32_t yend = (int) (ceil(vmaxy.Pos().y));
-    float ydist = vmaxy.Pos().y - vminy.Pos().y;
+    uint32_t ystart = (int) (ceil(vminy->ScreenSpacePos().y));
+    uint32_t yend = (int) (ceil(vmaxy->ScreenSpacePos().y));
+    float ydist = vmaxy->ScreenSpacePos().y - vminy->ScreenSpacePos().y;
     if (ydist <= EPSILON) {
         return;
     }
-    float xstep = (vmaxy.Pos().x - vminy.Pos().x) / ydist;
-    float curx = vminy.Pos().x + (ystart - vminy.Pos().y) * xstep;
+    float xstep = (vmaxy->ScreenSpacePos().x - vminy->ScreenSpacePos().x) / ydist;
+    float curx = vminy->ScreenSpacePos().x + (ystart - vminy->ScreenSpacePos().y) * xstep;
 
     // TODO: Debug code
     assert(ystart >= 0 && ystart <= VIEWPORT_HEIGHT);
     assert(yend >= 0 && yend <= VIEWPORT_HEIGHT);
 
-    // TODO: REMOVE
-//    if (ystart < 0) {
-//        ystart = 0;
-//    }
-//    if (ystart > VIEWPORT_HEIGHT) {
-//        ystart = VIEWPORT_HEIGHT;
-//    }
-
     for (uint32_t i=ystart; i<yend; i++) {
-
-        // TODO: REMOVE
-//        if (ceil(curx) < 0 && ceil(curx) > VIEWPORT_WIDTH) {
-//            continue;
-//        }
-        // TODO: Debug code
         assert(ceil(curx) >= 0 && ceil(curx) <= VIEWPORT_WIDTH);
         scanbuffer[i][side] = ceil(curx);
         curx += xstep;
     }
 }
-
-
-
-
-void Rasterizer::scanConvertTriangle(PipelineVertex &vminy, PipelineVertex &vmidy, PipelineVertex &vmaxy) {
-
-    // determine the handedness of the triangle
-    float x1 = vmaxy.ScreenSpacePos().x - vminy.ScreenSpacePos().x;
-    float y1 = vmaxy.ScreenSpacePos().y - vminy.ScreenSpacePos().y;
-    float x2 = vmidy.ScreenSpacePos().x - vminy.ScreenSpacePos().x;
-    float y2 = vmidy.ScreenSpacePos().y - vminy.ScreenSpacePos().y;
-    float cproduct = (x1 * y2 - x2 * y1);
-    int side = cproduct > 0 ? 0 : 1;
-
-    scanConvertLine(vminy, vmidy, side);
-    scanConvertLine(vmidy, vmaxy, side);
-    scanConvertLine(vminy, vmaxy, 1 - side);
-}
-
-
-void Rasterizer::scanConvertLine(PipelineVertex& vminy, PipelineVertex& vmaxy, int side) {
-
-    uint32_t ystart = (int) (ceil(vminy.ScreenSpacePos().y));
-    uint32_t yend = (int) (ceil(vmaxy.ScreenSpacePos().y));
-    float ydist = vmaxy.ScreenSpacePos().y - vminy.ScreenSpacePos().y;
-    if (ydist <= EPSILON) {
-        return;
-    }
-    float xstep = (vmaxy.ScreenSpacePos().x - vminy.ScreenSpacePos().x) / ydist;
-    float curx = vminy.ScreenSpacePos().x + (ystart - vminy.ScreenSpacePos().y) * xstep;
-
-    // TODO: Debug code
-    assert(ystart >= 0 && ystart <= VIEWPORT_HEIGHT);
-    assert(yend >= 0 && yend <= VIEWPORT_HEIGHT);
-
-    // TODO: REMOVE
-//    if (ystart < 0) {
-//        ystart = 0;
-//    }
-//    if (ystart > VIEWPORT_HEIGHT) {
-//        ystart = VIEWPORT_HEIGHT;
-//    }
-
-    for (uint32_t i=ystart; i<yend; i++) {
-
-        // TODO: REMOVE
-//        if (ceil(curx) < 0 && ceil(curx) > VIEWPORT_WIDTH) {
-//            continue;
-//        }
-        // TODO: Debug code
-        assert(ceil(curx) >= 0 && ceil(curx) <= VIEWPORT_WIDTH);
-        scanbuffer[i][side] = ceil(curx);
-        curx += xstep;
-    }
-}
-
 
 
 inline void Rasterizer::fillShape(uint32_t yMin, uint32_t yMax) {
@@ -217,7 +115,7 @@ inline void Rasterizer::fillShape(uint32_t yMin, uint32_t yMax) {
 
     for (uint32_t j=yMin; j<yMax; j++) {
         for (uint32_t i=scanbuffer[j][0]; i<scanbuffer[j][1]; i++) {
-            framebuffer[j*VIEWPORT_WIDTH+i] = 0xff8888ff;
+            framebuffer[j*VIEWPORT_WIDTH+i] = 0xff5555ff;
         }
     }
 }
@@ -295,7 +193,7 @@ void Rasterizer::gbham(int xstart,int ystart,int xend,int yend)
    y = ystart;
    err = el/2;
 
-   framebuffer[y*VIEWPORT_WIDTH+x] = 0xAAAAAAAA;
+   framebuffer[y*VIEWPORT_WIDTH+x] = 0xFFCCCCCC;
    //SetPixel(x,y);
 
 /* Pixel berechnen */
@@ -317,7 +215,7 @@ void Rasterizer::gbham(int xstart,int ystart,int xend,int yend)
           y += pdy;
       }
 
-      framebuffer[y*VIEWPORT_WIDTH+x] = 0xAAAAAAAA;
+      framebuffer[y*VIEWPORT_WIDTH+x] = 0xFFCCCCCC;
 
       //SetPixel(x,y);
    }

@@ -12,14 +12,13 @@ class Camera
         virtual ~Camera();
         Camera(const Camera& other);
 
-        void setPerspectiveProjection();
-
-        Matrix4& projectionMatrix();
-        Matrix4& viewProjectionMatrix();
-        Vector3 pos() const { return pos_; };
-        void pos(Vector3 pos) { pos_ = pos; is_up2date_ = false; };
-        Quaternion rot() const { return rot_; };
-        void rot (Quaternion rot) { rot_ = rot; is_up2date_ = false; };
+        void SetPerspectiveProjection();
+        Matrix4& ProjectionMatrix();
+        Matrix4& ViewProjectionMatrix();
+        Vector3 Pos() const { return pos_; };
+        void Pos(Vector3 pos) { pos_ = pos; is_up2date_ = false; };
+        Quaternion Rot() const { return rot_; };
+        void Rot(Quaternion rot) { rot_ = rot; is_up2date_ = false; };
 
     protected:
 
@@ -41,4 +40,4 @@ class Camera
         void update(); // updates all necessary informations
 };
 
-#endif // _CAMERA_H
+#endif // _CAMERA_Hs

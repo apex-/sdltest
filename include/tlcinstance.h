@@ -11,8 +11,8 @@ class TlcInstance
         TlcInstance(TlcPrimitive *tlcprimitive) { tlcprimitive_ = tlcprimitive; }
 
         TlcInstance();
-        Transform& GetTransform() { return transform_; }
-        void SetTransform(Transform transform) { transform_ = transform; }
+        Transform& Transformation() { return transform_; }
+        void Transformation(Transform &transform) { transform_ = transform; }
         TlcPrimitive* GetTlcPrimitive() { return tlcprimitive_; }
         virtual ~TlcInstance();
 

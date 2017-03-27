@@ -53,26 +53,38 @@ int main(int argc, char* argv[]) {
         SDL_TEXTUREACCESS_STREAMING,
         VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
-    TlcPrimitive primitive;
-    primitive.loadFromFile("res/mymonkey.obj");
+    TlcPrimitive monkey;
+    monkey.loadFromFile("res/mymonkey.obj");
 
-    Vector4 r1(0.3,1.0,0.3,1.0);
+    Vector4 r1(0.0,1.0,0.3,1.0);
+    Vector4 r2(0.0,1.0,0.0,1.0);
     someVertexTestPoints(camera);
 
-    TlcInstance tlcinstance(&primitive);
-    tlcinstance.GetTransform().setPosition(0.0, 0.0, -3.0);
+    TlcInstance monkey_1(&monkey);
+    monkey_1.Transformation().setPosition(0.0, 0.0, -3.0);
+
+    TlcInstance monkey_2(&monkey);
+    monkey_2.Transformation().setPosition(4.0, -3.0, -6.0);
+
+    TlcInstance monkey_3(&monkey);
+    monkey_3.Transformation().setPosition(-4.0, 3.0, -6.0);
+
 
     while (true) {
+
         num_frame++;
         rasterizer.clearFramebuffer();
         rasterizer.clearZBuffer();
 
-        tlcinstance.GetTransform().rot.rotate(r1, num_frame*0.01);
-        tlcinstance.GetTransform().movePosition(0.0, 0.0, 0.01);
+        monkey_1.Transformation().rot.rotate(r1, num_frame*-0.01);
+        //monkey_1.Transformation().movePosition(0.002, 0.0, 0.0);
+        monkey_2.Transformation().movePosition(0.01, 0.0, 0.0);
+        monkey_2.Transformation().rot.rotate(r2, num_frame*0.01);
+        monkey_3.Transformation().rot.rotate(r2, num_frame*0.01);
 
-        cout << "TRANS: " << tlcinstance.GetTransform().getTransformation() << endl;
-
-        render_pipeline.Draw(tlcinstance);
+        render_pipeline.Draw(monkey_1);
+        render_pipeline.Draw(monkey_2);
+        render_pipeline.Draw(monkey_3);
 
         SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
         SDL_RenderClear(sdlRenderer);
@@ -93,10 +105,10 @@ int main(int argc, char* argv[]) {
 void someVertexTestPoints(Camera &camera) {
 
     cout << "Some Vertex test points" << endl;
-    cout << "Vertex test (0,0,-1.0): " << camera.projectionMatrix() * Vertex(0,0,-1.0).Pos() << endl;
-    cout << "Vertex test (0,0,-1000.0): " << camera.projectionMatrix() * Vertex(0,0,-1000.0).Pos() << endl;
-    cout << "Vertex test (100,100,-100.0): " << camera.projectionMatrix() * Vertex(-100,-100,-1.0).Pos() << endl;
-    cout << "Vertex test (0,0,1.0): " << camera.projectionMatrix() * Vertex(0,0,1.0).Pos() << endl;
-    cout << "Vertex test (0,0,1000.0): " << camera.projectionMatrix() * Vertex(0,0,1000.0).Pos() << endl << endl;
+    cout << "Vertex test (0,0,-1.0): " << camera.ProjectionMatrix() * Vertex(0,0,-1.0).Pos() << endl;
+    cout << "Vertex test (0,0,-1000.0): " << camera.ProjectionMatrix() * Vertex(0,0,-1000.0).Pos() << endl;
+    cout << "Vertex test (100,100,-100.0): " << camera.ProjectionMatrix() * Vertex(-100,-100,-1.0).Pos() << endl;
+    cout << "Vertex test (0,0,1.0): " << camera.ProjectionMatrix() * Vertex(0,0,1.0).Pos() << endl;
+    cout << "Vertex test (0,0,1000.0): " << camera.ProjectionMatrix() * Vertex(0,0,1000.0).Pos() << endl << endl;
 
 }
