@@ -11,37 +11,34 @@
 class Vertex
 {
     public:
-        Vertex();
+        Vertex() { };
         Vertex(const Vertex &rhs);
         Vertex(float x, float y, float z);
 
         inline Vector4 Pos() { return pos_; }
         inline void Pos(Vector4 pos) { pos_ = pos; }
+        inline void Pos(float x, float y, float z) { pos_.x = x; pos_.y = y; pos_.z = z; }
+
+        inline Vector4 Normal() { return normal_; }
+        inline void Normal(Vector4 normal) { normal_; }
+        inline void Normal(float x, float y, float z) { normal_.x = x; normal_.y = y; normal_.z = z; }
+
+        inline Vector2 TexCoord() { return texcoord_; }
+        inline void TexCoord(Vector2 texcoord) { texcoord_ = texcoord; }
+        inline void TexCoord(float u, float v) { texcoord_.x = u; texcoord_.y = v; }
+
+        inline uint32_t Color() { return color_; }
+        inline uint32_t Color(uint32_t color ) { color_ = color; }
 
         virtual ~Vertex();
 
-
-        inline void perspectiveDivide() {
-            pos_.x /= pos_.w;
-            pos_.y /= pos_.w;
-            pos_.z /= pos_.w;
-            pos_.w /= pos_.w;
-        }
-
-
-        inline void toScreenCoordinates() {
-                pos_.x = ((VIEWPORT_WIDTH -1) * -(pos_.x - 1)) / 2.0;
-                pos_.y = ((VIEWPORT_HEIGHT -1) * -(pos_.y - 1)) / 2.0;
-        }
-
         friend std::ostream& operator<<(std::ostream& os, const Vertex& m);
 
-        Vector4 pos_;
-        uint32_t argb_;
-
-    protected:
-
     private:
+        Vector4 pos_;
+        Vector4 normal_;
+        Vector2 texcoord_;
+        uint32_t color_;
 
 };
 

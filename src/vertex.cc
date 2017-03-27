@@ -7,10 +7,6 @@
 
 using namespace std;
 
-Vertex::Vertex()
-{
-    //ctor
-}
 
 Vertex::Vertex(const Vertex &rhs) {
 
@@ -18,7 +14,7 @@ Vertex::Vertex(const Vertex &rhs) {
     pos_.y = rhs.pos_.y;
     pos_.z = rhs.pos_.z;
     pos_.w = rhs.pos_.w;
-    argb_ = rhs.argb_;
+    color_ = rhs.color_;
 
 }
 

@@ -29,6 +29,7 @@ bool TlcPrimitive::loadFromFile(const char *filename)
     vector<tinyobj::shape_t> shapes;
     vector<tinyobj::material_t> materials;
     string err;
+    Vertex v(0.0f,0.0f,0.0f);
 
     bool result = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filename, NULL, true);
 
@@ -40,11 +41,21 @@ bool TlcPrimitive::loadFromFile(const char *filename)
 
 
     for (int i=0; i<attrib.vertices.size(); i+= 3) {
-          float x = attrib.vertices[0 + i];
-          float y = attrib.vertices[1 + i];
-          float z = attrib.vertices[2 + i];
-          Vertex v(x,y,z);
-          vertexArray.push_back(v);
+        float pos_x = attrib.vertices[0 + i];
+        float pos_y = attrib.vertices[1 + i];
+        float pos_z = attrib.vertices[2 + i];
+        float normal_x = attrib.normals[0 + i];
+        float normal_y = attrib.normals[1 + i];
+        float normal_z = attrib.normals[2 + i];
+        //float texcoord_u = attrib.texcoords[0 + i];
+        //float texcoord_v = attrib.texcoords[1 + i];
+        //float texcoord_z = attrib.texcoords[2 + i];
+
+        v.Pos(pos_x, pos_y, pos_z);
+        v.Normal(normal_x, normal_y, normal_z);
+        //v.TexCoord(texcoord_u, texcoord_v);
+
+        vertexArray.push_back(v);
     }
 
     for (int i=0; i<shapes[0].mesh.indices.size(); i++) {
