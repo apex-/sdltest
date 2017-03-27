@@ -30,12 +30,3 @@ void Frustrum::updatePlanes(Matrix4 &model_view_projection_matrix)
     planes[4].normalize();
     planes[5].normalize();
 }
-
-
-
-int boxInFrustrum(Vector4 aabb)
-{
-
-
-
-}

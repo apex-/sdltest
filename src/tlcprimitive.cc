@@ -40,7 +40,7 @@ bool TlcPrimitive::loadFromFile(const char *filename)
     }
 
 
-    for (int i=0; i<attrib.vertices.size(); i+= 3) {
+    for (uint32_t i=0; i<attrib.vertices.size(); i+= 3) {
         float pos_x = attrib.vertices[0 + i];
         float pos_y = attrib.vertices[1 + i];
         float pos_z = attrib.vertices[2 + i];
@@ -58,7 +58,7 @@ bool TlcPrimitive::loadFromFile(const char *filename)
         vertexArray.push_back(v);
     }
 
-    for (int i=0; i<shapes[0].mesh.indices.size(); i++) {
+    for (uint32_t i=0; i<shapes[0].mesh.indices.size(); i++) {
         int index = shapes[0].mesh.indices[i].vertex_index;
         indices.push_back(index);
     }
@@ -99,7 +99,7 @@ uint32_t TlcPrimitive::getNumberOfIndices()
 
 void TlcPrimitive::calculateAabb()
 {
-    for (int i=0; i<vertexArray.size(); i++) {
+    for (uint32_t i=0; i<vertexArray.size(); i++) {
         float x = vertexArray[i].Pos().x;
         float y = vertexArray[i].Pos().y;
         float z = vertexArray[i].Pos().z;

@@ -11,34 +11,34 @@ class PipelineVertex
         PipelineVertex();
         virtual ~PipelineVertex();
 
-        inline Vector4 ViewSpacePos() { return view_space_pos_; }
+        inline Vector4& ViewSpacePos() { return view_space_pos_; } const
         inline void ViewSpacePos(Vector4 view_space_pos) { view_space_pos_ = view_space_pos; }
 
-        inline Vector4 ViewSpaceNormal() { return view_space_normal_; }
+        inline Vector4& ViewSpaceNormal() { return view_space_normal_; }  const
         inline void ViewSpaceNormal(Vector4 view_space_normal) { view_space_normal_ = view_space_normal; }
 
-        inline uint8_t IsLit() { return is_lit_; }
+        inline uint8_t IsLit() { return is_lit_; }  const
         inline void IsLit(uint8_t is_lit) { is_lit_ = is_lit; }
 
-        inline uint8_t ClipFlags() { return clip_flags_; }
+        inline uint8_t ClipFlags() { return clip_flags_; }  const
         inline void ClipFlags(uint8_t clip_flags) { clip_flags_ = clip_flags; }
 
-        inline uint16_t Wasted() { return wasted_; }
+        inline uint16_t Wasted() { return wasted_; }  const
         inline void Wasted(uint16_t wasted) { wasted_ = wasted; }
 
-        inline Vector2 ScreenSpacePos() { return screen_space_pos_; }
+        inline Vector2& ScreenSpacePos() { return screen_space_pos_; }  const
         inline void ScreenSpacePos(Vector2 screen_space_pos) { screen_space_pos_ = screen_space_pos; }
 
-        inline uint32_t Color() { return color_; }
+        inline uint32_t Color() { return color_; }  const
         inline void Color(uint32_t color) { color_ = color; }
 
-        inline uint32_t Specular() { return specular_; }
+        inline uint32_t Specular() { return specular_; }  const
         inline void Specular(uint32_t specular) { specular_ = specular; }
 
-        inline float U() { return u_; }
+        inline float U() { return u_; }  const
         inline void U(float u) { u_ = u; }
 
-        inline float V() { return v_; }
+        inline float V() { return v_; }  const
         inline void V(float v) { v_ = v; }
 
         inline void CalcScreenSpacePos() {

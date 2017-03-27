@@ -64,10 +64,10 @@ int main(int argc, char* argv[]) {
     monkey_1.Transformation().setPosition(0.0, 0.0, -3.0);
 
     TlcInstance monkey_2(&monkey);
-    monkey_2.Transformation().setPosition(4.0, -3.0, -6.0);
+    monkey_2.Transformation().setPosition(3.0, -3.0, -5.0);
 
     TlcInstance monkey_3(&monkey);
-    monkey_3.Transformation().setPosition(-4.0, 3.0, -6.0);
+    monkey_3.Transformation().setPosition(-3.0, 3.0, -5.0);
 
 
     while (true) {
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 
         monkey_1.Transformation().rot.rotate(r1, num_frame*-0.01);
         //monkey_1.Transformation().movePosition(0.002, 0.0, 0.0);
-        monkey_2.Transformation().movePosition(0.01, 0.0, 0.0);
+        //monkey_2.Transformation().movePosition(0.01, 0.0, 0.0);
         monkey_2.Transformation().rot.rotate(r2, num_frame*0.01);
         monkey_3.Transformation().rot.rotate(r2, num_frame*0.01);
 

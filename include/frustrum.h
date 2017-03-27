@@ -9,7 +9,6 @@ class Frustrum
     public:
         Frustrum();
         void updatePlanes(Matrix4 &model_view_projection_matrix);
-        int boxInFrustrum(Vector4 aabb);
         virtual ~Frustrum();
 
     private:
