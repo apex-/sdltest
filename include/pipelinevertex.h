@@ -13,6 +13,7 @@ class PipelineVertex
 
         inline Vector4& ViewSpacePos() { return view_space_pos_; } const
         inline void ViewSpacePos(Vector4 view_space_pos) { view_space_pos_ = view_space_pos; }
+        inline void ViewSpacePos(float x, float y, float z, float w) { view_space_pos_.x=x; view_space_pos_.y=y; view_space_pos_.z=z; view_space_pos_.w=w; }
 
         inline Vector4& ViewSpaceNormal() { return view_space_normal_; }  const
         inline void ViewSpaceNormal(Vector4 view_space_normal) { view_space_normal_ = view_space_normal; }

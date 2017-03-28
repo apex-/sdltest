@@ -19,7 +19,7 @@ class Vertex
         inline void Pos(Vector4 pos) { pos_ = pos; }
         inline void Pos(float x, float y, float z) { pos_.x = x; pos_.y = y; pos_.z = z; }
 
-        inline Vector4 Normal() { return normal_; }
+        inline Vector4 Normal() const { return normal_; }
         //inline void Normal(Vector4 normal) { normal_; }
         inline void Normal(float x, float y, float z) { normal_.x = x; normal_.y = y; normal_.z = z; }
 

@@ -37,6 +37,7 @@ bool TlcPrimitive::loadFromFile(const char *filename)
         cout << "Successfully loaded " << filename << endl;
     } else {
         cout << "Failed loading obj file" << filename << endl;
+        return false;
     }
 
 
@@ -65,10 +66,10 @@ bool TlcPrimitive::loadFromFile(const char *filename)
 
     calculateAabb();
 
-    cout << "FACES (triangulated): " << shapes[0].mesh.num_face_vertices.size() << endl;
-    cout << "INDICES (vertex+normal+uv): " << shapes[0].mesh.indices.size() << endl;
-    cout << "VERTICES: (*3)" << attrib.vertices.size() << endl;
-    cout << "AABB (min x,y,z) " << aabb[0] << " (max x,y,z) " << aabb[7] << endl;
+    cout << "faces (triangulated): " << shapes[0].mesh.num_face_vertices.size() << endl;
+    cout << "indices (vertex+normal+uv): " << shapes[0].mesh.indices.size() << endl;
+    cout << "vertices (*3): " << attrib.vertices.size() << endl;
+    cout << "aabb lbn: " << aabb[0] << " rtf: " << aabb[7] << endl;
 
     return result;
 }

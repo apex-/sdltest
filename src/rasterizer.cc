@@ -61,12 +61,12 @@ void Rasterizer::rasterize(PipelineVertex *v1, PipelineVertex *v2, PipelineVerte
     }
 
     // Wireframe using Bresenhams line drawing algorithm
-    //gbham(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y));
-    //gbham(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y));
-    //gbham(ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y));
-    scanConvertTriangle(v1, v2, v3);
-    fillShape(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y));
-    wireframe(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y));
+    gbham(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y));
+    gbham(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y));
+    gbham(ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y));
+    //scanConvertTriangle(v1, v2, v3);
+    //fillShape(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y));
+    //wireframe(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y));
 }
 
 
