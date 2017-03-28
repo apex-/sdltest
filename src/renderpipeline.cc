@@ -89,8 +89,6 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
 
                     } else if (n_out == 2) {
 
-                        continue;
-
                         cout << "in n == 2" << endl;
                         PipelineVertex pc1(*p_out[0]);
                         PipelineVertex pc2(*p_out[1]);
@@ -99,35 +97,38 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
                         pc1.CalcScreenSpacePos();
                         pc2.CalcScreenSpacePos();
 
-                        rasterizer_->rasterize(&pc1, &pc2, p_in[0]);
+                        //rasterizer_->rasterize(&pc1, &pc2, p_in[0]);
 
                     } else if (n_out == 1) { // n_out == 1
 
-
-
-
                         PipelineVertex pc1(*p_out[0]);
                         PipelineVertex pc2(*p_out[0]);
+
+
+
+                        //cout << "p_out[0] addr " << p_out[0] << endl;
+                        //cout << "p_in[0] addr " << p_in[0] << endl;
+
+                        //cout << " p_out[0] clipflags: " << (int)p_out[0]->ClipFlags() << endl;
+                        //cout << " p_in[0] clipflags: " << (int)p_in[0]->ClipFlags() << endl;
+                        //cout << " p_in[1] clipflags: " << (int)p_in[1]->ClipFlags() << endl;
+                        cout << endl;
+
+                        ClipLerp(p_out[0], p_in[0], &pc1);
+                        ClipLerp(p_out[0], p_in[1], &pc2);
 
                         cout << "N-OUT1: p_out[0] " << p_out[0]->ViewSpacePos() << endl;
                         cout << "N-OUT1: p_in[0] " << p_in[0]->ViewSpacePos() << endl;
                         cout << "N-OUT1: p_in[1] " << p_in[1]->ViewSpacePos() << endl;
                         cout << "N-OUT1: pc1 " << pc1.ViewSpacePos() << endl;
                         cout << "N-OUT1: pc2 " << pc2.ViewSpacePos() << endl;
+                        cout << endl;
 
-                        cout << "p_in[0] " << p_in[0] << endl;
-                         cout << "p_in[1] " << p_in[1] << endl;
-                        ClipLerp(p_out[0], p_in[0], &pc1);
-                        ClipLerp(p_out[0], p_in[1], &pc2);
                         pc1.CalcScreenSpacePos();
                         pc2.CalcScreenSpacePos();
 
-
-
                          rasterizer_->rasterize(p_in[0], p_in[1], &pc1);
-
-
-                         //rasterizer_->rasterize(&pc1, &pc2, p_in[1]);
+                         rasterizer_->rasterize(&pc1, &pc2, p_in[1]);
                     }
 
                 } else {
@@ -146,68 +147,69 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
 
 bool RenderPipeline::ClipLerp(PipelineVertex *pout, PipelineVertex *pin, PipelineVertex *pclip) {
 
-     cout << "HELLOOOOOO" << endl << endl;
+     //cout << "HELLOOOOOO" << endl << endl;
 
-      cout << "cliplerp p_in[0] " << pout << endl;
-      cout << "cliplerp p_in[1] " << pin << endl;
+     // cout << "cliplerp p_out[0] " << pout << endl;
+     // cout << "cliplerp p_in[0] " << pin << endl;
 
     // Cohen-Sutherland algorithm (3D Version)
     float clipvalue;
 
-    assert(abs(pin->ViewSpacePos().x - pout->ViewSpacePos().x) > 0.0000001);
+    //assert(abs(pin->ViewSpacePos().x - pout->ViewSpacePos().x) > 0.0000001);
 
     if (pout->ClipFlags() & 0x01) {
         clipvalue = -pout->ViewSpacePos().w;
-            pclip->ViewSpacePos(clipvalue * 0.9999,
-            pout->ViewSpacePos().y + ((clipvalue - pout->ViewSpacePos().x) * (pin->ViewSpacePos().y - pout->ViewSpacePos().y) / (pin->ViewSpacePos().x - pout->ViewSpacePos().x)),
-            pout->ViewSpacePos().z + ((clipvalue - pout->ViewSpacePos().x) * (pin->ViewSpacePos().z - pout->ViewSpacePos().z) / (pin->ViewSpacePos().x - pout->ViewSpacePos().x)),
-            pout->ViewSpacePos().w + ((clipvalue - pout->ViewSpacePos().x) * (pin->ViewSpacePos().w - pout->ViewSpacePos().w) / (pin->ViewSpacePos().x - pout->ViewSpacePos().x)));
+            pclip->ViewSpacePos(clipvalue,
+            pout->ViewSpacePos().y + ((clipvalue - pout->ViewSpacePos().x) * (pin->ViewSpacePos().y - pout->ViewSpacePos().y) / ((pout->ViewSpacePos().x - pout->ViewSpacePos().w) - (pin->ViewSpacePos().x - pin->ViewSpacePos().w))),
+            pout->ViewSpacePos().z + ((clipvalue - pout->ViewSpacePos().x) * (pin->ViewSpacePos().z - pout->ViewSpacePos().z) / ((pout->ViewSpacePos().x - pout->ViewSpacePos().w) - (pin->ViewSpacePos().x - pin->ViewSpacePos().w))),
+            pout->ViewSpacePos().w + ((clipvalue - pout->ViewSpacePos().x) * (pin->ViewSpacePos().w - pout->ViewSpacePos().w) / ((pout->ViewSpacePos().x - pout->ViewSpacePos().w) - (pin->ViewSpacePos().x - pin->ViewSpacePos().w))));
         return true;
 
     } else if (pout->ClipFlags() & 0x02) {
         clipvalue = pout->ViewSpacePos().w;
-        pclip->ViewSpacePos(clipvalue * 0.9999,
-            pout->ViewSpacePos().y + ((clipvalue - pout->ViewSpacePos().x) * (pin->ViewSpacePos().y - pout->ViewSpacePos().y) / (pin->ViewSpacePos().x - pout->ViewSpacePos().x)),
-            pout->ViewSpacePos().z + ((clipvalue - pout->ViewSpacePos().x) * (pin->ViewSpacePos().z - pout->ViewSpacePos().z) / (pin->ViewSpacePos().x - pout->ViewSpacePos().x)),
-            pout->ViewSpacePos().w + ((clipvalue - pout->ViewSpacePos().x) * (pin->ViewSpacePos().w - pout->ViewSpacePos().w) / (pin->ViewSpacePos().x - pout->ViewSpacePos().x)));
+        pclip->ViewSpacePos(clipvalue,
+
+            pout->ViewSpacePos().y + ((clipvalue - pout->ViewSpacePos().x) * (pin->ViewSpacePos().y - pout->ViewSpacePos().y) / ((pout->ViewSpacePos().x - pout->ViewSpacePos().w) - (pin->ViewSpacePos().x - pin->ViewSpacePos().w))),
+            pout->ViewSpacePos().z + ((clipvalue - pout->ViewSpacePos().x) * (pin->ViewSpacePos().z - pout->ViewSpacePos().z) / ((pout->ViewSpacePos().x - pout->ViewSpacePos().w) - (pin->ViewSpacePos().x - pin->ViewSpacePos().w))),
+            pout->ViewSpacePos().w + ((clipvalue - pout->ViewSpacePos().x) * (pin->ViewSpacePos().w - pout->ViewSpacePos().w) / ((pout->ViewSpacePos().x - pout->ViewSpacePos().w) - (pin->ViewSpacePos().x - pin->ViewSpacePos().w))));
         return true;
 
     } else if (pout->ClipFlags() & 0x04) {
         clipvalue = -pout->ViewSpacePos().w;
         pclip->ViewSpacePos(
-            pout->ViewSpacePos().x + ((clipvalue - pout->ViewSpacePos().y) * (pin->ViewSpacePos().x - pout->ViewSpacePos().x) / (pin->ViewSpacePos().y - pout->ViewSpacePos().y)),
-            clipvalue * 0.9999,
-            pout->ViewSpacePos().z + ((clipvalue - pout->ViewSpacePos().y) * (pin->ViewSpacePos().z - pout->ViewSpacePos().z) / (pin->ViewSpacePos().y - pout->ViewSpacePos().y)),
-            pout->ViewSpacePos().w + ((clipvalue - pout->ViewSpacePos().y) * (pin->ViewSpacePos().w - pout->ViewSpacePos().w) / (pin->ViewSpacePos().y - pout->ViewSpacePos().y)));
+            pout->ViewSpacePos().x + ((clipvalue - pout->ViewSpacePos().y) * (pin->ViewSpacePos().x - pout->ViewSpacePos().x) / ((pout->ViewSpacePos().y - pout->ViewSpacePos().w) - (pin->ViewSpacePos().y - pin->ViewSpacePos().w))),
+            clipvalue,
+            pout->ViewSpacePos().z + ((clipvalue - pout->ViewSpacePos().y) * (pin->ViewSpacePos().z - pout->ViewSpacePos().z) / ((pout->ViewSpacePos().y - pout->ViewSpacePos().w) - (pin->ViewSpacePos().y - pin->ViewSpacePos().w))),
+            pout->ViewSpacePos().w + ((clipvalue - pout->ViewSpacePos().y) * (pin->ViewSpacePos().w - pout->ViewSpacePos().w) / ((pout->ViewSpacePos().y - pout->ViewSpacePos().w) - (pin->ViewSpacePos().y - pin->ViewSpacePos().w))));
         return true;
 
     } else if (pout->ClipFlags() & 0x08) {
 
         clipvalue = pout->ViewSpacePos().w;
         pclip->ViewSpacePos(
-            pout->ViewSpacePos().x + ((clipvalue - pout->ViewSpacePos().y) * (pin->ViewSpacePos().x - pout->ViewSpacePos().x) / (pin->ViewSpacePos().y - pout->ViewSpacePos().y)),
-            clipvalue * 0.9999,
-            pout->ViewSpacePos().z + ((clipvalue - pout->ViewSpacePos().y) * (pin->ViewSpacePos().z - pout->ViewSpacePos().z) / (pin->ViewSpacePos().y - pout->ViewSpacePos().y)),
-            pout->ViewSpacePos().w + ((clipvalue - pout->ViewSpacePos().y) * (pin->ViewSpacePos().w - pout->ViewSpacePos().w) / (pin->ViewSpacePos().y - pout->ViewSpacePos().y)));
+            pout->ViewSpacePos().x + ((clipvalue - pout->ViewSpacePos().y) * (pin->ViewSpacePos().x - pout->ViewSpacePos().x) / ((pout->ViewSpacePos().y - pout->ViewSpacePos().w) - (pin->ViewSpacePos().y - pin->ViewSpacePos().w))),
+            clipvalue,
+            pout->ViewSpacePos().z + ((clipvalue - pout->ViewSpacePos().y) * (pin->ViewSpacePos().z - pout->ViewSpacePos().z) / ((pout->ViewSpacePos().y - pout->ViewSpacePos().w) - (pin->ViewSpacePos().y - pin->ViewSpacePos().w))),
+            pout->ViewSpacePos().w + ((clipvalue - pout->ViewSpacePos().y) * (pin->ViewSpacePos().w - pout->ViewSpacePos().w) / ((pout->ViewSpacePos().y - pout->ViewSpacePos().w) - (pin->ViewSpacePos().y - pin->ViewSpacePos().w))));
         return true;
 
 
     } else if (pout->ClipFlags() & 0x01) {
         clipvalue = pout->ViewSpacePos().w;
         pclip->ViewSpacePos(
-            pout->ViewSpacePos().x + ((clipvalue - pout->ViewSpacePos().z) * (pin->ViewSpacePos().x - pout->ViewSpacePos().x) / (pin->ViewSpacePos().z - pout->ViewSpacePos().z)),
-            pout->ViewSpacePos().y + ((clipvalue - pout->ViewSpacePos().z) * (pin->ViewSpacePos().y - pout->ViewSpacePos().y) / (pin->ViewSpacePos().z - pout->ViewSpacePos().z)),
-            clipvalue * 0.9999,
-            pout->ViewSpacePos().w + ((clipvalue - pout->ViewSpacePos().z) * (pin->ViewSpacePos().w - pout->ViewSpacePos().w) / (pin->ViewSpacePos().z - pout->ViewSpacePos().z)));
+            pout->ViewSpacePos().x + ((clipvalue - pout->ViewSpacePos().z) * (pin->ViewSpacePos().x - pout->ViewSpacePos().x) / ((pout->ViewSpacePos().z - pout->ViewSpacePos().w) - (pin->ViewSpacePos().z - pin->ViewSpacePos().w))),
+            pout->ViewSpacePos().y + ((clipvalue - pout->ViewSpacePos().z) * (pin->ViewSpacePos().y - pout->ViewSpacePos().y) / ((pout->ViewSpacePos().z - pout->ViewSpacePos().w) - (pin->ViewSpacePos().z - pin->ViewSpacePos().w))),
+            clipvalue,
+            pout->ViewSpacePos().w + ((clipvalue - pout->ViewSpacePos().z) * (pin->ViewSpacePos().w - pout->ViewSpacePos().w) / ((pout->ViewSpacePos().z - pout->ViewSpacePos().w) - (pin->ViewSpacePos().z - pin->ViewSpacePos().w))));
         return true;
 
     } else if (pout->ClipFlags() & 0x02) {
         clipvalue = -pout->ViewSpacePos().w;
         pclip->ViewSpacePos(
-            pout->ViewSpacePos().x + ((clipvalue - pout->ViewSpacePos().z) * (pin->ViewSpacePos().x - pout->ViewSpacePos().x) / (pin->ViewSpacePos().z - pout->ViewSpacePos().z)),
-            pout->ViewSpacePos().y + ((clipvalue - pout->ViewSpacePos().z) * (pin->ViewSpacePos().y - pout->ViewSpacePos().y) / (pin->ViewSpacePos().z - pout->ViewSpacePos().z)),
-            clipvalue * 0.9999,
-            pout->ViewSpacePos().w + ((clipvalue - pout->ViewSpacePos().z) * (pin->ViewSpacePos().w - pout->ViewSpacePos().w) / (pin->ViewSpacePos().z - pout->ViewSpacePos().z)));
+            pout->ViewSpacePos().x + ((clipvalue - pout->ViewSpacePos().z) * (pin->ViewSpacePos().x - pout->ViewSpacePos().x) / ((pout->ViewSpacePos().z - pout->ViewSpacePos().w) - (pin->ViewSpacePos().z - pin->ViewSpacePos().w))),
+            pout->ViewSpacePos().y + ((clipvalue - pout->ViewSpacePos().z) * (pin->ViewSpacePos().y - pout->ViewSpacePos().y) / ((pout->ViewSpacePos().z - pout->ViewSpacePos().w) - (pin->ViewSpacePos().z - pin->ViewSpacePos().w))),
+            clipvalue,
+            pout->ViewSpacePos().w + ((clipvalue - pout->ViewSpacePos().z) * (pin->ViewSpacePos().w - pout->ViewSpacePos().w) / ((pout->ViewSpacePos().z - pout->ViewSpacePos().w) - (pin->ViewSpacePos().z - pin->ViewSpacePos().w))));
         return true;
     }
      return false;
