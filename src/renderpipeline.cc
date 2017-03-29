@@ -26,6 +26,7 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
     bool is_inside_frustrum = CalculateBoundingBoxParameters(primitive->getAabbModelSpace(), mvt);
 
     if (is_inside_frustrum) {
+
             vector<Vertex> vertices = primitive->getVertexArray();
 
             for (uint32_t i=0; i<primitive->getNumberOfVertices(); i++) {
@@ -40,18 +41,21 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
                 vb_[i].CalcScreenSpacePos();
 
                 if (bbclipflags_ > 0) { // Check if the bounding-box got clipped
+
+                    // OBS: The additional braces around the conditional is required!
                     if (bbclipflags_ & 0x01) // left plane
-                        vb_[i].ClipFlags((vb_[i].ClipFlags() | (vb_[i].ViewSpacePos().x < -vb_[i].ViewSpacePos().w) ? 0x01 : 0));
+                        vb_[i].ClipFlags(vb_[i].ClipFlags() | ((vb_[i].ViewSpacePos().x < -vb_[i].ViewSpacePos().w) ? 0x01 : 0));
                     if (bbclipflags_ & 0x02) // right plane
-                        vb_[i].ClipFlags(vb_[i].ClipFlags() | (vb_[i].ViewSpacePos().x > vb_[i].ViewSpacePos().w) ? 0x02 : 0);
+                        vb_[i].ClipFlags(vb_[i].ClipFlags() | ((vb_[i].ViewSpacePos().x > vb_[i].ViewSpacePos().w) ? 0x02 : 0));
                     if (bbclipflags_ & 0x04) // bottom plane
-                        vb_[i].ClipFlags((vb_[i].ClipFlags() | (vb_[i].ViewSpacePos().y < -vb_[i].ViewSpacePos().w) ? 0x04 : 0));
+                        vb_[i].ClipFlags(vb_[i].ClipFlags() | ((vb_[i].ViewSpacePos().y < -vb_[i].ViewSpacePos().w) ? 0x04 : 0));
                     if (bbclipflags_ & 0x08) // top plane
-                        vb_[i].ClipFlags(vb_[i].ClipFlags() | (vb_[i].ViewSpacePos().y > vb_[i].ViewSpacePos().w) ? 0x08 : 0);
+                        vb_[i].ClipFlags(vb_[i].ClipFlags() | ((vb_[i].ViewSpacePos().y > vb_[i].ViewSpacePos().w) ? 0x08 : 0));
                     if (bbclipflags_ & 0x10) // near plane
-                        vb_[i].ClipFlags((vb_[i].ClipFlags() | (vb_[i].ViewSpacePos().z > vb_[i].ViewSpacePos().w) ? 0x10 : 0));
-                    if (bbclipflags_ & 0x20) // far plane
-                        vb_[i].ClipFlags(vb_[i].ClipFlags() | (vb_[i].ViewSpacePos().z < -vb_[i].ViewSpacePos().w) ? 0x20 : 0);
+                        vb_[i].ClipFlags(vb_[i].ClipFlags() | ((vb_[i].ViewSpacePos().z > vb_[i].ViewSpacePos().w) ? 0x10 : 0));
+                    if (bbclipflags_ & 0x20) // far plane {
+                        vb_[i].ClipFlags(vb_[i].ClipFlags() | ((vb_[i].ViewSpacePos().z < -vb_[i].ViewSpacePos().w) ? 0x20 : 0));
+
                 }
             }
 
@@ -67,13 +71,7 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
                         (pv3->ScreenSpacePos().y - pv1->ScreenSpacePos().y) * (pv2->ScreenSpacePos().x - pv1->ScreenSpacePos().x))
                         continue;
 
-//                if (pv1->ClipFlags() & pv2->ClipFlags() & pv3->ClipFlags()) {
-//                    continue;
-//                }
-
-
                 if (pv1->ClipFlags() | pv2->ClipFlags() | pv3->ClipFlags()) {
-
                     PipelineVertex* p_out[3];
                     PipelineVertex* p_in[3];
                     int n_out = 0;
@@ -84,22 +82,21 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
                     if (pv3->ClipFlags()) { p_out[n_out++] = pv3; } else { p_in[n_in++] = pv3; }
 
                     if (n_out == 3) {
-
+                        // TODO: Actually even if all 3 vertices lie outside the frustrum
+                        // they can still "cut" the corners of the frustrum
                         continue;
 
                     } else if (n_out == 2) {
 
-                        //cout << "in n == 2" << endl;
                         PipelineVertex pc1(*p_out[0]);
                         PipelineVertex pc2(*p_out[1]);
                         ClipLerp(p_out[0], p_in[0], &pc1);
                         ClipLerp(p_out[1], p_in[0], &pc2);
                         pc1.CalcScreenSpacePos();
                         pc2.CalcScreenSpacePos();
-
                         rasterizer_->rasterize(&pc1, &pc2, p_in[0]);
 
-                    } else if (n_out == 1) { // n_out == 1
+                    } else if (n_out == 1) {
 
                         PipelineVertex pc1(*p_out[0]);
                         PipelineVertex pc2(*p_out[0]);
@@ -107,42 +104,57 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
                         ClipLerp(p_out[0], p_in[1], &pc2);
                         pc1.CalcScreenSpacePos();
                         pc2.CalcScreenSpacePos();
-
                         rasterizer_->rasterize(p_in[0], p_in[1], &pc1);
                         rasterizer_->rasterize(&pc1, &pc2, p_in[1]);
                     }
 
                 } else {
+                    // no clipping required
                     rasterizer_->rasterize(pv1, pv2, pv3);
                 }
-
 
                 //#ifdef _DEBUG
                 DrawBoundingBox();
                 //#endif
             }
-   }
-
+        }
 }
 
 
 bool RenderPipeline::ClipLerp(PipelineVertex *pout, PipelineVertex *pin, PipelineVertex *pclip) {
 
     // Cohen-Sutherland algorithm (3D Version)
-    float lerp;
+    float lerptmp;
+    float lerp = 0.0;
 
     if (pout->ClipFlags() & 0x01) {
-        lerp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().x) / ((-pout->ViewSpacePos().w - pout->ViewSpacePos().x) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().x)));
-    } else if (pout->ClipFlags() & 0x02) {
-        lerp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().x) / ((pout->ViewSpacePos().w - pout->ViewSpacePos().x) - (pin->ViewSpacePos().w - pin->ViewSpacePos().x)));
-    } else if (pout->ClipFlags() & 0x04) {
-        lerp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().y) / ((-pout->ViewSpacePos().w - pout->ViewSpacePos().y) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().y)));
-    } else if (pout->ClipFlags() & 0x08) {
-        lerp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().y) / ((pout->ViewSpacePos().w - pout->ViewSpacePos().y) - (pin->ViewSpacePos().w - pin->ViewSpacePos().y)));
-    } else if (pout->ClipFlags() & 0x01) {
-        lerp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().z) / ((pout->ViewSpacePos().w - pout->ViewSpacePos().z) - (pin->ViewSpacePos().w - pin->ViewSpacePos().z)));
-    } else if (pout->ClipFlags() & 0x02) {
-        lerp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().z) / ((-pout->ViewSpacePos().w - pout->ViewSpacePos().z) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().z)));
+        lerptmp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().x) / ((-pout->ViewSpacePos().w - pout->ViewSpacePos().x) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().x)));
+        lerp = (lerptmp > lerp) ? lerptmp : lerp;
+    }
+
+    if (pout->ClipFlags() & 0x02) {
+        lerptmp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().x) / ((pout->ViewSpacePos().w - pout->ViewSpacePos().x) - (pin->ViewSpacePos().w - pin->ViewSpacePos().x)));
+        lerp = (lerptmp > lerp) ? lerptmp : lerp;
+    }
+
+    if (pout->ClipFlags() & 0x04) {
+        lerptmp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().y) / ((-pout->ViewSpacePos().w - pout->ViewSpacePos().y) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().y)));
+        lerp = (lerptmp > lerp) ? lerptmp : lerp;
+    }
+
+    if (pout->ClipFlags() & 0x08) {
+        lerptmp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().y) / ((pout->ViewSpacePos().w - pout->ViewSpacePos().y) - (pin->ViewSpacePos().w - pin->ViewSpacePos().y)));
+        lerp = (lerptmp > lerp) ? lerptmp : lerp;
+    }
+
+    if (pout->ClipFlags() & 0x10) {
+        lerptmp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().z) / ((pout->ViewSpacePos().w - pout->ViewSpacePos().z) - (pin->ViewSpacePos().w - pin->ViewSpacePos().z)));
+        lerp = (lerptmp > lerp) ? lerptmp : lerp;
+    }
+
+    if (pout->ClipFlags() & 0x20) {
+        lerptmp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().z) / ((-pout->ViewSpacePos().w - pout->ViewSpacePos().z) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().z)));
+        lerp = (lerptmp > lerp) ? lerptmp : lerp;
     }
 
      pclip->ViewSpacePos(pout->ViewSpacePos().x + lerp * (pin->ViewSpacePos().x - pout->ViewSpacePos().x),
@@ -151,7 +163,6 @@ bool RenderPipeline::ClipLerp(PipelineVertex *pout, PipelineVertex *pin, Pipelin
         pout->ViewSpacePos().w + lerp * (pin->ViewSpacePos().w - pout->ViewSpacePos().w));
         return true;
 }
-
 
 
 
@@ -173,6 +184,7 @@ bool RenderPipeline::CalculateBoundingBoxParameters(Vector4 (&aabb)[8], Matrix4 
 
     for (i=0; i<6; i++) {
         if (num_vertices_outside_bb[i] == 8) {
+
             return false;
         }
         if (num_vertices_outside_bb[i] > 0) bbclipflags_ |= (1 << i);
@@ -180,6 +192,7 @@ bool RenderPipeline::CalculateBoundingBoxParameters(Vector4 (&aabb)[8], Matrix4 
     }
     return true;
 }
+
 
 void RenderPipeline::DrawBoundingBox() {
 

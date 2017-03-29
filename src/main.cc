@@ -65,13 +65,13 @@ int main(int argc, char* argv[]) {
     someVertexTestPoints(camera);
 
     TlcInstance monkey_1(&monkey);
-    monkey_1.Transformation().setPosition(2.0, 0.0, -3.0);
+    monkey_1.Transformation().setPosition(0.0, 0.0, -3.0);
 
     TlcInstance monkey_2(&monkey);
     monkey_2.Transformation().setPosition(3.0, -3.0, -5.0);
 
     TlcInstance monkey_3(&monkey);
-    monkey_3.Transformation().setPosition(-3.0, 3.0, -5.0);
+    monkey_3.Transformation().setPosition(-5.0, 2.5, -5.0);
 
 
     while (true) {
@@ -81,14 +81,19 @@ int main(int argc, char* argv[]) {
         rasterizer.clearZBuffer();
 
         //monkey_1.Transformation().rot.rotate(r1, num_frame*-0.01);
-        monkey_1.Transformation().movePosition(-0.01, 0.0, 0.0);
-        //monkey_2.Transformation().movePosition(0.01, 0.0, 0.0);
+
+        // fails
+        //monkey_1.Transformation().movePosition(-0.01, 0.01, 0.00);
+
+        monkey_1.Transformation().movePosition(-0.0, 0.0, sin(num_frame*0.1)/10.0);
+        monkey_2.Transformation().setPosition(12*sin(num_frame*0.01), 8*sin(num_frame*0.01), -5.0);
         monkey_2.Transformation().rot.rotate(r2, num_frame*0.01);
         monkey_3.Transformation().rot.rotate(r2, num_frame*0.01);
 
+
+        render_pipeline.Draw(monkey_2);
+        render_pipeline.Draw(monkey_3);
         render_pipeline.Draw(monkey_1);
-        //render_pipeline.Draw(monkey_2);
-        //render_pipeline.Draw(monkey_3);
 
         SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
         SDL_RenderClear(sdlRenderer);
