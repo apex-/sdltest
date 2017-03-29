@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
         rasterizer.clearZBuffer();
 
         //monkey_1.Transformation().rot.rotate(r1, num_frame*-0.01);
-        monkey_1.Transformation().movePosition(0.02, 0.0, 0.0);
+        monkey_1.Transformation().movePosition(-0.01, 0.0, 0.0);
         //monkey_2.Transformation().movePosition(0.01, 0.0, 0.0);
         monkey_2.Transformation().rot.rotate(r2, num_frame*0.01);
         monkey_3.Transformation().rot.rotate(r2, num_frame*0.01);
