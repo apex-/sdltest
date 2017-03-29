@@ -71,47 +71,50 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
                         (pv3->ScreenSpacePos().y - pv1->ScreenSpacePos().y) * (pv2->ScreenSpacePos().x - pv1->ScreenSpacePos().x))
                         continue;
 
-                if (pv1->ClipFlags() | pv2->ClipFlags() | pv3->ClipFlags()) {
+                if (bbclipflags_ == 0) {
+                    rasterizer_->rasterize(pv1, pv2, pv3);
+                } else {
                     PipelineVertex* p_out[3];
                     PipelineVertex* p_in[3];
                     int n_out = 0;
                     int n_in = 0;
-
                     if (pv1->ClipFlags()) { p_out[n_out++] = pv1; } else { p_in[n_in++] = pv1; }
                     if (pv2->ClipFlags()) { p_out[n_out++] = pv2; } else { p_in[n_in++] = pv2; }
                     if (pv3->ClipFlags()) { p_out[n_out++] = pv3; } else { p_in[n_in++] = pv3; }
 
-                    if (n_out == 3) {
-                        // TODO: Actually even if all 3 vertices lie outside the frustrum
-                        // they can still "cut" the corners of the frustrum
-                        continue;
+                    switch(n_out) {
+                        case 0:
+                            rasterizer_->rasterize(pv1, pv2, pv3);
+                            break;
+                        case 1:
+                            {
+                            PipelineVertex pc1(*p_out[0]);
+                            PipelineVertex pc2(*p_out[0]);
+                            ClipLerp(p_out[0], p_in[0], &pc1);
+                            ClipLerp(p_out[0], p_in[1], &pc2);
+                            pc1.CalcScreenSpacePos();
+                            pc2.CalcScreenSpacePos();
+                            rasterizer_->rasterize(p_in[0], p_in[1], &pc1);
+                            rasterizer_->rasterize(&pc1, &pc2, p_in[1]);
+                            break;
+                            }
+                        case 2:
+                            {
+                            PipelineVertex pc1(*p_out[0]);
+                            PipelineVertex pc2(*p_out[1]);
+                            ClipLerp(p_out[0], p_in[0], &pc1);
+                            ClipLerp(p_out[1], p_in[0], &pc2);
+                            pc1.CalcScreenSpacePos();
+                            pc2.CalcScreenSpacePos();
+                            rasterizer_->rasterize(&pc1, &pc2, p_in[0]);
+                            }
+                        case 3:
+                            // TODO: Actually even if all 3 vertices lie outside the frustrum
+                            // they can still "cut" the corners of the frustrum
+                            continue;
 
-                    } else if (n_out == 2) {
-
-                        PipelineVertex pc1(*p_out[0]);
-                        PipelineVertex pc2(*p_out[1]);
-                        ClipLerp(p_out[0], p_in[0], &pc1);
-                        ClipLerp(p_out[1], p_in[0], &pc2);
-                        pc1.CalcScreenSpacePos();
-                        pc2.CalcScreenSpacePos();
-                        rasterizer_->rasterize(&pc1, &pc2, p_in[0]);
-
-                    } else if (n_out == 1) {
-
-                        PipelineVertex pc1(*p_out[0]);
-                        PipelineVertex pc2(*p_out[0]);
-                        ClipLerp(p_out[0], p_in[0], &pc1);
-                        ClipLerp(p_out[0], p_in[1], &pc2);
-                        pc1.CalcScreenSpacePos();
-                        pc2.CalcScreenSpacePos();
-                        rasterizer_->rasterize(p_in[0], p_in[1], &pc1);
-                        rasterizer_->rasterize(&pc1, &pc2, p_in[1]);
                     }
-
-                } else {
-                    // no clipping required
-                    rasterizer_->rasterize(pv1, pv2, pv3);
-                }
+                    }
 
                 //#ifdef _DEBUG
                 DrawBoundingBox();
