@@ -28,7 +28,6 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
     if (is_inside_frustrum) {
 
             vector<Vertex> vertices = primitive->getVertexArray();
-
             for (uint32_t i=0; i<primitive->getNumberOfVertices(); i++) {
 
                 vb_[i].ClipFlags(0);
@@ -55,11 +54,10 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
                         vb_[i].ClipFlags(vb_[i].ClipFlags() | ((vb_[i].ViewSpacePos().z > vb_[i].ViewSpacePos().w) ? 0x10 : 0));
                     if (bbclipflags_ & 0x20) // far plane {
                         vb_[i].ClipFlags(vb_[i].ClipFlags() | ((vb_[i].ViewSpacePos().z < -vb_[i].ViewSpacePos().w) ? 0x20 : 0));
-
                 }
             }
 
-            // assemble and rasterize triangles
+            // assemble, clip (if necessary) and rasterize triangles
             for (uint32_t i=0; i<primitive->getNumberOfIndices(); i+=3) {
 
                 PipelineVertex *pv1 = &vb_[primitive->getIndices()[i]];
@@ -88,25 +86,26 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
                             break;
                         case 1:
                             {
-                            PipelineVertex pc1(*p_out[0]);
-                            PipelineVertex pc2(*p_out[0]);
-                            ClipLerp(p_out[0], p_in[0], &pc1);
-                            ClipLerp(p_out[0], p_in[1], &pc2);
-                            pc1.CalcScreenSpacePos();
-                            pc2.CalcScreenSpacePos();
-                            rasterizer_->rasterize(p_in[0], p_in[1], &pc1);
-                            rasterizer_->rasterize(&pc1, &pc2, p_in[1]);
-                            break;
+                                PipelineVertex pc1(*p_out[0]);
+                                PipelineVertex pc2(*p_out[0]);
+                                ClipLerp(p_out[0], p_in[0], &pc1);
+                                ClipLerp(p_out[0], p_in[1], &pc2);
+                                pc1.CalcScreenSpacePos();
+                                pc2.CalcScreenSpacePos();
+                                rasterizer_->rasterize(p_in[0], p_in[1], &pc1);
+                                rasterizer_->rasterize(&pc1, &pc2, p_in[1]);
+                                break;
                             }
                         case 2:
                             {
-                            PipelineVertex pc1(*p_out[0]);
-                            PipelineVertex pc2(*p_out[1]);
-                            ClipLerp(p_out[0], p_in[0], &pc1);
-                            ClipLerp(p_out[1], p_in[0], &pc2);
-                            pc1.CalcScreenSpacePos();
-                            pc2.CalcScreenSpacePos();
-                            rasterizer_->rasterize(&pc1, &pc2, p_in[0]);
+                                PipelineVertex pc1(*p_out[0]);
+                                PipelineVertex pc2(*p_out[1]);
+                                ClipLerp(p_out[0], p_in[0], &pc1);
+                                ClipLerp(p_out[1], p_in[0], &pc2);
+                                pc1.CalcScreenSpacePos();
+                                pc2.CalcScreenSpacePos();
+                                rasterizer_->rasterize(&pc1, &pc2, p_in[0]);
+                                break;
                             }
                         case 3:
                             // TODO: Actually even if all 3 vertices lie outside the frustrum
@@ -114,13 +113,15 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
                             continue;
 
                     }
-                    }
+                }
 
-                //#ifdef _DEBUG
-                DrawBoundingBox();
-                //#endif
             }
-        }
+
+            #ifdef _DEBUG
+            DrawBoundingBox();
+            #endif
+
+        } // if(is_inside_frustrum)
 }
 
 
@@ -187,7 +188,6 @@ bool RenderPipeline::CalculateBoundingBoxParameters(Vector4 (&aabb)[8], Matrix4 
 
     for (i=0; i<6; i++) {
         if (num_vertices_outside_bb[i] == 8) {
-
             return false;
         }
         if (num_vertices_outside_bb[i] > 0) bbclipflags_ |= (1 << i);
@@ -212,20 +212,20 @@ void RenderPipeline::DrawBoundingBox() {
     }
 
     // front
-    rasterizer_->gbham(screen_space_aabb_points[0].x, screen_space_aabb_points[0].y, screen_space_aabb_points[1].x, screen_space_aabb_points[1].y);
-    rasterizer_->gbham(screen_space_aabb_points[1].x, screen_space_aabb_points[1].y, screen_space_aabb_points[3].x, screen_space_aabb_points[3].y);
-    rasterizer_->gbham(screen_space_aabb_points[3].x, screen_space_aabb_points[3].y, screen_space_aabb_points[2].x, screen_space_aabb_points[2].y);
-    rasterizer_->gbham(screen_space_aabb_points[2].x, screen_space_aabb_points[2].y, screen_space_aabb_points[0].x, screen_space_aabb_points[0].y);
+    rasterizer_->gbham(screen_space_aabb_points[0].x, screen_space_aabb_points[0].y, screen_space_aabb_points[1].x, screen_space_aabb_points[1].y, (view_space_aabb_points_[0].z + view_space_aabb_points_[1].z)/2.0);
+    rasterizer_->gbham(screen_space_aabb_points[1].x, screen_space_aabb_points[1].y, screen_space_aabb_points[3].x, screen_space_aabb_points[3].y, (view_space_aabb_points_[1].z + view_space_aabb_points_[3].z)/2.0);
+    rasterizer_->gbham(screen_space_aabb_points[3].x, screen_space_aabb_points[3].y, screen_space_aabb_points[2].x, screen_space_aabb_points[2].y, (view_space_aabb_points_[3].z + view_space_aabb_points_[2].z)/2.0);
+    rasterizer_->gbham(screen_space_aabb_points[2].x, screen_space_aabb_points[2].y, screen_space_aabb_points[0].x, screen_space_aabb_points[0].y, (view_space_aabb_points_[2].z + view_space_aabb_points_[0].z)/2.0);
 
     // back
-    rasterizer_->gbham(screen_space_aabb_points[4].x, screen_space_aabb_points[4].y, screen_space_aabb_points[5].x, screen_space_aabb_points[5].y);
-    rasterizer_->gbham(screen_space_aabb_points[5].x, screen_space_aabb_points[5].y, screen_space_aabb_points[7].x, screen_space_aabb_points[7].y);
-    rasterizer_->gbham(screen_space_aabb_points[7].x, screen_space_aabb_points[7].y, screen_space_aabb_points[6].x, screen_space_aabb_points[6].y);
-    rasterizer_->gbham(screen_space_aabb_points[6].x, screen_space_aabb_points[6].y, screen_space_aabb_points[4].x, screen_space_aabb_points[4].y);
+    rasterizer_->gbham(screen_space_aabb_points[4].x, screen_space_aabb_points[4].y, screen_space_aabb_points[5].x, screen_space_aabb_points[5].y, (view_space_aabb_points_[4].z + view_space_aabb_points_[5].z)/2.0);
+    rasterizer_->gbham(screen_space_aabb_points[5].x, screen_space_aabb_points[5].y, screen_space_aabb_points[7].x, screen_space_aabb_points[7].y, (view_space_aabb_points_[5].z + view_space_aabb_points_[7].z)/2.0);
+    rasterizer_->gbham(screen_space_aabb_points[7].x, screen_space_aabb_points[7].y, screen_space_aabb_points[6].x, screen_space_aabb_points[6].y, (view_space_aabb_points_[7].z + view_space_aabb_points_[6].z)/2.0);
+    rasterizer_->gbham(screen_space_aabb_points[6].x, screen_space_aabb_points[6].y, screen_space_aabb_points[4].x, screen_space_aabb_points[4].y, (view_space_aabb_points_[6].z + view_space_aabb_points_[4].z)/2.0);
 
     // between front/back
-    rasterizer_->gbham(screen_space_aabb_points[0].x, screen_space_aabb_points[0].y, screen_space_aabb_points[4].x, screen_space_aabb_points[4].y);
-    rasterizer_->gbham(screen_space_aabb_points[1].x, screen_space_aabb_points[1].y, screen_space_aabb_points[5].x, screen_space_aabb_points[5].y);
-    rasterizer_->gbham(screen_space_aabb_points[3].x, screen_space_aabb_points[3].y, screen_space_aabb_points[7].x, screen_space_aabb_points[7].y);
-    rasterizer_->gbham(screen_space_aabb_points[2].x, screen_space_aabb_points[2].y, screen_space_aabb_points[6].x, screen_space_aabb_points[6].y);
+    rasterizer_->gbham(screen_space_aabb_points[0].x, screen_space_aabb_points[0].y, screen_space_aabb_points[4].x, screen_space_aabb_points[4].y, (view_space_aabb_points_[0].z + view_space_aabb_points_[4].z)/2.0);
+    rasterizer_->gbham(screen_space_aabb_points[1].x, screen_space_aabb_points[1].y, screen_space_aabb_points[5].x, screen_space_aabb_points[5].y, (view_space_aabb_points_[1].z + view_space_aabb_points_[5].z)/2.0);
+    rasterizer_->gbham(screen_space_aabb_points[3].x, screen_space_aabb_points[3].y, screen_space_aabb_points[7].x, screen_space_aabb_points[7].y, (view_space_aabb_points_[3].z + view_space_aabb_points_[7].z)/2.0);
+    rasterizer_->gbham(screen_space_aabb_points[2].x, screen_space_aabb_points[2].y, screen_space_aabb_points[6].x, screen_space_aabb_points[6].y, (view_space_aabb_points_[2].z + view_space_aabb_points_[6].z)/2.0);
 }

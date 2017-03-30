@@ -49,7 +49,6 @@ class PipelineVertex
         }
 
     private:
-
         // 60 bytes
         Vector4 view_space_pos_; // 16
         Vector4 view_space_normal_; // 16

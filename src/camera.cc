@@ -7,7 +7,7 @@
 
 Camera::Camera() :  fov_(DEG2RAD * 90.0f),
                     aspect_ratio_( (float) VIEWPORT_WIDTH / VIEWPORT_HEIGHT),
-                    near_plane_(1.0f),
+                    near_plane_(0.1f),
                     far_plane_(1000.0f),
                     is_up2date_(false)
 {

@@ -30,6 +30,8 @@ SDL_Window *sdlWindow;
 SDL_Renderer *sdlRenderer;
 SDL_Texture *sdlTexture;
 
+void *framebuffer;
+
 /**
 * Entry point of the application
 */
@@ -53,6 +55,9 @@ int main(int argc, char* argv[]) {
         SDL_TEXTUREACCESS_STREAMING,
         VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
+
+    int pitch = VIEWPORT_WIDTH * sizeof (Uint32);
+
     TlcPrimitive monkey;
     bool load_success = monkey.loadFromFile("res/mymonkey.obj");
 
@@ -65,39 +70,43 @@ int main(int argc, char* argv[]) {
     someVertexTestPoints(camera);
 
     TlcInstance monkey_1(&monkey);
-    monkey_1.Transformation().setPosition(0.0, 0.0, -3.0);
+    monkey_1.Transformation().setPosition(0.0, 0.0, -4.0);
 
     TlcInstance monkey_2(&monkey);
     monkey_2.Transformation().setPosition(3.0, -3.0, -5.0);
 
     TlcInstance monkey_3(&monkey);
     monkey_3.Transformation().setPosition(-5.0, 2.5, -5.0);
-
-
+\
     while (true) {
-
         num_frame++;
         rasterizer.clearFramebuffer();
         rasterizer.clearZBuffer();
 
-        //monkey_1.Transformation().rot.rotate(r1, num_frame*-0.01);
+        monkey_1.Transformation().rot.rotate(r1, num_frame*-0.01);
 
         // fails
         //monkey_1.Transformation().movePosition(-0.01, 0.01, 0.00);
-
         monkey_1.Transformation().movePosition(-0.0, 0.0, sin(num_frame*0.1)/10.0);
         monkey_2.Transformation().setPosition(12*sin(num_frame*0.01), 8*sin(num_frame*0.01), -5.0);
         monkey_2.Transformation().rot.rotate(r2, num_frame*0.01);
         monkey_3.Transformation().rot.rotate(r2, num_frame*0.01);
 
+        SDL_LockTexture(sdlTexture, NULL, &framebuffer, &pitch);
+        rasterizer.Framebuffer(&framebuffer);
 
         render_pipeline.Draw(monkey_2);
         render_pipeline.Draw(monkey_3);
         render_pipeline.Draw(monkey_1);
 
-        SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
+        // OBS: SDL_UpdateTexture() is where most of the time is spend on my Linux Machine with a Nvidia Quadro K2000
+        // In this case SDL_UpdateTexture performs calls in libnvidia-glcore.so.340.101
+        // SDL_UpdateTexture(sdlTexture, NULL, (void *)rasterizer.getFramebuffer(), VIEWPORT_WIDTH * sizeof (Uint32));
+
+        SDL_UnlockTexture(sdlTexture);
         SDL_RenderClear(sdlRenderer);
         SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+
         SDL_RenderPresent(sdlRenderer);
 
         if (SDL_QuitRequested()) {

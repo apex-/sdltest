@@ -3,6 +3,8 @@
 #include "global.h"
 
 #include <cassert>
+#include <limits>
+#include <cstring>
 #include "math.h"
 
 using namespace std;
@@ -15,7 +17,7 @@ Rasterizer::Rasterizer()
     }
 
     framebuffer = new uint32_t[VIEWPORT_PIXELS];
-    zBuffer = new float[VIEWPORT_PIXELS];
+    zBuffer_ = new float[VIEWPORT_PIXELS];
     clearFramebuffer();
     clearZBuffer();
 }
@@ -34,16 +36,15 @@ uint32_t* Rasterizer::getFramebuffer() {
 
 void Rasterizer::clearFramebuffer() {
 
-    for (uint32_t i=0; i<VIEWPORT_PIXELS; i++) {
-        framebuffer[i] = 0x00000000;
-    }
+    memset(framebuffer, 0, VIEWPORT_PIXELS * sizeof(*framebuffer));
+
+    // This is quite a bit slower on gcc 4.9.2
+    //std::fill_n(framebuffer, VIEWPORT_PIXELS, 0);
 }
 
 void Rasterizer::clearZBuffer() {
 
-    for (uint32_t i=0; i<VIEWPORT_PIXELS; i++) {
-        zBuffer[i] = 0.0;
-    }
+    std::fill_n(zBuffer_, VIEWPORT_PIXELS, std::numeric_limits<float>::max());
 }
 
 
@@ -60,17 +61,16 @@ void Rasterizer::rasterize(PipelineVertex *v1, PipelineVertex *v2, PipelineVerte
         swap(v1, v2);
     }
 
-
+    float meanZ = (v1->ViewSpacePos().z + v2->ViewSpacePos().z + v3->ViewSpacePos().z) / 3.0;
     scanConvertTriangle(v1, v2, v3);
-    fillShape(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y));
+    fillShape(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y), meanZ);
     //wireframe(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y));
 
     // Wireframe using Bresenhams line drawing algorithm
-    gbham(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y));
-    gbham(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y));
-    gbham(ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y));
-    gbham(ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y));
-
+    line(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), meanZ);
+    line(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y), meanZ);
+    line(ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y), meanZ);
+    line(ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y), meanZ);
 }
 
 
@@ -113,13 +113,16 @@ void Rasterizer::scanConvertLine(PipelineVertex *vminy, PipelineVertex *vmaxy, i
 }
 
 
-inline void Rasterizer::fillShape(uint32_t yMin, uint32_t yMax) {
+inline void Rasterizer::fillShape(uint32_t yMin, uint32_t yMax, float zMean) {
 
     //int output = min + (rand() % (int)(max - min + 1))
 
     for (uint32_t j=yMin; j<yMax; j++) {
         for (uint32_t i=scanbuffer[j][0]; i<scanbuffer[j][1]; i++) {
-            framebuffer[j*VIEWPORT_WIDTH+i] = 0xff333377;
+            if (zMean < zBuffer_[j*VIEWPORT_WIDTH+i]) {
+                framebuffer[j*VIEWPORT_WIDTH+i] = 0xff333377;
+                zBuffer_[j*VIEWPORT_WIDTH+i] = zMean;
+            }
         }
     }
 }
@@ -141,15 +144,14 @@ int Rasterizer::sgn(int x){
 
 
 
-void Rasterizer::gbham(Vertex &v1, Vertex &v2)
+void Rasterizer::gbham(Vertex &v1, Vertex &v2, float meanZ)
 {
 
-    gbham(ceil(v1.Pos().x), ceil(v1.Pos().y), ceil(v2.Pos().x), ceil(v2.Pos().y));
-
+    gbham(ceil(v1.Pos().x), ceil(v1.Pos().y), ceil(v2.Pos().x), ceil(v2.Pos().y), meanZ);
 }
 
 
-void Rasterizer::gbham(int xstart,int ystart,int xend,int yend)
+void Rasterizer::gbham(int xstart,int ystart,int xend,int yend, float zMean)
 /*--------------------------------------------------------------
  * Bresenham-Algorithmus: Linien auf Rastergeräten zeichnen
  *
@@ -195,7 +197,10 @@ void Rasterizer::gbham(int xstart,int ystart,int xend,int yend)
    y = ystart;
    err = el/2;
 
-   framebuffer[y*VIEWPORT_WIDTH+x] = 0xFFCCCCCC;
+    if (zMean-0.00001 < zBuffer_[y*VIEWPORT_WIDTH+x]) {
+        framebuffer[y*VIEWPORT_WIDTH+x] = 0xFFCCCCCC;
+        zBuffer_[y*VIEWPORT_WIDTH+x] = zMean;
+    }
    //SetPixel(x,y);
 
 /* Pixel berechnen */
@@ -217,10 +222,31 @@ void Rasterizer::gbham(int xstart,int ystart,int xend,int yend)
           y += pdy;
       }
 
-      framebuffer[y*VIEWPORT_WIDTH+x] = 0xFFCCCCCC;
+    if (zMean-0.00001 < zBuffer_[y*VIEWPORT_WIDTH+x]) {
+        framebuffer[y*VIEWPORT_WIDTH+x] = 0xFFCCCCCC;
+        zBuffer_[y*VIEWPORT_WIDTH+x] = zMean;
+    }
 
       //SetPixel(x,y);
    }
 } /* gbham() */
 
+
+void Rasterizer::line(int x0, int y0, int x1, int y1, float zMean)
+{
+  int dx =  abs(x1-x0), sx = x0<x1 ? 1 : -1;
+  int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1;
+  int err = dx+dy, e2; /* error value e_xy */
+
+  while(1){
+    if (zMean-0.00001 < zBuffer_[y0*VIEWPORT_WIDTH+x0]) {
+        framebuffer[y0*VIEWPORT_WIDTH+x0] = 0xFFCCCCCC;
+        zBuffer_[y0*VIEWPORT_WIDTH+x0] = zMean;
+    }
+    if (x0==x1 && y0==y1) break;
+    e2 = 2*err;
+    if (e2 > dy) { err += dy; x0 += sx; } /* e_xy+e_x > 0 */
+    if (e2 < dx) { err += dx; y0 += sy; } /* e_xy+e_y < 0 */
+  }
+}
 
