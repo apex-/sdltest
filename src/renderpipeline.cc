@@ -30,6 +30,9 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
             vector<Vertex> vertices = primitive->getVertexArray();
             for (uint32_t i=0; i<primitive->getNumberOfVertices(); i++) {
 
+                // Process vertices in one go and try to keep as much
+                // data in the CPU caches
+
                 // Transform vertex position from model-space to view space
                 vb_[i].ViewSpacePos(mvt * vertices[i].Pos());
                 // Transform normal from model-space to view space
@@ -52,10 +55,12 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
                         (pv3->ScreenSpacePos().y - pv1->ScreenSpacePos().y) * (pv2->ScreenSpacePos().x - pv1->ScreenSpacePos().x))
                         continue;
 
-                if (bbclipflags_ == 0) { // object completely inside the view frustrum
+                if (!bbclipflags_ || !(pv1->ClipFlags() | pv2->ClipFlags() | pv3->ClipFlags())) {
 
                     rasterizer_->rasterize(pv1, pv2, pv3);
+
                 } else {
+
                     PipelineVertex* pvout[3];
                     PipelineVertex* pvin[3];
                     int nout = 0;
@@ -182,7 +187,6 @@ bool RenderPipeline::CalculateBoundingBoxParameters(Vector4 (&aabb)[8], Matrix4 
             return false;
         }
         if (num_vertices_outside_bb[i] > 0) bbclipflags_ |= (1 << i);
-
     }
     return true;
 }
