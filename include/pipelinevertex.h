@@ -44,8 +44,29 @@ class PipelineVertex
 
         inline void CalcScreenSpacePos() {
 
-            screen_space_pos_.x = ((VIEWPORT_WIDTH -1) * ((view_space_pos_.x/view_space_pos_.w) + 1)) / 2.0f;
-            screen_space_pos_.y = ((VIEWPORT_HEIGHT -1) * -((view_space_pos_.y/view_space_pos_.w) - 1)) / 2.0f;
+            screen_space_pos_.x = ((VIEWPORT_WIDTH -1) * ((view_space_pos_.x / view_space_pos_.w) + 1)) / 2.0f;
+            screen_space_pos_.y = ((VIEWPORT_HEIGHT -1) * -((view_space_pos_.y / view_space_pos_.w) - 1)) / 2.0f;
+        }
+
+        inline void CalcClipFlags(uint8_t bbclipflags) {
+
+            clip_flags_ = 0;
+
+            if (bbclipflags > 0) { // Check if the bounding-box got clipped
+                // OBS: The additional braces around the conditional is required!
+                if (bbclipflags & 0x01) // left plane
+                    clip_flags_ |= (view_space_pos_.x < -view_space_pos_.w) ? 0x01 : 0;
+                if (bbclipflags & 0x02) // right plane
+                    clip_flags_ |= (view_space_pos_.x > view_space_pos_.w) ? 0x02 : 0;
+                if (bbclipflags & 0x04) // bottom plane
+                    clip_flags_ |= (view_space_pos_.y < -view_space_pos_.w) ? 0x04 : 0;
+                if (bbclipflags & 0x08) // top plane
+                    clip_flags_ |= (view_space_pos_.y > view_space_pos_.w) ? 0x08 : 0;
+                if (bbclipflags & 0x10) // near plane
+                    clip_flags_ |= (view_space_pos_.z > view_space_pos_.w) ? 0x10 : 0;
+                if (bbclipflags & 0x20) // far plane {
+                    clip_flags_ |= (view_space_pos_.z < -view_space_pos_.w) ? 0x20 : 0;
+            }
         }
 
     private:

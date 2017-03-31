@@ -4,6 +4,7 @@
 #include "frustrum.h"
 #include "matrices.h"
 #include "quaternion.h"
+#include "transform.h"
 
 class Camera
 {
@@ -15,12 +16,13 @@ class Camera
         void SetPerspectiveProjection();
         Matrix4& ProjectionMatrix();
         Matrix4& ViewProjectionMatrix();
-        Vector3 Pos() const { return pos_; };
-        void Pos(Vector3 pos) { pos_ = pos; is_up2date_ = false; };
-        Quaternion Rot() const { return rot_; };
-        void Rot(Quaternion rot) { rot_ = rot; is_up2date_ = false; };
+        Vector3 Pos() const { return transformation_.pos; }
+        void Pos(Vector3 pos) { transformation_.pos = pos; is_up2date_ = false; }
+        Quaternion Rot() const { return transformation_.rot; }
+        void Rot(Quaternion rot) { transformation_.rot = rot; is_up2date_ = false; }
+        void Move(float dx, float dy, float dz) { transformation_.movePosition(dx, dy, dz); is_up2date_ = false; }
+        void Rotate(Vector4 axis, float angle) { transformation_.rotate(axis, angle); is_up2date_ = false; }
 
-    protected:
 
     private:
         // view frustrum parameters
@@ -29,8 +31,9 @@ class Camera
         float near_plane_; // near plane
         float far_plane_; // far plane
 
-        Vector3 pos_; // Camera position
-        Quaternion rot_; // Camera rotation
+        //Vector3 pos_; // Camera position
+        //Quaternion rot_; // Camera rotation
+        Transform transformation_;
         Matrix4 projection_matrix_;
 
         bool is_up2date_;

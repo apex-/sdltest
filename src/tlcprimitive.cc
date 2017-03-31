@@ -36,7 +36,7 @@ bool TlcPrimitive::loadFromFile(const char *filename)
     if (result) {
         cout << "Successfully loaded " << filename << endl;
     } else {
-        cout << "Failed loading obj file" << filename << endl;
+        cout << "Failed loading obj file " << filename << endl;
         return false;
     }
 

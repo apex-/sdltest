@@ -11,30 +11,23 @@ class Rasterizer
     public:
         Rasterizer();
         virtual ~Rasterizer();
-        uint32_t *getFramebuffer();
+        uint32_t * getFramebuffer();
         void Framebuffer(void ** framebufferp) { framebuffer = (uint32_t *) (*framebufferp); }
+
         void clearFramebuffer();
         void clearZBuffer();
 
         void rasterize(PipelineVertex *v1, PipelineVertex *v2, PipelineVertex *v3);
-
-        inline void fillShape(uint32_t yMin, uint32_t yMax, float meanZ);
-        inline void wireframe(uint32_t yMin, uint32_t yMax);
-
-        void gbham(int xstart,int ystart,int xend,int yend, float meanZ);
-        void gbham(Vertex &v1, Vertex &v2, float meanZ);
         void line(int x0, int y0, int x1, int y1, float zMean);
 
     protected:
 
     private:
-        void inline scanConvertLine(Vertex& minYVert, Vertex& maxYVert, int whichSide);
-        void scanConvertTriangle(Vertex &v1, Vertex &v2, Vertex &v3);
 
+        inline void fillShape(uint32_t yMin, uint32_t yMax, float meanZ);
+        inline void wireframe(uint32_t yMin, uint32_t yMax);
         void inline scanConvertLine(PipelineVertex* minYVert, PipelineVertex* maxYVert, int whichSide);
         void scanConvertTriangle(PipelineVertex *v1, PipelineVertex *v2, PipelineVertex *v3);
-
-        int sgn(int x);
 
         static const float EPSILON = 0.00001;
         uint32_t *framebuffer;

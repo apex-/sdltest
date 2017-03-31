@@ -74,13 +74,13 @@ void Camera::update() {
 
         Matrix4 camera_rotation;
         Vector3 origin;
-        Quaternion qrot(rot_);
+        Quaternion qrot(transformation_.rot);
         qrot.conjugate().getMatrix(camera_rotation, origin);
         Matrix4 camera_translation(
                  1, 0, 0, 0,
                  0, 1, 0, 0,
                  0, 0, 1, 0,
-                 -pos_.x, -pos_.y, -pos_.z, 1);
+                 -transformation_.pos.x, -transformation_.pos.y, -transformation_.pos.z, 1);
         view_projection_matrix_ = projection_matrix_ * camera_rotation * camera_translation;
 
         frustrum.updatePlanes(view_projection_matrix_);

@@ -22,7 +22,7 @@ class RenderPipeline
 
         // The following data will change for every Draw() call
         PipelineVertex vb_[VERTEX_BUFFER_SIZE];
-        Vector4 view_space_aabb_points_[8];
+        Vector4 view_space_aabb_[8];
         uint8_t bbclipflags_; // bounding box clip flags, bit_positions: 0:left, 1:right, 2:bottom, 3:top, 4:near, 5:far
 
         bool ClipLerp(PipelineVertex *pout, PipelineVertex *pin, PipelineVertex *pclip);
