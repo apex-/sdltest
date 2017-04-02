@@ -18,101 +18,220 @@ RenderPipeline::~RenderPipeline()
 void RenderPipeline::Draw(TlcInstance &tlcinstance) {
 
     TlcPrimitive* primitive = tlcinstance.GetTlcPrimitive();
-    Matrix4 vpm = camera_->ViewProjectionMatrix();
-    Matrix4 mwt = tlcinstance.Transformation().ToMatrix();
-    Matrix4 mvt = vpm * mwt;
+    Matrix4 vpm = camera_->ViewProjectionMatrix(); // View-projection matrix
+    Matrix4 mwt = tlcinstance.Transformation().ToMatrix(); // Model to world matrix
+    Matrix4 mvt = vpm * mwt; // Model to view transformation/matrix
 
     bbclipflags_ = 0;
-    bool is_inside_frustrum = CalculateBoundingBoxParameters(primitive->getAabbModelSpace(), mvt);
 
-    if (is_inside_frustrum) {
+    if (!CalculateBoundingBoxFlags(primitive->getAabbModelSpace(), mvt))
+        return;
+    // Note that the bbclipflags_ will only be available at this point if inside_frustrum
+    // is true as the method CalculateBoundingBoxParameters() will return prematurely if it
+    // detects that all bounding box vertices are outside of one plane.
 
-            vector<Vertex> vertices = primitive->getVertexArray();
-            for (uint32_t i=0; i<primitive->getNumberOfVertices(); i++) {
+    vb_size_ = primitive->getNumberOfVertices();
+    vbclip_size_ = 0;
+    vector<Vertex> &vertices = primitive->getVertexArray();
 
-                // Process vertices in one go and try to keep as much
-                // data in the CPU caches
+    for (uint32_t i=0; i<vb_size_; i++) {
 
-                // Transform vertex position from model-space to view space
-                vb_[i].ViewSpacePos(mvt * vertices[i].Pos());
-                // Transform normal from model-space to view space
-                vb_[i].ViewSpaceNormal(mvt * vertices[i].Normal());
-                // Calculate the screen position from the view space position calculated above
-                vb_[i].CalcScreenSpacePos();
-                // Set the clip flags
-                vb_[i].CalcClipFlags(bbclipflags_);
+        // Process all vertices in one go and try to keep as much
+        // data as possible in the CPU caches (deep pipelining, no conditionals etc.)
+
+        // Transform vertex position from model-space to view space
+        vb_[i].ViewSpacePos(mvt * vertices[i].Pos());
+        // Transform normal from model-space to view space
+        vb_[i].ViewSpaceNormal(mvt * vertices[i].Normal());
+        // Calculate the screen position from the view space position calculated above
+        vb_[i].CalcScreenSpacePos();
+        // Set the clip flags
+        vb_[i].CalcClipFlags(bbclipflags_);
+    }
+
+    // assemble, (clip) and rasterize the triangles
+    for (uint32_t i=0; i<primitive->getNumberOfIndices(); i+=3) {
+
+        PipelineVertex *pv1 = &vb_[primitive->getIndices()[i]];
+        PipelineVertex *pv2 = &vb_[primitive->getIndices()[i+1]];
+        PipelineVertex *pv3 = &vb_[primitive->getIndices()[i+2]];
+
+        // back-face culling in screen space
+        if ((pv3->ScreenSpacePos().x - pv1->ScreenSpacePos().x) * (pv2->ScreenSpacePos().y - pv1->ScreenSpacePos().y) <
+                (pv3->ScreenSpacePos().y - pv1->ScreenSpacePos().y) * (pv2->ScreenSpacePos().x - pv1->ScreenSpacePos().x))
+                continue;
+
+        if (!bbclipflags_ || !(pv1->ClipFlags() | pv2->ClipFlags() | pv3->ClipFlags())) {
+
+            // render, since no clipping necessary
+            rasterizer_->rasterize(pv1, pv2, pv3);
+
+        } else { // clipping required
+
+            vbclip_size_ = 0;
+
+            if (pv1->ClipFlags() && pv2->ClipFlags() && pv3->ClipFlags()) {
+                continue;
             }
 
-            // assemble, clip (if necessary) and rasterize triangles
-            for (uint32_t i=0; i<primitive->getNumberOfIndices(); i+=3) {
+            vector<PipelineVertex> clipinput;
+            vector<PipelineVertex> clipoutput;
+            clipinput.push_back(*pv1);
+            clipinput.push_back(*pv2);
+            clipinput.push_back(*pv3);
+            PipelineVertex *current_vertex;
+            PipelineVertex *previous_vertex = &clipinput[clipinput.size()-1];
+            bool previous_inside = !(clipinput[2].ClipFlags() & (1<<0));
 
-                PipelineVertex *pv1 = &vb_[primitive->getIndices()[i]];
-                PipelineVertex *pv2 = &vb_[primitive->getIndices()[i+1]];
-                PipelineVertex *pv3 = &vb_[primitive->getIndices()[i+2]];
+            PipelineVertex clippedVertex;
 
-                // back-face culling
-                if ((pv3->ScreenSpacePos().x - pv1->ScreenSpacePos().x) * (pv2->ScreenSpacePos().y - pv1->ScreenSpacePos().y) <
-                        (pv3->ScreenSpacePos().y - pv1->ScreenSpacePos().y) * (pv2->ScreenSpacePos().x - pv1->ScreenSpacePos().x))
-                        continue;
+            for (int iplane=0; iplane<6; iplane++)  { // iterate over the frustrum planes (see enum FrustrumPlanes)
+                //int sign = (i % 2 == 0) ? -1 : 1;
 
-                if (!bbclipflags_ || !(pv1->ClipFlags() | pv2->ClipFlags() | pv3->ClipFlags())) {
+                //cout << "iplane[ " << iplane << "] " << clipinput.size() << endl;
 
-                    rasterizer_->rasterize(pv1, pv2, pv3);
+                for (int vi=0; vi<clipinput.size(); vi++) {
 
-                } else {
+                    current_vertex = &clipinput[vi];
+                    bool current_inside = !(current_vertex->ClipFlags() & (1<<iplane));
 
-                    PipelineVertex* pvout[3];
-                    PipelineVertex* pvin[3];
-                    int nout = 0;
-                    int nin = 0;
+                    //cout << "plane " << iplane << "current vertex clipflags: " << (int)current_vertex->ClipFlags() << " current inside " << current_inside <<  " bitshift " << (1<<iplane) << endl;
 
-                    if (pv1->ClipFlags()) { pvout[nout++] = pv1; } else { pvin[nin++] = pv1; }
-                    if (pv2->ClipFlags()) { pvout[nout++] = pv2; } else { pvin[nin++] = pv2; }
-                    if (pv3->ClipFlags()) { pvout[nout++] = pv3; } else { pvin[nin++] = pv3; }
+                    if (current_inside ^ previous_inside) {
 
-                    switch(nout) {
-
-                        case 0:
-                            rasterizer_->rasterize(pv1, pv2, pv3);
-                            break;
-                        case 1:
-                            {
-                                PipelineVertex pc1(*pvout[0]);
-                                PipelineVertex pc2(*pvout[0]);
-                                ClipLerp(pvout[0], pvin[0], &pc1);
-                                ClipLerp(pvout[0], pvin[1], &pc2);
-                                pc1.CalcScreenSpacePos();
-                                pc2.CalcScreenSpacePos();
-                                rasterizer_->rasterize(pvin[0], pvin[1], &pc1);
-                                rasterizer_->rasterize(&pc1, &pc2, pvin[1]);
-                                break;
-                            }
-                        case 2:
-                            {
-                                PipelineVertex pc1(*pvout[0]);
-                                PipelineVertex pc2(*pvout[1]);
-                                ClipLerp(pvout[0], pvin[0], &pc1);
-                                ClipLerp(pvout[1], pvin[0], &pc2);
-                                pc1.CalcScreenSpacePos();
-                                pc2.CalcScreenSpacePos();
-                                rasterizer_->rasterize(&pc1, &pc2, pvin[0]);
-                                break;
-                            }
-                        case 3:
-                            // TODO: Actually even if all 3 vertices lie outside the frustrum
-                            // they can still "cut" the corners of the frustrum
-                            continue;
+                        ClipLerpVertex(current_vertex, previous_vertex, &clippedVertex, iplane);
+                        clipoutput.push_back(clippedVertex);
+                        cout << "plane " << iplane << " added vertex: clipped vertex: " << clippedVertex.ViewSpacePos() << endl;
                     }
-                }
 
+                    if (current_inside) {
+                        clipoutput.push_back(*current_vertex);
+                        cout << "plane " << iplane << " added inside vertex: " << current_vertex->ViewSpacePos() << endl;
+                    }
+                    previous_vertex = current_vertex;
+                    previous_inside = current_inside;
+                }
+                std::swap(clipinput, clipoutput);
+                previous_vertex = &clipinput[clipinput.size()-1];
+                clipoutput.clear();
             }
 
-            //#ifdef _DEBUG
-            DrawBoundingBox();
-            //#endif
 
-        } // if(is_inside_frustrum)
+            for (int cv=1; cv<(clipinput.size()-1); cv++) {
+                    cout << "rasterize " << clipinput[0].ViewSpacePos() << clipinput[i].ViewSpacePos() << clipinput[i+1].ViewSpacePos() << endl;
+                //rasterizer_->rasterize(&clipinput[0], &clipinput[i], &clipinput[i+1]);
+            }
+
+            // Previous Implementation
+            ///////////////////////////////
+
+            PipelineVertex* pvout[3];
+            PipelineVertex* pvin[3];
+            int nout = 0;
+            int nin = 0;
+
+            if (pv1->ClipFlags()) { pvout[nout++] = pv1; } else { pvin[nin++] = pv1; }
+            if (pv2->ClipFlags()) { pvout[nout++] = pv2; } else { pvin[nin++] = pv2; }
+            if (pv3->ClipFlags()) { pvout[nout++] = pv3; } else { pvin[nin++] = pv3; }
+
+            switch(nout) {
+
+                case 0:
+                    rasterizer_->rasterize(pv1, pv2, pv3);
+                    break;
+                case 1:
+                    {
+                        PipelineVertex pc1(*pvout[0]);
+                        PipelineVertex pc2(*pvout[0]);
+                        ClipLerp(pvout[0], pvin[0], &pc1);
+                        ClipLerp(pvout[0], pvin[1], &pc2);
+                        pc1.CalcScreenSpacePos();
+                        pc2.CalcScreenSpacePos();
+                        rasterizer_->rasterize(pvin[0], pvin[1], &pc1);
+                        rasterizer_->rasterize(&pc1, &pc2, pvin[1]);
+                        break;
+                    }
+                case 2:
+                    {
+                        PipelineVertex pc1(*pvout[0]);
+                        PipelineVertex pc2(*pvout[1]);
+                        ClipLerp(pvout[0], pvin[0], &pc1);
+                        ClipLerp(pvout[1], pvin[0], &pc2);
+                        pc1.CalcScreenSpacePos();
+                        pc2.CalcScreenSpacePos();
+                        rasterizer_->rasterize(&pc1, &pc2, pvin[0]);
+                        break;
+                    }
+                case 3:
+                    // TODO: Actually even if all 3 vertices lie outside the frustrum
+                    // they can still "cut" the corners of the frustrum
+                    continue;
+            }
+        }
+
+    }
+
+    //#ifdef _DEBUG
+    DrawBoundingBox();
+    //#endif
+
 }
+
+
+
+//int RenderPipeline::ClipPolygon() {
+
+
+
+//}
+
+
+bool RenderPipeline::ClipLerpVertex(PipelineVertex *pout, PipelineVertex *pin, PipelineVertex *pclip, int iplane) {
+
+    // Cohen-Sutherland algorithm (3D Version)
+    float lerp = 0.0;
+
+    switch(iplane) {
+        case 0:
+            lerp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().x) /
+                ((-pout->ViewSpacePos().w - pout->ViewSpacePos().x) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().x)));
+            break;
+        case 1:
+            lerp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().x) /
+                ((pout->ViewSpacePos().w - pout->ViewSpacePos().x) - (pin->ViewSpacePos().w - pin->ViewSpacePos().x)));
+            break;
+        case 2:
+            lerp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().y) /
+                ((-pout->ViewSpacePos().w - pout->ViewSpacePos().y) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().y)));
+            break;
+        case 3:
+            lerp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().y) /
+                ((pout->ViewSpacePos().w - pout->ViewSpacePos().y) - (pin->ViewSpacePos().w - pin->ViewSpacePos().y)));
+            break;
+        case 4:
+            lerp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().z) /
+                ((pout->ViewSpacePos().w - pout->ViewSpacePos().z) - (pin->ViewSpacePos().w - pin->ViewSpacePos().z)));
+            break;
+        case 5:
+            lerp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().z) /
+                ((-pout->ViewSpacePos().w - pout->ViewSpacePos().z) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().z)));
+            break;
+        default:
+            break;
+    };
+
+    pclip->ViewSpacePos(pout->ViewSpacePos().x + lerp * (pin->ViewSpacePos().x - pout->ViewSpacePos().x),
+        pout->ViewSpacePos().y + lerp * (pin->ViewSpacePos().y - pout->ViewSpacePos().y),
+        pout->ViewSpacePos().z + lerp * (pin->ViewSpacePos().z - pout->ViewSpacePos().z),
+        pout->ViewSpacePos().w + lerp * (pin->ViewSpacePos().w - pout->ViewSpacePos().w));
+
+    pclip->ClipFlags((pout->ClipFlags() & ~(1 << iplane))); //  clear clip flag
+    pclip->CalcScreenSpacePos();
+
+    return true;
+}
+
+
 
 
 bool RenderPipeline::ClipLerp(PipelineVertex *pout, PipelineVertex *pin, PipelineVertex *pclip) {
@@ -166,7 +285,7 @@ bool RenderPipeline::ClipLerp(PipelineVertex *pout, PipelineVertex *pin, Pipelin
 
 
 
-bool RenderPipeline::CalculateBoundingBoxParameters(Vector4 (&aabb)[8], Matrix4 &mvpm ) {
+bool RenderPipeline::CalculateBoundingBoxFlags(Vector4 (&aabb)[8], Matrix4 &mvpm ) {
 
     int i=0;
     bbclipflags_ = 0;

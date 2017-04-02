@@ -226,7 +226,7 @@ private:
                             float m6, float m7, float m8) const;
 
     float m[16];
-    float tm[16];                                       // transpose m
+    //float tm[16];                                       // transpose m
 
 };
 
@@ -753,14 +753,14 @@ inline const float* Matrix4::get() const
 
 
 
-inline const float* Matrix4::getTranspose()
-{
-    tm[0] = m[0];   tm[1] = m[4];   tm[2] = m[8];   tm[3] = m[12];
-    tm[4] = m[1];   tm[5] = m[5];   tm[6] = m[9];   tm[7] = m[13];
-    tm[8] = m[2];   tm[9] = m[6];   tm[10]= m[10];  tm[11]= m[14];
-    tm[12]= m[3];   tm[13]= m[7];   tm[14]= m[11];  tm[15]= m[15];
-    return tm;
-}
+//inline const float* Matrix4::getTranspose()
+//{
+//    tm[0] = m[0];   tm[1] = m[4];   tm[2] = m[8];   tm[3] = m[12];
+//    tm[4] = m[1];   tm[5] = m[5];   tm[6] = m[9];   tm[7] = m[13];
+//    tm[8] = m[2];   tm[9] = m[6];   tm[10]= m[10];  tm[11]= m[14];
+//    tm[12]= m[3];   tm[13]= m[7];   tm[14]= m[11];  tm[15]= m[15];
+//    return tm;
+//}
 
 
 

@@ -67,10 +67,16 @@ void Rasterizer::rasterize(PipelineVertex *v1, PipelineVertex *v2, PipelineVerte
     //wireframe(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y));
 
     // Wireframe using Bresenhams line drawing algorithm
-    line(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), meanZ);
-    line(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y), meanZ);
-    line(ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y), meanZ);
-    line(ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y), meanZ);
+//    line(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), meanZ);
+//    line(ceil(v1->ScreenSpacePos().x), ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y), meanZ);
+//    line(ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y), meanZ);
+//    line(ceil(v2->ScreenSpacePos().x), ceil(v2->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().x), ceil(v3->ScreenSpacePos().y), meanZ);
+
+    // OBS: No ceiling function here otherwise we get out of bounds on y_max, x_max
+    line(v1->ScreenSpacePos().x, v1->ScreenSpacePos().y, v2->ScreenSpacePos().x, v2->ScreenSpacePos().y, meanZ);
+    line(v1->ScreenSpacePos().x, v1->ScreenSpacePos().y, v3->ScreenSpacePos().x, v3->ScreenSpacePos().y, meanZ);
+    line(v2->ScreenSpacePos().x, v2->ScreenSpacePos().y, v3->ScreenSpacePos().x, v3->ScreenSpacePos().y, meanZ);
+    line(v2->ScreenSpacePos().x, v2->ScreenSpacePos().y, v3->ScreenSpacePos().x, v3->ScreenSpacePos().y, meanZ);
 }
 
 
@@ -98,6 +104,7 @@ void Rasterizer::scanConvertLine(PipelineVertex *vminy, PipelineVertex *vmaxy, i
     if (ydist <= EPSILON) {
         return;
     }
+
     float xstep = (vmaxy->ScreenSpacePos().x - vminy->ScreenSpacePos().x) / ydist;
     float curx = vminy->ScreenSpacePos().x + (ystart - vminy->ScreenSpacePos().y) * xstep;
 

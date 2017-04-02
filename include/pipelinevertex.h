@@ -5,6 +5,40 @@
 #include "vectors.h"
 #include <inttypes.h>
 
+
+enum FrustrumPlanes
+{
+    kLeftPlaneBit   = 0x01,
+    kRightPlaneBit  = 0x02,
+    kBottomPlaneBit = 0x04,
+    kTopPlaneBit    = 0x08,
+    kNearPlaneBit   = 0x10,
+    kFarPlaneBit    = 0x20,
+};
+
+inline FrustrumPlanes operator|(FrustrumPlanes a, FrustrumPlanes b)
+{return static_cast<FrustrumPlanes>(static_cast<int>(a) | static_cast<int>(b));}
+
+//inline FrustrumPlanes& operator=(const FrustrumPlanes& other)
+//{return static_cast<FrustrumPlanes>(static_cast<int>(other));}
+
+//template<class T> inline T operator~ (T a) { return (T)~(int)a; }
+//template<class T> inline T operator| (T a, T b) { return (T)((int)a | (int)b); }
+//template<class T> inline T operator& (T a, T b) { return (T)((int)a & (int)b); }
+//template<class T> inline T operator^ (T a, T b) { return (T)((int)a ^ (int)b); }
+//template<class T> inline T& operator|= (T& a, T b) { return (T&)((int&)a |= (int)b); }
+//template<class T> inline T& operator&= (T& a, T b) { return (T&)((int&)a &= (int)b); }
+//template<class T> inline T& operator^= (T& a, T b) { return (T&)((int&)a ^= (int)b); }
+
+
+//const int kLeftPlane   = 0x01,
+//const int kRightPlane  = 0x02,
+//const int kBottomPlane = 0x04,
+//const int kTopPlane    = 0x08,
+//const int kNearPlane   = 0x10,
+//const int kFarPlane    = 0x20,
+
+
 class PipelineVertex
 {
     public:
@@ -52,20 +86,19 @@ class PipelineVertex
 
             clip_flags_ = 0;
 
-            if (bbclipflags > 0) { // Check if the bounding-box got clipped
-                // OBS: The additional braces around the conditional is required!
-                if (bbclipflags & 0x01) // left plane
-                    clip_flags_ |= (view_space_pos_.x < -view_space_pos_.w) ? 0x01 : 0;
-                if (bbclipflags & 0x02) // right plane
-                    clip_flags_ |= (view_space_pos_.x > view_space_pos_.w) ? 0x02 : 0;
-                if (bbclipflags & 0x04) // bottom plane
-                    clip_flags_ |= (view_space_pos_.y < -view_space_pos_.w) ? 0x04 : 0;
-                if (bbclipflags & 0x08) // top plane
-                    clip_flags_ |= (view_space_pos_.y > view_space_pos_.w) ? 0x08 : 0;
-                if (bbclipflags & 0x10) // near plane
-                    clip_flags_ |= (view_space_pos_.z > view_space_pos_.w) ? 0x10 : 0;
-                if (bbclipflags & 0x20) // far plane {
-                    clip_flags_ |= (view_space_pos_.z < -view_space_pos_.w) ? 0x20 : 0;
+            if (bbclipflags) { // Check if the bounding-box got clipped
+                if (bbclipflags & kLeftPlaneBit) // left plane
+                    clip_flags_ |= (view_space_pos_.x <= -view_space_pos_.w) ? kLeftPlaneBit : 0;
+                if (bbclipflags & kRightPlaneBit) // right plane
+                    clip_flags_ |= (view_space_pos_.x >= view_space_pos_.w) ? kRightPlaneBit : 0;
+                if (bbclipflags & kBottomPlaneBit) // bottom plane
+                    clip_flags_ |= (view_space_pos_.y <= -view_space_pos_.w) ? kBottomPlaneBit : 0;
+                if (bbclipflags & kTopPlaneBit) // top plane
+                    clip_flags_ |= (view_space_pos_.y >= view_space_pos_.w) ? kTopPlaneBit : 0;
+                if (bbclipflags & kNearPlaneBit) // near plane
+                    clip_flags_ |= (view_space_pos_.z >= view_space_pos_.w) ? kNearPlaneBit : 0;
+                if (bbclipflags & kFarPlaneBit) // far plane {
+                    clip_flags_ |= (view_space_pos_.z <= -view_space_pos_.w) ? kFarPlaneBit : 0;
             }
         }
 
