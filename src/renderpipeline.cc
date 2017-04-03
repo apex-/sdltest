@@ -23,6 +23,7 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
     Matrix4 mvt = vpm * mwt; // Model to view transformation/matrix
 
     bbclipflags_ = 0;
+    int vert_id_count = 1;
 
     if (!CalculateBoundingBoxFlags(primitive->getAabbModelSpace(), mvt))
         return;
@@ -47,6 +48,8 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
         vb_[i].CalcScreenSpacePos();
         // Set the clip flags
         vb_[i].CalcClipFlags(bbclipflags_);
+
+        vb_[i].Id(vert_id_count++);
     }
 
     // assemble, (clip) and rasterize the triangles
@@ -76,99 +79,67 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
 
             vector<PipelineVertex> clipinput;
             vector<PipelineVertex> clipoutput;
+
             clipinput.push_back(*pv1);
             clipinput.push_back(*pv2);
             clipinput.push_back(*pv3);
-            PipelineVertex *current_vertex;
-            PipelineVertex *previous_vertex = &clipinput[clipinput.size()-1];
-            bool previous_inside = !(clipinput[2].ClipFlags() & (1<<0));
 
-            PipelineVertex clippedVertex;
+            PipelineVertex *current_vertex;
+            PipelineVertex *previous_vertex;
+
+            bool previous_inside;
+            PipelineVertex clipped_vertex;
 
             for (int iplane=0; iplane<6; iplane++)  { // iterate over the frustrum planes (see enum FrustrumPlanes)
                 //int sign = (i % 2 == 0) ? -1 : 1;
-
                 //cout << "iplane[ " << iplane << "] " << clipinput.size() << endl;
+                previous_vertex = &clipinput[clipinput.size()-1];
+                // TODO: Remove
+                //previous_vertex->CalcClipFlags(bbclipflags_);
+                previous_inside = !(previous_vertex->ClipFlags() & (1<<iplane));
 
                 for (int vi=0; vi<clipinput.size(); vi++) {
-
                     current_vertex = &clipinput[vi];
                     bool current_inside = !(current_vertex->ClipFlags() & (1<<iplane));
 
-                    //cout << "plane " << iplane << "current vertex clipflags: " << (int)current_vertex->ClipFlags() << " current inside " << current_inside <<  " bitshift " << (1<<iplane) << endl;
-
                     if (current_inside ^ previous_inside) {
-
-                        ClipLerpVertex(current_vertex, previous_vertex, &clippedVertex, iplane);
-                        clipoutput.push_back(clippedVertex);
-                        cout << "plane " << iplane << " added vertex: clipped vertex: " << clippedVertex.ViewSpacePos() << endl;
+                        ClipLerpVertex(previous_vertex, current_vertex, &clipped_vertex, iplane);
+                        clipped_vertex.Id(vert_id_count++);
+                        clipoutput.push_back(clipped_vertex);
+                        //cout << "plane " << iplane << " id " << clipped_vertex.Id() << " added vertex: clipped vertex: " << clipped_vertex.ViewSpacePos() << endl;
+                        //cout << "BASED ON from " << previous_vertex->Id() << " to " << current_vertex->Id() << endl;
                     }
 
                     if (current_inside) {
                         clipoutput.push_back(*current_vertex);
-                        cout << "plane " << iplane << " added inside vertex: " << current_vertex->ViewSpacePos() << endl;
+                        //cout << "plane " << iplane << " id " << current_vertex->Id() << " added inside vertex: " << current_vertex->ViewSpacePos() << endl;
                     }
                     previous_vertex = current_vertex;
                     previous_inside = current_inside;
                 }
+
                 std::swap(clipinput, clipoutput);
-                previous_vertex = &clipinput[clipinput.size()-1];
                 clipoutput.clear();
             }
 
-
             for (int cv=1; cv<(clipinput.size()-1); cv++) {
-                    cout << "rasterize " << clipinput[0].ViewSpacePos() << clipinput[i].ViewSpacePos() << clipinput[i+1].ViewSpacePos() << endl;
-                //rasterizer_->rasterize(&clipinput[0], &clipinput[i], &clipinput[i+1]);
-            }
+                //assert(abs(clipinput[0].ViewSpacePos().x) <= clipinput[0].ViewSpacePos().w);
+                //assert(abs(clipinput[0].ViewSpacePos().y) <= clipinput[0].ViewSpacePos().w);
+                //assert(abs(clipinput[0].ViewSpacePos().z) <= clipinput[0].ViewSpacePos().w);
 
-            // Previous Implementation
-            ///////////////////////////////
+                //assert(abs(clipinput[cv].ViewSpacePos().x) <= clipinput[cv].ViewSpacePos().w);
+                //assert(abs(clipinput[cv].ViewSpacePos().y) <= clipinput[cv].ViewSpacePos().w);
+                //assert(abs(clipinput[cv].ViewSpacePos().z) <= clipinput[cv].ViewSpacePos().w);
 
-            PipelineVertex* pvout[3];
-            PipelineVertex* pvin[3];
-            int nout = 0;
-            int nin = 0;
+                //assert(abs(clipinput[cv+1].ViewSpacePos().x) <= clipinput[cv+1].ViewSpacePos().w);
+                //assert(abs(clipinput[cv+1].ViewSpacePos().y) <= clipinput[cv+1].ViewSpacePos().w);
+                //assert(abs(clipinput[cv+1].ViewSpacePos().z) <= clipinput[cv+1].ViewSpacePos().w);
 
-            if (pv1->ClipFlags()) { pvout[nout++] = pv1; } else { pvin[nin++] = pv1; }
-            if (pv2->ClipFlags()) { pvout[nout++] = pv2; } else { pvin[nin++] = pv2; }
-            if (pv3->ClipFlags()) { pvout[nout++] = pv3; } else { pvin[nin++] = pv3; }
-
-            switch(nout) {
-
-                case 0:
-                    rasterizer_->rasterize(pv1, pv2, pv3);
-                    break;
-                case 1:
-                    {
-                        PipelineVertex pc1(*pvout[0]);
-                        PipelineVertex pc2(*pvout[0]);
-                        ClipLerp(pvout[0], pvin[0], &pc1);
-                        ClipLerp(pvout[0], pvin[1], &pc2);
-                        pc1.CalcScreenSpacePos();
-                        pc2.CalcScreenSpacePos();
-                        rasterizer_->rasterize(pvin[0], pvin[1], &pc1);
-                        rasterizer_->rasterize(&pc1, &pc2, pvin[1]);
-                        break;
-                    }
-                case 2:
-                    {
-                        PipelineVertex pc1(*pvout[0]);
-                        PipelineVertex pc2(*pvout[1]);
-                        ClipLerp(pvout[0], pvin[0], &pc1);
-                        ClipLerp(pvout[1], pvin[0], &pc2);
-                        pc1.CalcScreenSpacePos();
-                        pc2.CalcScreenSpacePos();
-                        rasterizer_->rasterize(&pc1, &pc2, pvin[0]);
-                        break;
-                    }
-                case 3:
-                    // TODO: Actually even if all 3 vertices lie outside the frustrum
-                    // they can still "cut" the corners of the frustrum
-                    continue;
+                //cout << "clipinput contains " << clipinput.size() << " elements " << endl;
+                //cout << "rasterize " << clipinput[0].ViewSpacePos() << clipinput[cv].ViewSpacePos() << clipinput[cv+1].ViewSpacePos() << endl;
+                rasterizer_->rasterize(&clipinput[0], &clipinput[cv], &clipinput[cv+1]);
             }
         }
-
     }
 
     //#ifdef _DEBUG
@@ -178,111 +149,58 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
 }
 
 
-
-//int RenderPipeline::ClipPolygon() {
-
-
-
-//}
-
-
-bool RenderPipeline::ClipLerpVertex(PipelineVertex *pout, PipelineVertex *pin, PipelineVertex *pclip, int iplane) {
+bool RenderPipeline::ClipLerpVertex(PipelineVertex *v1, PipelineVertex *v2, PipelineVertex *vclip, int iplane) {
 
     // Cohen-Sutherland algorithm (3D Version)
     float lerp = 0.0;
+    float a, b;
 
     switch(iplane) {
         case 0:
-            lerp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().x) /
-                ((-pout->ViewSpacePos().w - pout->ViewSpacePos().x) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().x)));
+            a = -v1->ViewSpacePos().w - v1->ViewSpacePos().x;
+            b = -v2->ViewSpacePos().w - v2->ViewSpacePos().x;
             break;
         case 1:
-            lerp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().x) /
-                ((pout->ViewSpacePos().w - pout->ViewSpacePos().x) - (pin->ViewSpacePos().w - pin->ViewSpacePos().x)));
+            a = v1->ViewSpacePos().w - v1->ViewSpacePos().x;
+            b = v2->ViewSpacePos().w - v2->ViewSpacePos().x;
             break;
         case 2:
-            lerp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().y) /
-                ((-pout->ViewSpacePos().w - pout->ViewSpacePos().y) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().y)));
+            a = -v1->ViewSpacePos().w - v1->ViewSpacePos().y;
+            b = -v2->ViewSpacePos().w - v2->ViewSpacePos().y;
             break;
         case 3:
-            lerp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().y) /
-                ((pout->ViewSpacePos().w - pout->ViewSpacePos().y) - (pin->ViewSpacePos().w - pin->ViewSpacePos().y)));
+            a = v1->ViewSpacePos().w - v1->ViewSpacePos().y;
+            b = v2->ViewSpacePos().w - v2->ViewSpacePos().y;
             break;
         case 4:
-            lerp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().z) /
-                ((pout->ViewSpacePos().w - pout->ViewSpacePos().z) - (pin->ViewSpacePos().w - pin->ViewSpacePos().z)));
+            a = v1->ViewSpacePos().w - v1->ViewSpacePos().z;
+            b = v2->ViewSpacePos().w - v2->ViewSpacePos().z;
             break;
         case 5:
-            lerp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().z) /
-                ((-pout->ViewSpacePos().w - pout->ViewSpacePos().z) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().z)));
+            a = -v1->ViewSpacePos().w - v1->ViewSpacePos().z;
+            b = -v2->ViewSpacePos().w - v2->ViewSpacePos().z;
             break;
         default:
             break;
     };
 
-    pclip->ViewSpacePos(pout->ViewSpacePos().x + lerp * (pin->ViewSpacePos().x - pout->ViewSpacePos().x),
-        pout->ViewSpacePos().y + lerp * (pin->ViewSpacePos().y - pout->ViewSpacePos().y),
-        pout->ViewSpacePos().z + lerp * (pin->ViewSpacePos().z - pout->ViewSpacePos().z),
-        pout->ViewSpacePos().w + lerp * (pin->ViewSpacePos().w - pout->ViewSpacePos().w));
+    lerp = a / (a-b);
 
-    pclip->ClipFlags((pout->ClipFlags() & ~(1 << iplane))); //  clear clip flag
-    pclip->CalcScreenSpacePos();
+    vclip->ViewSpacePos(v1->ViewSpacePos().x + lerp * (v2->ViewSpacePos().x - v1->ViewSpacePos().x),
+        v1->ViewSpacePos().y + lerp * (v2->ViewSpacePos().y - v1->ViewSpacePos().y),
+        v1->ViewSpacePos().z + lerp * (v2->ViewSpacePos().z - v1->ViewSpacePos().z),
+        v1->ViewSpacePos().w + lerp * (v2->ViewSpacePos().w - v1->ViewSpacePos().w));
+
+    // OBS: Due to floating point errors the w value can be
+    // a tiny bit larger than the x/y/z component which might lead to problems
+    // when calculating the screen space position
+    //pclip->ViewSpacePos().w *=1.000001;
+
+    vclip->CalcClipFlags(bbclipflags_);
+    vclip->CalcScreenSpacePos();
 
     return true;
 }
-
-
-
-
-bool RenderPipeline::ClipLerp(PipelineVertex *pout, PipelineVertex *pin, PipelineVertex *pclip) {
-
-    // Cohen-Sutherland algorithm (3D Version)
-    float lerptmp;
-    float lerp = 0.0;
-
-    if (pout->ClipFlags() & 0x01) {
-        lerptmp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().x) /
-            ((-pout->ViewSpacePos().w - pout->ViewSpacePos().x) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().x)));
-        lerp = (lerptmp > lerp) ? lerptmp : lerp;
-    }
-
-    if (pout->ClipFlags() & 0x02) {
-        lerptmp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().x) /
-        ((pout->ViewSpacePos().w - pout->ViewSpacePos().x) - (pin->ViewSpacePos().w - pin->ViewSpacePos().x)));
-        lerp = (lerptmp > lerp) ? lerptmp : lerp;
-    }
-
-    if (pout->ClipFlags() & 0x04) {
-        lerptmp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().y) /
-        ((-pout->ViewSpacePos().w - pout->ViewSpacePos().y) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().y)));
-        lerp = (lerptmp >  lerp) ? lerptmp : lerp;
-    }
-
-    if (pout->ClipFlags() & 0x08) {
-        lerptmp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().y) /
-        ((pout->ViewSpacePos().w - pout->ViewSpacePos().y) - (pin->ViewSpacePos().w - pin->ViewSpacePos().y)));
-        lerp = (lerptmp >  lerp) ? lerptmp : lerp;
-    }
-
-    if (pout->ClipFlags() & 0x10) {
-        lerptmp = ((pout->ViewSpacePos().w - pout->ViewSpacePos().z) /
-        ((pout->ViewSpacePos().w - pout->ViewSpacePos().z) - (pin->ViewSpacePos().w - pin->ViewSpacePos().z)));
-        lerp = (lerptmp >  lerp) ? lerptmp : lerp;
-    }
-
-    if (pout->ClipFlags() & 0x20) {
-        lerptmp = ((-pout->ViewSpacePos().w - pout->ViewSpacePos().z) /
-        ((-pout->ViewSpacePos().w - pout->ViewSpacePos().z) - (-pin->ViewSpacePos().w - pin->ViewSpacePos().z)));
-        lerp = (lerptmp >  lerp) ? lerptmp : lerp;
-    }
-
-     pclip->ViewSpacePos(pout->ViewSpacePos().x + lerp * (pin->ViewSpacePos().x - pout->ViewSpacePos().x),
-        pout->ViewSpacePos().y + lerp * (pin->ViewSpacePos().y - pout->ViewSpacePos().y),
-        pout->ViewSpacePos().z + lerp * (pin->ViewSpacePos().z - pout->ViewSpacePos().z),
-        pout->ViewSpacePos().w + lerp * (pin->ViewSpacePos().w - pout->ViewSpacePos().w));
-        return true;
-}
-
 
 
 bool RenderPipeline::CalculateBoundingBoxFlags(Vector4 (&aabb)[8], Matrix4 &mvpm ) {

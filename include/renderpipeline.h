@@ -29,7 +29,6 @@ class RenderPipeline
         Vector4 view_space_aabb_[8];
         uint8_t bbclipflags_; // bounding box clip flags, bit_positions: 0:left, 1:right, 2:bottom, 3:top, 4:near, 5:far
 
-        bool ClipLerp(PipelineVertex *pout, PipelineVertex *pin, PipelineVertex *pclip);
         bool ClipLerpVertex(PipelineVertex *pout, PipelineVertex *pin, PipelineVertex *pclip, int iplane);
         bool CalculateBoundingBoxFlags(Vector4 (&aabb)[8], Matrix4 &mvpm );
         void DrawBoundingBox();

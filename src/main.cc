@@ -126,9 +126,9 @@ int main(int argc, char* argv[]) {
         SDL_LockTexture(sdlTexture, NULL, &framebuffer, &pitch);
         rasterizer.Framebuffer(&framebuffer);
 
-        //render_pipeline.Draw(monkey_2);
-        //render_pipeline.Draw(monkey_3);
-        //render_pipeline.Draw(monkey_1);
+        render_pipeline.Draw(monkey_2);
+        render_pipeline.Draw(monkey_3);
+        render_pipeline.Draw(monkey_1);
         render_pipeline.Draw(floor_1);
 
         // OBS: SDL_UpdateTexture() is where most of the time is spend on my Linux Machine with a Nvidia Quadro K2000

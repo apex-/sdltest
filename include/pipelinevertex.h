@@ -45,6 +45,9 @@ class PipelineVertex
         PipelineVertex();
         virtual ~PipelineVertex();
 
+        inline float Id() { return id_; }  const
+        inline void Id(float id) { id_ = id; }
+
         inline Vector4& ViewSpacePos() { return view_space_pos_; } const
         inline void ViewSpacePos(Vector4 view_space_pos) { view_space_pos_ = view_space_pos; }
         inline void ViewSpacePos(float x, float y, float z, float w) { view_space_pos_.x=x; view_space_pos_.y=y; view_space_pos_.z=z; view_space_pos_.w=w; }
@@ -78,8 +81,12 @@ class PipelineVertex
 
         inline void CalcScreenSpacePos() {
 
-            screen_space_pos_.x = ((VIEWPORT_WIDTH -1) * ((view_space_pos_.x / view_space_pos_.w) + 1)) / 2.0f;
-            screen_space_pos_.y = ((VIEWPORT_HEIGHT -1) * -((view_space_pos_.y / view_space_pos_.w) - 1)) / 2.0f;
+            //screen_space_pos_.x = ((VIEWPORT_WIDTH -1) * ((view_space_pos_.x / view_space_pos_.w) + 1)) / 2.0f;
+            //screen_space_pos_.y = ((VIEWPORT_HEIGHT -1) * -((view_space_pos_.y / view_space_pos_.w) - 1)) / 2.0f;
+
+            screen_space_pos_.x = ((view_space_pos_.x / view_space_pos_.w) + 1) * screenx_conv_factor;
+            screen_space_pos_.y = -((view_space_pos_.y / view_space_pos_.w) - 1) * screeny_conv_factor;
+
         }
 
         inline void CalcClipFlags(uint8_t bbclipflags) {
@@ -87,22 +94,24 @@ class PipelineVertex
             clip_flags_ = 0;
 
             if (bbclipflags) { // Check if the bounding-box got clipped
-                if (bbclipflags & kLeftPlaneBit) // left plane
+                //if (bbclipflags & kLeftPlaneBit) // left plane
                     clip_flags_ |= (view_space_pos_.x <= -view_space_pos_.w) ? kLeftPlaneBit : 0;
-                if (bbclipflags & kRightPlaneBit) // right plane
+                //if (bbclipflags & kRightPlaneBit) // right plane
                     clip_flags_ |= (view_space_pos_.x >= view_space_pos_.w) ? kRightPlaneBit : 0;
-                if (bbclipflags & kBottomPlaneBit) // bottom plane
+                //if (bbclipflags & kBottomPlaneBit) // bottom plane
                     clip_flags_ |= (view_space_pos_.y <= -view_space_pos_.w) ? kBottomPlaneBit : 0;
-                if (bbclipflags & kTopPlaneBit) // top plane
+                //if (bbclipflags & kTopPlaneBit) // top plane
                     clip_flags_ |= (view_space_pos_.y >= view_space_pos_.w) ? kTopPlaneBit : 0;
-                if (bbclipflags & kNearPlaneBit) // near plane
+                //if (bbclipflags & kNearPlaneBit) // near plane
                     clip_flags_ |= (view_space_pos_.z >= view_space_pos_.w) ? kNearPlaneBit : 0;
-                if (bbclipflags & kFarPlaneBit) // far plane {
+                //if (bbclipflags & kFarPlaneBit) // far plane {
                     clip_flags_ |= (view_space_pos_.z <= -view_space_pos_.w) ? kFarPlaneBit : 0;
             }
         }
 
     private:
+        uint32_t id_;
+
         // 60 bytes
         Vector4 view_space_pos_; // 16
         Vector4 view_space_normal_; // 16
