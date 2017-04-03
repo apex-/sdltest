@@ -69,7 +69,7 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
             // render, since no clipping necessary
             rasterizer_->rasterize(pv1, pv2, pv3);
 
-        } else { // clipping required
+        } else { // triangle can be culled or needs clipping
 
             vbclip_size_ = 0;
 
@@ -91,11 +91,7 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
             PipelineVertex clipped_vertex;
 
             for (int iplane=0; iplane<6; iplane++)  { // iterate over the frustrum planes (see enum FrustrumPlanes)
-                //int sign = (i % 2 == 0) ? -1 : 1;
-                //cout << "iplane[ " << iplane << "] " << clipinput.size() << endl;
                 previous_vertex = &clipinput[clipinput.size()-1];
-                // TODO: Remove
-                //previous_vertex->CalcClipFlags(bbclipflags_);
                 previous_inside = !(previous_vertex->ClipFlags() & (1<<iplane));
 
                 for (int vi=0; vi<clipinput.size(); vi++) {
@@ -147,7 +143,6 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
     //#endif
 
 }
-
 
 bool RenderPipeline::ClipLerpVertex(PipelineVertex *v1, PipelineVertex *v2, PipelineVertex *vclip, int iplane) {
 
