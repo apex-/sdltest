@@ -27,6 +27,7 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
 
     if (!CalculateBoundingBoxFlags(primitive->getAabbModelSpace(), mvt))
         return;
+
     // Note that the bbclipflags_ will only be available at this point if inside_frustrum
     // is true as the method CalculateBoundingBoxParameters() will return prematurely if it
     // detects that all bounding box vertices are outside of one plane.
@@ -59,12 +60,13 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
         PipelineVertex *pv2 = &vb_[primitive->getIndices()[i+1]];
         PipelineVertex *pv3 = &vb_[primitive->getIndices()[i+2]];
 
+        if (!bbclipflags_ || !(pv1->ClipFlags() | pv2->ClipFlags() | pv3->ClipFlags())) {
+
         // back-face culling in screen space
+        // TODO: Back-face culling is only performed when the triangle is completely within the frustrum
         if ((pv3->ScreenSpacePos().x - pv1->ScreenSpacePos().x) * (pv2->ScreenSpacePos().y - pv1->ScreenSpacePos().y) <
                 (pv3->ScreenSpacePos().y - pv1->ScreenSpacePos().y) * (pv2->ScreenSpacePos().x - pv1->ScreenSpacePos().x))
                 continue;
-
-        if (!bbclipflags_ || !(pv1->ClipFlags() | pv2->ClipFlags() | pv3->ClipFlags())) {
 
             // render, since no clipping necessary
             rasterizer_->rasterize(pv1, pv2, pv3);
@@ -151,27 +153,27 @@ bool RenderPipeline::ClipLerpVertex(PipelineVertex *v1, PipelineVertex *v2, Pipe
     float a, b;
 
     switch(iplane) {
-        case 0:
+        case 0: // left plane
             a = -v1->ViewSpacePos().w - v1->ViewSpacePos().x;
             b = -v2->ViewSpacePos().w - v2->ViewSpacePos().x;
             break;
-        case 1:
+        case 1:  // right plane
             a = v1->ViewSpacePos().w - v1->ViewSpacePos().x;
             b = v2->ViewSpacePos().w - v2->ViewSpacePos().x;
             break;
-        case 2:
+        case 2:  // bottom plane
             a = -v1->ViewSpacePos().w - v1->ViewSpacePos().y;
             b = -v2->ViewSpacePos().w - v2->ViewSpacePos().y;
             break;
-        case 3:
+        case 3:  // top plane
             a = v1->ViewSpacePos().w - v1->ViewSpacePos().y;
             b = v2->ViewSpacePos().w - v2->ViewSpacePos().y;
             break;
-        case 4:
+        case 4:  // near plane
             a = v1->ViewSpacePos().w - v1->ViewSpacePos().z;
             b = v2->ViewSpacePos().w - v2->ViewSpacePos().z;
             break;
-        case 5:
+        case 5:  // far plane
             a = -v1->ViewSpacePos().w - v1->ViewSpacePos().z;
             b = -v2->ViewSpacePos().w - v2->ViewSpacePos().z;
             break;
@@ -189,7 +191,7 @@ bool RenderPipeline::ClipLerpVertex(PipelineVertex *v1, PipelineVertex *v2, Pipe
     // OBS: Due to floating point errors the w value can be
     // a tiny bit larger than the x/y/z component which might lead to problems
     // when calculating the screen space position
-    //pclip->ViewSpacePos().w *=1.000001;
+    // pclip->ViewSpacePos().w *=1.000001;
 
     vclip->CalcClipFlags(bbclipflags_);
     vclip->CalcScreenSpacePos();
