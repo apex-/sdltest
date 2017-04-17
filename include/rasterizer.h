@@ -2,6 +2,7 @@
 #define RASTERIZER_H
 #include <stdint.h>
 
+#include "edge.h"
 #include "global.h"
 #include "pipelinevertex.h"
 #include "vertex.h"
@@ -28,6 +29,9 @@ class Rasterizer
         inline void wireframe(uint32_t yMin, uint32_t yMax);
         void inline scanConvertLine(PipelineVertex* minYVert, PipelineVertex* maxYVert, int whichSide);
         void scanConvertTriangle(PipelineVertex *v1, PipelineVertex *v2, PipelineVertex *v3);
+
+        void ScanTriangle(PipelineVertex *vminy, PipelineVertex *vmidy, PipelineVertex *vmaxy);
+        void DrawScanLine(Edge *left, Edge *right, uint32_t ycoord);
 
         static const float EPSILON = 0.00001;
         uint32_t *framebuffer;

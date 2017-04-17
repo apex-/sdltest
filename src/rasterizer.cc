@@ -1,4 +1,5 @@
 #include <iostream>
+#include "edge.h"
 #include "rasterizer.h"
 #include "global.h"
 
@@ -61,9 +62,11 @@ void Rasterizer::rasterize(PipelineVertex *v1, PipelineVertex *v2, PipelineVerte
         swap(v1, v2);
     }
 
-    float meanZ = (v1->ViewSpacePos().z + v2->ViewSpacePos().z + v3->ViewSpacePos().z) / 3.0;
-    scanConvertTriangle(v1, v2, v3);
-    fillShape(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y), meanZ);
+    float meanZ = (v1->ViewSpacePos().z + v2->ViewSpacePos().z + v3->ViewSpacePos().z) * 0.3333333f;
+
+    ScanTriangle(v1, v2, v3);
+    //scanConvertTriangle(v1, v2, v3);
+    //fillShape(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y), meanZ);
     //wireframe(ceil(v1->ScreenSpacePos().y), ceil(v3->ScreenSpacePos().y));
 
     // Wireframe using Bresenhams line drawing algorithm
@@ -77,6 +80,62 @@ void Rasterizer::rasterize(PipelineVertex *v1, PipelineVertex *v2, PipelineVerte
     line(v1->ScreenSpacePos().x, v1->ScreenSpacePos().y, v3->ScreenSpacePos().x, v3->ScreenSpacePos().y, meanZ);
     line(v2->ScreenSpacePos().x, v2->ScreenSpacePos().y, v3->ScreenSpacePos().x, v3->ScreenSpacePos().y, meanZ);
     line(v2->ScreenSpacePos().x, v2->ScreenSpacePos().y, v3->ScreenSpacePos().x, v3->ScreenSpacePos().y, meanZ);
+}
+
+
+void Rasterizer::ScanTriangle(PipelineVertex *vminy, PipelineVertex *vmidy, PipelineVertex *vmaxy) {
+
+    // determine the handedness of the triangle
+    float x1 = vmaxy->ScreenSpacePos().x - vminy->ScreenSpacePos().x;
+    float y1 = vmaxy->ScreenSpacePos().y - vminy->ScreenSpacePos().y;
+    float x2 = vmidy->ScreenSpacePos().x - vminy->ScreenSpacePos().x;
+    float y2 = vmidy->ScreenSpacePos().y - vminy->ScreenSpacePos().y;
+    float cproduct = (x1 * y2 - x2 * y1);
+    bool is_left_side = cproduct > 0 ? true : false;
+
+    Edge top_bottom_edge(vminy, vmaxy);
+    Edge top_mid_edge(vminy, vmidy);
+    Edge mid_bottom_edge(vmidy, vmaxy);
+
+    Edge *left = &top_bottom_edge;
+    Edge *right = &top_mid_edge;
+
+    if (is_left_side) {
+        std::swap(left, right);
+    }
+    for (int ycoord=top_mid_edge.YStart(); ycoord<top_mid_edge.YEnd(); ycoord++) {
+        DrawScanLine(left, right, ycoord);
+        left->Step();
+        right->Step();
+    }
+    left = &top_bottom_edge;
+    right = &mid_bottom_edge;
+    if (is_left_side) {
+        std::swap(left, right);
+    }
+    for (int ycoord=mid_bottom_edge.YStart(); ycoord<mid_bottom_edge.YEnd(); ycoord++) {
+        DrawScanLine(left, right, ycoord);
+        left->Step();
+        right->Step();
+    }
+}
+
+
+void Rasterizer::DrawScanLine(Edge *left, Edge *right, uint32_t ycoord) {
+
+    uint32_t xmin = ceil(left->X());
+    uint32_t xmax = ceil(right->X());
+
+    //float zMean =
+
+    //cout << "From " << xmin << " to " << xmax << endl;
+     for (uint32_t i=xmin; i<xmax; i++) {
+            //if (zMean < zBuffer_[j*VIEWPORT_WIDTH+i]) {
+                framebuffer[ycoord*VIEWPORT_WIDTH+i] = 0xff333377;
+                //zBuffer_[j*VIEWPORT_WIDTH+i] = zMean;
+            //}
+    }
+
 }
 
 

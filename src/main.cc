@@ -101,7 +101,6 @@ int main(int argc, char* argv[]) {
     floor_1.Transformation().setPosition(0.0, -5.0, -10.0);
 
     //Vector4 floor_rot_vect(0.0,1.0,0.0,1.0);
-
     //floor_1.Transformation().rotate(floor_rot_vect, 50.54);
 
 
