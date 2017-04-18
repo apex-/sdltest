@@ -4,6 +4,7 @@
 
 #include "edge.h"
 #include "global.h"
+#include "gradients.h"
 #include "pipelinevertex.h"
 #include "vertex.h"
 
@@ -12,26 +13,26 @@ class Rasterizer
     public:
         Rasterizer();
         virtual ~Rasterizer();
-        uint32_t * getFramebuffer();
+        uint32_t * GetFramebuffer();
         void Framebuffer(void ** framebufferp) { framebuffer = (uint32_t *) (*framebufferp); }
 
-        void clearFramebuffer();
-        void clearZBuffer();
+        void ClearFramebuffer();
+        void ClearZBuffer();
 
-        void rasterize(PipelineVertex *v1, PipelineVertex *v2, PipelineVertex *v3);
-        void line(int x0, int y0, int x1, int y1, float zMean);
+        void Rasterize(PipelineVertex *v1, PipelineVertex *v2, PipelineVertex *v3);
+        void Line(int x0, int y0, int x1, int y1, float zMean);
 
     protected:
 
     private:
 
-        inline void fillShape(uint32_t yMin, uint32_t yMax, float meanZ);
-        inline void wireframe(uint32_t yMin, uint32_t yMax);
-        void inline scanConvertLine(PipelineVertex* minYVert, PipelineVertex* maxYVert, int whichSide);
-        void scanConvertTriangle(PipelineVertex *v1, PipelineVertex *v2, PipelineVertex *v3);
+        inline void FillShape(uint32_t yMin, uint32_t yMax, float meanZ);
+        inline void Wireframe(uint32_t yMin, uint32_t yMax);
+        void inline ScanConvertLine(PipelineVertex* minYVert, PipelineVertex* maxYVert, int whichSide);
+        void ScanConvertTriangle(PipelineVertex *v1, PipelineVertex *v2, PipelineVertex *v3);
 
         void ScanTriangle(PipelineVertex *vminy, PipelineVertex *vmidy, PipelineVertex *vmaxy);
-        void DrawScanLine(Edge *left, Edge *right, uint32_t ycoord);
+        void DrawScanLine(Edge *left, Edge *right, Gradients *gradients, uint32_t ycoord);
 
         static const float EPSILON = 0.00001;
         uint32_t *framebuffer;

@@ -69,7 +69,7 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
                 continue;
 
             // render, since no clipping necessary
-            rasterizer_->rasterize(pv1, pv2, pv3);
+            rasterizer_->Rasterize(pv1, pv2, pv3);
 
         } else { // triangle can be culled or needs clipping
 
@@ -135,7 +135,7 @@ void RenderPipeline::Draw(TlcInstance &tlcinstance) {
 
                 //cout << "clipinput contains " << clipinput.size() << " elements " << endl;
                 //cout << "rasterize " << clipinput[0].ViewSpacePos() << clipinput[cv].ViewSpacePos() << clipinput[cv+1].ViewSpacePos() << endl;
-                rasterizer_->rasterize(&clipinput[0], &clipinput[cv], &clipinput[cv+1]);
+                rasterizer_->Rasterize(&clipinput[0], &clipinput[cv], &clipinput[cv+1]);
             }
         }
     }
@@ -241,20 +241,20 @@ void RenderPipeline::DrawBoundingBox() {
     }
 
     // front
-    rasterizer_->line(ssaabb[0].x, ssaabb[0].y, ssaabb[1].x, ssaabb[1].y, (view_space_aabb_[0].z + view_space_aabb_[1].z)/2.0);
-    rasterizer_->line(ssaabb[1].x, ssaabb[1].y, ssaabb[3].x, ssaabb[3].y, (view_space_aabb_[1].z + view_space_aabb_[3].z)/2.0);
-    rasterizer_->line(ssaabb[3].x, ssaabb[3].y, ssaabb[2].x, ssaabb[2].y, (view_space_aabb_[3].z + view_space_aabb_[2].z)/2.0);
-    rasterizer_->line(ssaabb[2].x, ssaabb[2].y, ssaabb[0].x, ssaabb[0].y, (view_space_aabb_[2].z + view_space_aabb_[0].z)/2.0);
+    rasterizer_->Line(ssaabb[0].x, ssaabb[0].y, ssaabb[1].x, ssaabb[1].y, (view_space_aabb_[0].z + view_space_aabb_[1].z)/2.0);
+    rasterizer_->Line(ssaabb[1].x, ssaabb[1].y, ssaabb[3].x, ssaabb[3].y, (view_space_aabb_[1].z + view_space_aabb_[3].z)/2.0);
+    rasterizer_->Line(ssaabb[3].x, ssaabb[3].y, ssaabb[2].x, ssaabb[2].y, (view_space_aabb_[3].z + view_space_aabb_[2].z)/2.0);
+    rasterizer_->Line(ssaabb[2].x, ssaabb[2].y, ssaabb[0].x, ssaabb[0].y, (view_space_aabb_[2].z + view_space_aabb_[0].z)/2.0);
 
     // back
-    rasterizer_->line(ssaabb[4].x, ssaabb[4].y, ssaabb[5].x, ssaabb[5].y, (view_space_aabb_[4].z + view_space_aabb_[5].z)/2.0);
-    rasterizer_->line(ssaabb[5].x, ssaabb[5].y, ssaabb[7].x, ssaabb[7].y, (view_space_aabb_[5].z + view_space_aabb_[7].z)/2.0);
-    rasterizer_->line(ssaabb[7].x, ssaabb[7].y, ssaabb[6].x, ssaabb[6].y, (view_space_aabb_[7].z + view_space_aabb_[6].z)/2.0);
-    rasterizer_->line(ssaabb[6].x, ssaabb[6].y, ssaabb[4].x, ssaabb[4].y, (view_space_aabb_[6].z + view_space_aabb_[4].z)/2.0);
+    rasterizer_->Line(ssaabb[4].x, ssaabb[4].y, ssaabb[5].x, ssaabb[5].y, (view_space_aabb_[4].z + view_space_aabb_[5].z)/2.0);
+    rasterizer_->Line(ssaabb[5].x, ssaabb[5].y, ssaabb[7].x, ssaabb[7].y, (view_space_aabb_[5].z + view_space_aabb_[7].z)/2.0);
+    rasterizer_->Line(ssaabb[7].x, ssaabb[7].y, ssaabb[6].x, ssaabb[6].y, (view_space_aabb_[7].z + view_space_aabb_[6].z)/2.0);
+    rasterizer_->Line(ssaabb[6].x, ssaabb[6].y, ssaabb[4].x, ssaabb[4].y, (view_space_aabb_[6].z + view_space_aabb_[4].z)/2.0);
 
     // between front/back
-    rasterizer_->line(ssaabb[0].x, ssaabb[0].y, ssaabb[4].x, ssaabb[4].y, (view_space_aabb_[0].z + view_space_aabb_[4].z)/2.0);
-    rasterizer_->line(ssaabb[1].x, ssaabb[1].y, ssaabb[5].x, ssaabb[5].y, (view_space_aabb_[1].z + view_space_aabb_[5].z)/2.0);
-    rasterizer_->line(ssaabb[3].x, ssaabb[3].y, ssaabb[7].x, ssaabb[7].y, (view_space_aabb_[3].z + view_space_aabb_[7].z)/2.0);
-    rasterizer_->line(ssaabb[2].x, ssaabb[2].y, ssaabb[6].x, ssaabb[6].y, (view_space_aabb_[2].z + view_space_aabb_[6].z)/2.0);
+    rasterizer_->Line(ssaabb[0].x, ssaabb[0].y, ssaabb[4].x, ssaabb[4].y, (view_space_aabb_[0].z + view_space_aabb_[4].z)/2.0);
+    rasterizer_->Line(ssaabb[1].x, ssaabb[1].y, ssaabb[5].x, ssaabb[5].y, (view_space_aabb_[1].z + view_space_aabb_[5].z)/2.0);
+    rasterizer_->Line(ssaabb[3].x, ssaabb[3].y, ssaabb[7].x, ssaabb[7].y, (view_space_aabb_[3].z + view_space_aabb_[7].z)/2.0);
+    rasterizer_->Line(ssaabb[2].x, ssaabb[2].y, ssaabb[6].x, ssaabb[6].y, (view_space_aabb_[2].z + view_space_aabb_[6].z)/2.0);
 }

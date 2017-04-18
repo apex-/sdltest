@@ -110,8 +110,8 @@ int main(int argc, char* argv[]) {
         MoveCamera(cam_xv_, cam_yv_, cam_zv_);
 
         num_frame++;
-        rasterizer.clearFramebuffer();
-        rasterizer.clearZBuffer();
+        rasterizer.ClearFramebuffer();
+        rasterizer.ClearZBuffer();
 
         monkey_1.Transformation().rot.rotate(r1, num_frame*-0.01);
 
